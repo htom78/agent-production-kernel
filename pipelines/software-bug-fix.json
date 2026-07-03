@@ -1,0 +1,70 @@
+{
+  "name": "software-bug-fix",
+  "version": "1.0",
+  "category": "software_engineering",
+  "description": "Bug repair pipeline that separates product root cause from system/process root cause, then turns the failure into a regression and knowledge update.",
+  "stages": [
+    {
+      "name": "reproduce",
+      "skill": "packs/software/bug-reproducer",
+      "produces": ["bug_report"],
+      "tools_available": ["repo_search", "test_runner", "browser_probe"],
+      "review_focus": ["Reproduction steps are concrete", "Observed and expected behavior are both stated", "Evidence is external to the agent claim"],
+      "success_criteria": ["requires:issue_id", "requires:observed_behavior", "requires:reproduction_steps"]
+    },
+    {
+      "name": "root_cause",
+      "skill": "packs/software/root-cause-analyst",
+      "required_artifacts_in": ["bug_report"],
+      "produces": ["root_cause_report"],
+      "tools_available": ["repo_search", "call_graph_probe", "test_runner"],
+      "review_focus": ["Root cause cites code or behavior evidence", "Failure family is reusable", "Confidence is calibrated"],
+      "success_criteria": ["requires:root_cause", "requires:failure_family"]
+    },
+    {
+      "name": "system_fault",
+      "skill": "packs/software/system-fault-analyst",
+      "required_artifacts_in": ["root_cause_report"],
+      "produces": ["system_fault_report", "decision_log"],
+      "tools_available": ["harness_editor", "schema_checker", "eval_case_writer"],
+      "review_focus": ["At least one missing guardrail is identified", "Decision log considers product-only vs system-first repair", "Prevention is specific enough to implement"],
+      "success_criteria": ["requires:fix_system_first", "requires:system_faults"]
+    },
+    {
+      "name": "product_patch",
+      "skill": "packs/software/product-patch-planner",
+      "required_artifacts_in": ["system_fault_report"],
+      "produces": ["patch_plan"],
+      "tools_available": ["repo_search", "patch_applier", "test_runner"],
+      "review_focus": ["Patch plan is minimal", "Risk and rollback plan are explicit", "Verification commands match blast radius"],
+      "success_criteria": ["requires:changes", "requires:verification_commands", "requires:rollback_plan"]
+    },
+    {
+      "name": "verification",
+      "skill": "packs/software/verifier",
+      "required_artifacts_in": ["patch_plan"],
+      "produces": ["verification_report"],
+      "tools_available": ["test_runner", "typecheck_runner", "lint_runner", "runtime_probe"],
+      "review_focus": ["Verification evidence is command-backed", "Blocked checks are called blocked, not passed", "Scope matches the patch risk"],
+      "success_criteria": ["requires:overall_status", "requires:commands"]
+    },
+    {
+      "name": "regression",
+      "skill": "packs/software/regression-writer",
+      "required_artifacts_in": ["verification_report"],
+      "produces": ["regression_case"],
+      "tools_available": ["eval_case_writer", "replay_harness"],
+      "review_focus": ["Regression captures the failure family, not just one symptom", "Replay command is explicit"],
+      "success_criteria": ["requires:expected_guard", "requires:replay_command"]
+    },
+    {
+      "name": "knowledge_update",
+      "skill": "packs/software/knowledge-curator",
+      "required_artifacts_in": ["regression_case"],
+      "produces": ["knowledge_update"],
+      "tools_available": ["skill_editor", "schema_checker"],
+      "review_focus": ["Knowledge update has a concrete trigger", "Update target is scoped", "No broad process change without evidence"],
+      "success_criteria": ["requires:target", "requires:trigger", "requires:summary"]
+    }
+  ]
+}

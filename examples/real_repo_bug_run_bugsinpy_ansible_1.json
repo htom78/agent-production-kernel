@@ -1,0 +1,51 @@
+{
+  "bug_branch": "25c5388fdec9e56517a93feb5e8d485680946c25",
+  "bug_commit": "25c5388fdec9e56517a93feb5e8d485680946c25",
+  "checkpoint_refs": [
+    ".apk/real-bug-runs/bugsinpy-ansible-1/software-bug-fix/checkpoint_reproduce.json",
+    ".apk/real-bug-runs/bugsinpy-ansible-1/software-bug-fix/checkpoint_root_cause.json",
+    ".apk/real-bug-runs/bugsinpy-ansible-1/software-bug-fix/checkpoint_system_fault.json",
+    ".apk/real-bug-runs/bugsinpy-ansible-1/software-bug-fix/checkpoint_product_patch.json",
+    ".apk/real-bug-runs/bugsinpy-ansible-1/software-bug-fix/checkpoint_verification.json",
+    ".apk/real-bug-runs/bugsinpy-ansible-1/software-bug-fix/checkpoint_regression.json",
+    ".apk/real-bug-runs/bugsinpy-ansible-1/software-bug-fix/checkpoint_knowledge_update.json"
+  ],
+  "failing_command": {
+    "artifact_refs": [
+      "bug_report"
+    ],
+    "command": "PATH=/Users/tom/Documents/New project/agent-production-kernel/.apk/corpus-shims/bugsinpy-ansible-1:$PATH PYTHONPATH=<repo> pytest test/units/galaxy/test_collection.py::test_verify_collections_no_version",
+    "commit_sha": "25c5388fdec9e56517a93feb5e8d485680946c25",
+    "exit_code": 1,
+    "status": "fail",
+    "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_digest": "sha256:07c51c10eb3464f7022024deec483dc0d798bb648661ace063d6832e5a40413a",
+    "timestamp": "2026-06-30T11:45:02.586334+00:00",
+    "tool_version": "Python 3.9.21"
+  },
+  "fix_branch": "343ffaa18b63c92e182b16c3ad84b8d81ca4df69",
+  "fix_commit": "343ffaa18b63c92e182b16c3ad84b8d81ca4df69",
+  "passing_command": {
+    "artifact_refs": [
+      "patch_plan"
+    ],
+    "command": "PATH=/Users/tom/Documents/New project/agent-production-kernel/.apk/corpus-shims/bugsinpy-ansible-1:$PATH PYTHONPATH=<repo> pytest test/units/galaxy/test_collection.py::test_verify_collections_no_version",
+    "commit_sha": "343ffaa18b63c92e182b16c3ad84b8d81ca4df69",
+    "exit_code": 0,
+    "status": "pass",
+    "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_digest": "sha256:9a7a0c58b49830d8783e49bfd8250e29d03e6d64b91fb4d418188f60cc794ac3",
+    "timestamp": "2026-06-30T11:45:03.120176+00:00",
+    "tool_version": "Python 3.9.21"
+  },
+  "public_refs": [
+    "https://github.com/ansible/ansible",
+    "https://github.com/ansible/ansible/tree/25c5388fdec9e56517a93feb5e8d485680946c25",
+    "https://github.com/ansible/ansible/tree/343ffaa18b63c92e182b16c3ad84b8d81ca4df69",
+    "https://github.com/soarsmu/BugsInPy/tree/master/projects/ansible/bugs/1"
+  ],
+  "repo_path": "/Users/tom/Documents/New project/agent-production-kernel/.apk/corpus-candidates/ansible/repo",
+  "repo_url": "https://github.com/ansible/ansible",
+  "run_id": "bugsinpy-ansible-1",
+  "version": "1.0"
+}

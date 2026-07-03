@@ -1,0 +1,50 @@
+{
+  "corpus_id": "real-repo-bug-corpus",
+  "entries": [
+    {
+      "artifact_file": "examples/real_repo_bug_run_fixture.json",
+      "author_owned": true,
+      "failure_family": "state_key_under_specification",
+      "repo_url": "https://github.com/htom78/apk-real-bug-demo",
+      "run_id": "real-repo-privacy-cache"
+    },
+    {
+      "artifact_file": "examples/real_repo_bug_run_bugsinpy_youtube_dl_1.json",
+      "author_owned": false,
+      "failure_family": "string_pattern_matching",
+      "repo_url": "https://github.com/ytdl-org/youtube-dl",
+      "run_id": "bugsinpy-youtube-dl-1"
+    },
+    {
+      "artifact_file": "examples/real_repo_bug_run_bugsinpy_tornado_1.json",
+      "author_owned": false,
+      "failure_family": "network_option_contract",
+      "repo_url": "https://github.com/tornadoweb/tornado",
+      "run_id": "bugsinpy-tornado-1"
+    },
+    {
+      "artifact_file": "examples/real_repo_bug_run_bugsinpy_ansible_1.json",
+      "author_owned": false,
+      "failure_family": "api_shape_contract",
+      "repo_url": "https://github.com/ansible/ansible",
+      "run_id": "bugsinpy-ansible-1"
+    },
+    {
+      "artifact_file": "examples/real_repo_bug_run_bugsinpy_thefuck_1.json",
+      "author_owned": false,
+      "failure_family": "command_parser_regex",
+      "repo_url": "https://github.com/nvbn/thefuck",
+      "run_id": "bugsinpy-thefuck-1"
+    },
+    {
+      "artifact_file": "examples/real_repo_bug_run_bugsinpy_black_1.json",
+      "author_owned": false,
+      "failure_family": "runtime_environment_assumption",
+      "repo_url": "https://github.com/psf/black",
+      "run_id": "bugsinpy-black-1"
+    }
+  ],
+  "target_failure_family_count": 3,
+  "target_repo_count": 5,
+  "version": "1.0"
+}

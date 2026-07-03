@@ -1,0 +1,62 @@
+{
+  "version": "1.0",
+  "principle": "External projects provide execution, eval, trace, sandbox, or durable-loop primitives. The kernel keeps the source of truth.",
+  "adapters": [
+    {
+      "name": "swe_bench_patch_loop",
+      "inspired_by": ["SWE-bench", "SWE-agent"],
+      "phase": 3,
+      "integration_mode": "replay_and_patch_evaluation",
+      "provides": ["real_issue_fixture", "patch_evaluation", "repository_task_benchmark"],
+      "kernel_mapping": {
+        "input": ["bug_report", "root_cause_report"],
+        "output": ["patch_plan", "verification_report", "regression_case"],
+        "decision_categories": ["benchmark_selection", "patch_loop_selection"]
+      },
+      "trust_boundary": "Benchmark pass is evidence for the selected scenario, not proof of product readiness.",
+      "not_core_reason": "SWE-style loops evaluate patch behavior; they do not define the production protocol."
+    },
+    {
+      "name": "openhands_sandbox_runtime",
+      "inspired_by": ["OpenHands", "software-agent-sdk"],
+      "phase": 3,
+      "integration_mode": "workspace_runtime",
+      "provides": ["sandboxed_workspace", "ephemeral_environment", "agent_server"],
+      "kernel_mapping": {
+        "input": ["patch_plan"],
+        "output": ["verification_report", "release_report"],
+        "decision_categories": ["runtime_selection", "sandbox_policy"]
+      },
+      "trust_boundary": "Sandbox result must be checkpointed as verification evidence before it matters.",
+      "not_core_reason": "Runtime execution is replaceable; checkpoint contracts are not."
+    },
+    {
+      "name": "langgraph_durable_loop",
+      "inspired_by": ["LangGraph durable execution", "human-in-the-loop"],
+      "phase": 3,
+      "integration_mode": "durable_execution_optional",
+      "provides": ["interrupt_resume", "state_persistence", "human_approval_hooks"],
+      "kernel_mapping": {
+        "input": ["pipeline_manifest", "checkpoint"],
+        "output": ["checkpoint"],
+        "decision_categories": ["execution_runtime_selection"]
+      },
+      "trust_boundary": "Durable executor may resume work, but cannot bypass schema validation or approval gates.",
+      "not_core_reason": "The kernel already defines stage state; durable runtime is an implementation choice."
+    },
+    {
+      "name": "deepeval_promptfoo_opik_eval_trace",
+      "inspired_by": ["DeepEval", "Promptfoo", "Opik"],
+      "phase": 3,
+      "integration_mode": "eval_trace_adapter",
+      "provides": ["llm_eval", "red_team_cases", "trace_experiments", "ci_gates"],
+      "kernel_mapping": {
+        "input": ["regression_case", "verification_report"],
+        "output": ["verification_report", "knowledge_update"],
+        "decision_categories": ["eval_provider_selection", "trace_policy"]
+      },
+      "trust_boundary": "LLM-as-judge results are advisory unless backed by deterministic fixtures or human approval.",
+      "not_core_reason": "Evaluation tools strengthen gates; they do not replace artifact schemas."
+    }
+  ]
+}

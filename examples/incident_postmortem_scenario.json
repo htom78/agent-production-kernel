@@ -1,0 +1,15 @@
+{
+  "run_id": "demo-incident-postmortem",
+  "pipeline": "software-incident-postmortem",
+  "incident_id": "INC-001",
+  "impact": "A release was marked ready with incomplete verification evidence.",
+  "timeline": [
+    "2026-06-30T10:00:00Z release gate accepted string evidence",
+    "2026-06-30T10:15:00Z missing blocked check was discovered"
+  ],
+  "mitigation": "Require structured command evidence before release approval.",
+  "followups": [
+    "Add schema-level command evidence",
+    "Add release gate negative tests"
+  ]
+}

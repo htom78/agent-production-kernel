@@ -1,0 +1,33 @@
+{
+  "name": "real-repo-corpus-approval-boundary",
+  "pipeline": "real-repo-corpus",
+  "tags": ["real-repo", "corpus", "regression"],
+  "inputs": {
+    "corpus_id": "real-repo-bug-corpus"
+  },
+  "expected_artifacts": {
+    "real_repo_corpus_report": {
+      "summary": {
+        "target_met": true,
+        "non_author_repo_count": 5,
+        "missing_non_author_repos": 0,
+        "missing_failure_families": 0,
+        "failure_family_count": 6
+      },
+      "freshness": {
+        "producer_roundtrip_status": "pass",
+        "artifact_source": "checked_in_manifest_artifacts",
+        "external_execution": false,
+        "live_artifact_count": 6,
+        "fresh_live_artifact_count": 0,
+        "stale_live_artifact_count": 6
+      },
+      "approval_boundary": {
+        "required": false,
+        "status": "not_required",
+        "requested_actions": [],
+        "prohibited_without_approval": []
+      }
+    }
+  }
+}

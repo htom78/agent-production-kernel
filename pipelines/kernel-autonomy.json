@@ -1,0 +1,16 @@
+{
+  "name": "kernel-autonomy",
+  "version": "1.0",
+  "category": "kernel_governance",
+  "description": "Bounded self-driving loop that executes only safe allowlisted next actions.",
+  "stages": [
+    {
+      "name": "select_next_action",
+      "skill": "packs/software/autonomy-runner",
+      "produces": ["autonomy_run_report"],
+      "tools_available": ["autonomy_runner", "test_runner", "replay_harness"],
+      "review_focus": ["Unsafe actions stop with a blocked checkpoint", "Executed actions use allowlisted local commands"],
+      "success_criteria": ["requires:decision", "requires:stop_reason"]
+    }
+  ]
+}

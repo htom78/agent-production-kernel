@@ -1,0 +1,14 @@
+{
+  "artifact": "patch_plan",
+  "type": "object",
+  "required": ["version", "issue_id", "risk_level", "changes", "verification_commands", "rollback_plan"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {"type": "string", "const": "1.0"},
+    "issue_id": {"type": "string", "minLength": 1},
+    "risk_level": {"type": "string", "enum": ["low", "medium", "high"]},
+    "changes": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+    "verification_commands": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+    "rollback_plan": {"type": "string", "minLength": 1}
+  }
+}

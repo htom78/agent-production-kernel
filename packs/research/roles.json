@@ -1,0 +1,56 @@
+{
+  "version": "1.0",
+  "handoff_rule": "Research roles hand off only through scoped questions, evidence artifacts, review findings, and briefs.",
+  "roles": [
+    {
+      "name": "research_planner",
+      "owns_stages": ["scope_question"],
+      "allowed_inputs": ["topic", "constraints"],
+      "required_outputs": ["research_question"],
+      "must_not": ["turn a broad topic into an unbounded literature review"],
+      "review_by": ["research_reviewer"],
+      "approval_by": []
+    },
+    {
+      "name": "evidence_curator",
+      "owns_stages": ["gather_evidence"],
+      "allowed_inputs": ["research_question"],
+      "required_outputs": ["source_evidence"],
+      "must_not": ["hide uncertainty or omit source reliability"],
+      "review_by": ["research_reviewer"],
+      "approval_by": []
+    },
+    {
+      "name": "synthesis_writer",
+      "owns_stages": ["synthesize"],
+      "allowed_inputs": ["source_evidence"],
+      "required_outputs": ["research_brief"],
+      "must_not": ["state conclusions that are not supported by evidence"],
+      "review_by": ["research_reviewer"],
+      "approval_by": []
+    },
+    {
+      "name": "research_reviewer",
+      "owns_stages": ["all"],
+      "allowed_inputs": ["research_question", "source_evidence", "research_brief"],
+      "required_outputs": ["review"],
+      "must_not": ["accept unsupported claims"],
+      "review_by": [],
+      "approval_by": []
+    }
+  ],
+  "handoff_artifacts": [
+    {
+      "from": "research_planner",
+      "to": "evidence_curator",
+      "artifact": "research_question",
+      "required_review": "pass"
+    },
+    {
+      "from": "evidence_curator",
+      "to": "synthesis_writer",
+      "artifact": "source_evidence",
+      "required_review": "pass"
+    }
+  ]
+}

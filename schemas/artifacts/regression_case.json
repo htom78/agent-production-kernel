@@ -1,0 +1,14 @@
+{
+  "artifact": "regression_case",
+  "type": "object",
+  "required": ["version", "id", "source_issue_id", "fixture", "expected_guard", "replay_command"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {"type": "string", "const": "1.0"},
+    "id": {"type": "string", "minLength": 1},
+    "source_issue_id": {"type": "string", "minLength": 1},
+    "fixture": {"type": "string", "minLength": 1},
+    "expected_guard": {"type": "string", "minLength": 1},
+    "replay_command": {"type": "string", "minLength": 1}
+  }
+}

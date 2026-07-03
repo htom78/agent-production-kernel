@@ -1,0 +1,27 @@
+{
+  "name": "checkpoint-blocked-branch",
+  "pipeline": "checkpoint-branch-replay",
+  "tags": ["branch-replay", "regression", "blocked"],
+  "inputs": {
+    "run_id": "branch-replay-fixture"
+  },
+  "expected_artifacts": {
+    "checkpoint_branch_replay": {
+      "states": [
+        {
+          "stage": "external_dependency",
+          "status": "blocked"
+        }
+      ]
+    }
+  },
+  "expected_checkpoints": {
+    "external_dependency": {
+      "status": "blocked",
+      "metadata": {
+        "actor_role": "verifier",
+        "requires_user_choice": true
+      }
+    }
+  }
+}

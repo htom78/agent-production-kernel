@@ -1,0 +1,51 @@
+{
+  "bug_branch": "26c9465a22c732ab1e17b0dec578fa3432e9b558",
+  "bug_commit": "26c9465a22c732ab1e17b0dec578fa3432e9b558",
+  "checkpoint_refs": [
+    ".apk/real-bug-runs/bugsinpy-black-1/software-bug-fix/checkpoint_reproduce.json",
+    ".apk/real-bug-runs/bugsinpy-black-1/software-bug-fix/checkpoint_root_cause.json",
+    ".apk/real-bug-runs/bugsinpy-black-1/software-bug-fix/checkpoint_system_fault.json",
+    ".apk/real-bug-runs/bugsinpy-black-1/software-bug-fix/checkpoint_product_patch.json",
+    ".apk/real-bug-runs/bugsinpy-black-1/software-bug-fix/checkpoint_verification.json",
+    ".apk/real-bug-runs/bugsinpy-black-1/software-bug-fix/checkpoint_regression.json",
+    ".apk/real-bug-runs/bugsinpy-black-1/software-bug-fix/checkpoint_knowledge_update.json"
+  ],
+  "failing_command": {
+    "artifact_refs": [
+      "bug_report"
+    ],
+    "command": "PATH=/Users/tom/Documents/New project/agent-production-kernel/.apk/corpus-shims/bugsinpy-black-1:$PATH PYTHONPATH=<repo> python -m unittest -q tests.test_black.BlackTestCase.test_works_in_mono_process_only_environment",
+    "commit_sha": "26c9465a22c732ab1e17b0dec578fa3432e9b558",
+    "exit_code": 1,
+    "status": "fail",
+    "stderr_digest": "sha256:55bc9f35216a086b38d2520aa0756ba2ce6c8e31bd6d721ac5772f12e3d33dda",
+    "stdout_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "timestamp": "2026-06-30T11:45:10.915877+00:00",
+    "tool_version": "Python 3.9.21"
+  },
+  "fix_branch": "c0a7582e3d4cc8bec3b7f5a6c52b36880dcb57d7",
+  "fix_commit": "c0a7582e3d4cc8bec3b7f5a6c52b36880dcb57d7",
+  "passing_command": {
+    "artifact_refs": [
+      "patch_plan"
+    ],
+    "command": "PATH=/Users/tom/Documents/New project/agent-production-kernel/.apk/corpus-shims/bugsinpy-black-1:$PATH PYTHONPATH=<repo> python -m unittest -q tests.test_black.BlackTestCase.test_works_in_mono_process_only_environment",
+    "commit_sha": "c0a7582e3d4cc8bec3b7f5a6c52b36880dcb57d7",
+    "exit_code": 0,
+    "status": "pass",
+    "stderr_digest": "sha256:e9950ee66c24b454b6875fd8f00c480545608bb1b164894fc59747d2e3165806",
+    "stdout_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "timestamp": "2026-06-30T11:45:13.365190+00:00",
+    "tool_version": "Python 3.9.21"
+  },
+  "public_refs": [
+    "https://github.com/psf/black",
+    "https://github.com/psf/black/tree/26c9465a22c732ab1e17b0dec578fa3432e9b558",
+    "https://github.com/psf/black/tree/c0a7582e3d4cc8bec3b7f5a6c52b36880dcb57d7",
+    "https://github.com/soarsmu/BugsInPy/tree/master/projects/black/bugs/1"
+  ],
+  "repo_path": "/Users/tom/Documents/New project/agent-production-kernel/.apk/corpus-candidates/black/repo",
+  "repo_url": "https://github.com/psf/black",
+  "run_id": "bugsinpy-black-1",
+  "version": "1.0"
+}

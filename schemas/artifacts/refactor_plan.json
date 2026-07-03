@@ -1,0 +1,13 @@
+{
+  "artifact": "refactor_plan",
+  "type": "object",
+  "required": ["version", "target", "invariants", "safe_steps", "verification_commands"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {"type": "string", "const": "1.0"},
+    "target": {"type": "string", "minLength": 1},
+    "invariants": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+    "safe_steps": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+    "verification_commands": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}}
+  }
+}

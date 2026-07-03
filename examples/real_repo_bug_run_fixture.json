@@ -1,0 +1,45 @@
+{
+  "bug_branch": "main",
+  "bug_commit": "90d5cf1a0fa7340a3ea7d65f88eb27253396b890",
+  "checkpoint_refs": [
+    ".apk/real-bug-runs/real-repo-privacy-cache/software-bug-fix/checkpoint_reproduce.json",
+    ".apk/real-bug-runs/real-repo-privacy-cache/software-bug-fix/checkpoint_root_cause.json",
+    ".apk/real-bug-runs/real-repo-privacy-cache/software-bug-fix/checkpoint_system_fault.json",
+    ".apk/real-bug-runs/real-repo-privacy-cache/software-bug-fix/checkpoint_product_patch.json",
+    ".apk/real-bug-runs/real-repo-privacy-cache/software-bug-fix/checkpoint_verification.json",
+    ".apk/real-bug-runs/real-repo-privacy-cache/software-bug-fix/checkpoint_regression.json",
+    ".apk/real-bug-runs/real-repo-privacy-cache/software-bug-fix/checkpoint_knowledge_update.json"
+  ],
+  "failing_command": {
+    "artifact_refs": ["bug_report"],
+    "command": "PYTHONPATH=src python3 -m unittest discover -s tests -v",
+    "commit_sha": "90d5cf1a0fa7340a3ea7d65f88eb27253396b890",
+    "exit_code": 1,
+    "status": "fail",
+    "stderr_digest": "sha256:ab7a05b14486229672e4e95932a81fd444c662586ed8165732017cd30adaafcf",
+    "stdout_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "timestamp": "2026-06-30T09:06:15.774321+00:00",
+    "tool_version": "python 3.14.6"
+  },
+  "fix_branch": "fix/privacy-cache-key",
+  "fix_commit": "49944608ef05991a89694b5ca52c93ff83da3c45",
+  "passing_command": {
+    "artifact_refs": ["patch_plan"],
+    "command": "PYTHONPATH=src python3 -m unittest discover -s tests -v",
+    "commit_sha": "49944608ef05991a89694b5ca52c93ff83da3c45",
+    "exit_code": 0,
+    "status": "pass",
+    "stderr_digest": "sha256:9acdc14826062f3079944ea0aa8a0e6d5bdaf90a5565fc8e7b8867b2b8dd9672",
+    "stdout_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "timestamp": "2026-06-30T09:06:15.874079+00:00",
+    "tool_version": "python 3.14.6"
+  },
+  "public_refs": [
+    "https://github.com/htom78/apk-real-bug-demo",
+    "https://github.com/htom78/apk-real-bug-demo/tree/fix/privacy-cache-key"
+  ],
+  "repo_path": "/Users/tom/Documents/New project/apk-real-bug-demo",
+  "repo_url": "https://github.com/htom78/apk-real-bug-demo",
+  "run_id": "real-repo-privacy-cache",
+  "version": "1.0"
+}

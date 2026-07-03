@@ -1,0 +1,24 @@
+{
+  "name": "real-repo-corpus-boundary-failure-detected",
+  "pipeline": "real-repo-corpus",
+  "tags": ["real-repo", "corpus", "regression", "negative"],
+  "expected_result": "fail",
+  "inputs": {
+    "corpus_id": "real-repo-bug-corpus"
+  },
+  "mutations": [
+    {
+      "path": "artifacts.real_repo_corpus_report.approval_boundary.status",
+      "value": "awaiting_human"
+    }
+  ],
+  "expected_errors_contain": ["real_repo_corpus_report.approval_boundary.status"],
+  "expected_artifacts": {
+    "real_repo_corpus_report": {
+      "approval_boundary": {
+        "required": false,
+        "status": "not_required"
+      }
+    }
+  }
+}

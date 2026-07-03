@@ -1,0 +1,128 @@
+{
+  "artifact": "real_repo_corpus_report",
+  "type": "object",
+  "required": [
+    "version",
+    "corpus_id",
+    "target_repo_count",
+    "target_failure_family_count",
+    "entries",
+    "summary",
+    "freshness",
+    "approval_boundary"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "version": {"type": "string", "const": "1.0"},
+    "corpus_id": {"type": "string", "minLength": 1},
+    "target_repo_count": {"type": "integer", "minimum": 1},
+    "target_failure_family_count": {"type": "integer", "minimum": 1},
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "run_id",
+          "repo_url",
+          "artifact_file",
+          "failure_family",
+          "author_owned",
+          "bug_commit",
+          "fix_commit",
+          "failing_command_timestamp",
+          "passing_command_timestamp",
+          "status"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "run_id": {"type": "string", "minLength": 1},
+          "repo_url": {"type": "string", "minLength": 1},
+          "artifact_file": {"type": "string", "minLength": 1},
+          "failure_family": {"type": "string", "minLength": 1},
+          "author_owned": {"type": "boolean"},
+          "bug_commit": {"type": "string", "minLength": 1},
+          "fix_commit": {"type": "string", "minLength": 1},
+          "failing_command_timestamp": {"type": "string", "minLength": 1},
+          "passing_command_timestamp": {"type": "string", "minLength": 1},
+          "status": {"type": "string", "enum": ["verified", "blocked"]}
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": [
+        "total_repo_count",
+        "non_author_repo_count",
+        "failure_family_count",
+        "target_met",
+        "missing_non_author_repos",
+        "missing_failure_families"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "total_repo_count": {"type": "integer", "minimum": 0},
+        "non_author_repo_count": {"type": "integer", "minimum": 0},
+        "failure_family_count": {"type": "integer", "minimum": 0},
+        "target_met": {"type": "boolean"},
+        "missing_non_author_repos": {"type": "integer", "minimum": 0},
+        "missing_failure_families": {"type": "integer", "minimum": 0}
+      }
+    },
+    "freshness": {
+      "type": "object",
+      "required": [
+        "producer_roundtrip_status",
+        "producer_command",
+        "artifact_source",
+        "external_execution",
+        "fresh_artifact_count",
+        "unique_artifact_count",
+        "live_artifact_count",
+        "fresh_live_artifact_count",
+        "stale_live_artifact_count",
+        "freshness_window_hours",
+        "oldest_command_timestamp",
+        "latest_command_timestamp"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "producer_roundtrip_status": {"type": "string", "enum": ["pass", "fail", "not_checked"]},
+        "producer_command": {"type": "string", "minLength": 1},
+        "artifact_source": {"type": "string", "enum": ["checked_in_manifest_artifacts", "live_external_rerun"]},
+        "external_execution": {"type": "boolean"},
+        "fresh_artifact_count": {"type": "integer", "minimum": 0},
+        "unique_artifact_count": {"type": "integer", "minimum": 0},
+        "live_artifact_count": {"type": "integer", "minimum": 0},
+        "fresh_live_artifact_count": {"type": "integer", "minimum": 0},
+        "stale_live_artifact_count": {"type": "integer", "minimum": 0},
+        "freshness_window_hours": {"type": "number", "exclusiveMinimum": 0},
+        "oldest_command_timestamp": {"type": "string", "minLength": 1},
+        "latest_command_timestamp": {"type": "string", "minLength": 1}
+      }
+    },
+    "approval_boundary": {
+      "type": "object",
+      "required": [
+        "required",
+        "status",
+        "reason",
+        "requested_actions",
+        "prohibited_without_approval"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "required": {"type": "boolean"},
+        "status": {"type": "string", "enum": ["awaiting_human", "not_required"]},
+        "reason": {"type": "string", "minLength": 1},
+        "requested_actions": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1}
+        },
+        "prohibited_without_approval": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1}
+        }
+      }
+    }
+  }
+}

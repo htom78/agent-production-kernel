@@ -1,0 +1,32 @@
+{
+  "name": "release-evidence-failure-detected",
+  "pipeline": "software-release",
+  "tags": ["release", "regression", "negative"],
+  "expected_result": "fail",
+  "inputs": {
+    "release_id": "REL-001"
+  },
+  "mutations": [
+    {
+      "path": "artifacts.release_report.gates[0].evidence.status",
+      "value": "fail"
+    }
+  ],
+  "expected_errors_contain": ["release_report.gates"],
+  "expected_artifacts": {
+    "release_report": {
+      "status": "ready",
+      "gates": [
+        {
+          "name": "unit-tests",
+          "status": "pass",
+          "evidence": {
+            "status": "pass",
+            "exit_code": 0,
+            "artifact_refs": ["release_report"]
+          }
+        }
+      ]
+    }
+  }
+}

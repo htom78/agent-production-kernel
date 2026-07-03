@@ -1,0 +1,13 @@
+{
+  "artifact": "knowledge_update",
+  "type": "object",
+  "required": ["version", "target", "update_type", "trigger", "summary"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {"type": "string", "const": "1.0"},
+    "target": {"type": "string", "minLength": 1},
+    "update_type": {"type": "string", "enum": ["review_rule", "schema", "tool_contract", "skill", "documentation"]},
+    "trigger": {"type": "string", "minLength": 1},
+    "summary": {"type": "string", "minLength": 1}
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "name": "software-incident-postmortem",
+  "version": "1.0",
+  "category": "software_engineering",
+  "description": "Incident pipeline that turns operational failure into mitigation, root cause, system repair, and durable learning.",
+  "stages": [
+    {
+      "name": "incident",
+      "skill": "packs/software/incident-captain",
+      "produces": ["incident_report"],
+      "tools_available": ["runtime_probe", "log_collector"],
+      "review_focus": ["Impact and timeline are concrete", "Mitigation is separated from root cause"],
+      "success_criteria": ["requires:impact", "requires:timeline"]
+    },
+    {
+      "name": "root_cause",
+      "skill": "packs/software/root-cause-analyst",
+      "required_artifacts_in": ["incident_report"],
+      "produces": ["root_cause_report"],
+      "tools_available": ["repo_search", "log_collector", "runtime_probe"],
+      "review_focus": ["Root cause is evidence-backed"],
+      "success_criteria": ["requires:root_cause"]
+    },
+    {
+      "name": "system_fault",
+      "skill": "packs/software/system-fault-analyst",
+      "required_artifacts_in": ["root_cause_report"],
+      "produces": ["system_fault_report"],
+      "tools_available": ["harness_editor", "schema_checker"],
+      "review_focus": ["Prevention targets process or system gaps"],
+      "success_criteria": ["requires:system_faults"]
+    },
+    {
+      "name": "knowledge_update",
+      "skill": "packs/software/knowledge-curator",
+      "required_artifacts_in": ["system_fault_report"],
+      "produces": ["knowledge_update"],
+      "tools_available": ["skill_editor"],
+      "review_focus": ["Learning is specific, not blame-shaped"],
+      "success_criteria": ["requires:summary"]
+    }
+  ]
+}

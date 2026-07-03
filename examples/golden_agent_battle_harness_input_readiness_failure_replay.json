@@ -1,0 +1,23 @@
+{
+  "name": "agent-battle-harness-input-readiness-failure-detected",
+  "pipeline": "agent-battle-harness-input-readiness",
+  "tags": ["battle-harness", "regression", "negative"],
+  "expected_result": "fail",
+  "inputs": {
+    "run_id": "agent-battle-input-readiness-fixture"
+  },
+  "mutations": [
+    {
+      "path": "artifacts.agent_battle_harness_report.outcome.verdict",
+      "value": "advance"
+    }
+  ],
+  "expected_errors_contain": ["agent_battle_harness_report.outcome.verdict expected 'hold'"],
+  "expected_artifacts": {
+    "agent_battle_harness_report": {
+      "outcome": {
+        "verdict": "hold"
+      }
+    }
+  }
+}

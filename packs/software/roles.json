@@ -1,0 +1,137 @@
+{
+  "version": "1.0",
+  "handoff_rule": "Roles may communicate only through canonical artifacts, checkpoints, review findings, and decision-log entries.",
+  "roles": [
+    {
+      "name": "planner",
+      "owns_stages": ["spec", "invariants", "incident"],
+      "allowed_inputs": ["product_context", "repo_context", "runtime_context"],
+      "required_outputs": ["feature_spec", "refactor_plan", "incident_report"],
+      "must_not": ["turn a planning stage into an implementation stage"],
+      "review_by": ["reviewer"],
+      "approval_by": []
+    },
+    {
+      "name": "diagnoser",
+      "owns_stages": ["reproduce", "root_cause"],
+      "allowed_inputs": ["bug_report", "incident_report"],
+      "required_outputs": ["bug_report", "root_cause_report"],
+      "must_not": ["edit product code before reproduction evidence exists"],
+      "review_by": ["reviewer"],
+      "approval_by": []
+    },
+    {
+      "name": "system_repairer",
+      "owns_stages": ["system_fault", "regression", "knowledge_update"],
+      "allowed_inputs": ["root_cause_report", "system_fault_report"],
+      "required_outputs": ["system_fault_report", "regression_case", "knowledge_update"],
+      "must_not": ["replace a product patch with a vague process note"],
+      "review_by": ["reviewer"],
+      "approval_by": ["release_captain"]
+    },
+    {
+      "name": "implementer",
+      "owns_stages": ["product_patch", "implementation_plan", "patch_plan"],
+      "allowed_inputs": ["patch_plan", "feature_spec", "refactor_plan", "system_fault_report"],
+      "required_outputs": ["patch_plan", "verification_report"],
+      "must_not": ["expand scope beyond the approved patch plan without a decision-log entry"],
+      "review_by": ["reviewer"],
+      "approval_by": []
+    },
+    {
+      "name": "verifier",
+      "owns_stages": ["verification"],
+      "allowed_inputs": ["patch_plan", "feature_spec", "refactor_plan", "system_fault_report"],
+      "required_outputs": ["verification_report"],
+      "must_not": ["mark blocked or failing checks as pass"],
+      "review_by": ["reviewer"],
+      "approval_by": ["release_captain"]
+    },
+    {
+      "name": "reviewer",
+      "owns_stages": ["all"],
+      "allowed_inputs": ["any_stage_artifact"],
+      "required_outputs": ["review"],
+      "must_not": ["accept an artifact that fails its schema", "block indefinitely after the configured review limit"],
+      "review_by": ["release_captain"],
+      "approval_by": []
+    },
+    {
+      "name": "release_captain",
+      "owns_stages": ["release_gate", "release_readiness"],
+      "allowed_inputs": ["verification_report", "release_report", "decision_log"],
+      "required_outputs": ["release_report"],
+      "must_not": ["treat a narrow unit test as broad release evidence"],
+      "review_by": ["reviewer"],
+      "approval_by": ["human_operator"]
+    },
+    {
+      "name": "autonomy_runner",
+      "owns_stages": ["select_next_action"],
+      "allowed_inputs": ["self_assessment_report", "battle_report", "checkpoint"],
+      "required_outputs": ["autonomy_run_report"],
+      "must_not": ["execute external, destructive, costly, credentialed, or unknown actions without a blocked checkpoint"],
+      "review_by": ["reviewer"],
+      "approval_by": []
+    },
+    {
+      "name": "human_operator",
+      "owns_stages": ["approval"],
+      "allowed_inputs": ["checkpoint", "review", "decision_log", "release_report"],
+      "required_outputs": ["approval_decision"],
+      "must_not": ["approve hidden provider/runtime/scope changes"],
+      "review_by": [],
+      "approval_by": []
+    }
+  ],
+  "handoff_artifacts": [
+    {
+      "from": "planner",
+      "to": "diagnoser",
+      "artifact": "incident_report",
+      "required_review": "pass"
+    },
+    {
+      "from": "diagnoser",
+      "to": "system_repairer",
+      "artifact": "root_cause_report",
+      "required_review": "pass"
+    },
+    {
+      "from": "system_repairer",
+      "to": "implementer",
+      "artifact": "system_fault_report",
+      "required_review": "pass"
+    },
+    {
+      "from": "implementer",
+      "to": "verifier",
+      "artifact": "patch_plan",
+      "required_review": "pass"
+    },
+    {
+      "from": "planner",
+      "to": "implementer",
+      "artifact": "feature_spec",
+      "required_review": "pass"
+    },
+    {
+      "from": "planner",
+      "to": "implementer",
+      "artifact": "refactor_plan",
+      "required_review": "pass"
+    },
+    {
+      "from": "verifier",
+      "to": "release_captain",
+      "artifact": "verification_report",
+      "required_review": "pass"
+    },
+    {
+      "from": "verifier",
+      "to": "system_repairer",
+      "artifact": "verification_report",
+      "required_review": "pass"
+    }
+  ]
+}

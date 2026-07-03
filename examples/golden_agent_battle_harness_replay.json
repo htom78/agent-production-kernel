@@ -1,0 +1,34 @@
+{
+  "name": "agent-battle-harness-blind-veto-protocol",
+  "pipeline": "agent-battle-harness",
+  "tags": ["battle-harness", "regression"],
+  "inputs": {
+    "run_id": "agent-battle-harness-fixture"
+  },
+  "expected_artifacts": {
+    "agent_battle_harness_report": {
+      "protocol": {
+        "evidence_mode": "derived_report",
+        "independent_contexts": false,
+        "blind_review": true,
+        "critic_veto": true,
+        "minimum_score_to_advance": 95
+      },
+      "critic_veto": {
+        "enabled": true,
+        "active": false
+      },
+      "outcome": {
+        "verdict": "hold"
+      },
+      "judges": [
+        {
+          "role": "critic",
+          "source": "derived_battle_report",
+          "verdict": "advance",
+          "peer_scores_visible": false
+        }
+      ]
+    }
+  }
+}

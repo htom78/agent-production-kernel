@@ -1,0 +1,27 @@
+{
+  "name": "checkpoint-awaiting-human-branch",
+  "pipeline": "checkpoint-branch-replay",
+  "tags": ["branch-replay", "regression", "awaiting-human"],
+  "inputs": {
+    "run_id": "branch-replay-fixture"
+  },
+  "expected_artifacts": {
+    "checkpoint_branch_replay": {
+      "states": [
+        {
+          "stage": "approval_gate",
+          "status": "awaiting_human"
+        }
+      ]
+    }
+  },
+  "expected_checkpoints": {
+    "approval_gate": {
+      "status": "awaiting_human",
+      "metadata": {
+        "approval_required": true,
+        "actor_role": "release_captain"
+      }
+    }
+  }
+}

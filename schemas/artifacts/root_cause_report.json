@@ -1,0 +1,15 @@
+{
+  "artifact": "root_cause_report",
+  "type": "object",
+  "required": ["version", "issue_id", "root_cause", "failure_family", "affected_files", "evidence", "confidence"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {"type": "string", "const": "1.0"},
+    "issue_id": {"type": "string", "minLength": 1},
+    "root_cause": {"type": "string", "minLength": 1},
+    "failure_family": {"type": "string", "minLength": 1},
+    "affected_files": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "evidence": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+    "confidence": {"type": "number", "minimum": 0, "maximum": 1}
+  }
+}

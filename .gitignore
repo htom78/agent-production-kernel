@@ -1,0 +1,12 @@
+.apk/
+.trace-*/
+.pytest_cache/
+.coverage
+.DS_Store
+.venv/
+venv/
+dist/
+build/
+*.egg-info/
+__pycache__/
+*.pyc

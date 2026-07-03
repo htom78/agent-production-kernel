@@ -1,0 +1,76 @@
+{
+  "name": "feature-build-release-readiness",
+  "pipeline": "software-feature-build",
+  "tags": ["feature-build", "regression"],
+  "inputs": {
+    "feature_id": "FEAT-001"
+  },
+  "expected_artifacts": {
+    "feature_spec": {
+      "feature_id": "FEAT-001",
+      "acceptance_checks": ["Rollback plan is present"]
+    },
+    "verification_report": {
+      "overall_status": "pass",
+      "commands": [
+        {
+          "status": "pass",
+          "exit_code": 0,
+          "artifact_refs": ["feature_spec", "patch_plan"]
+        }
+      ]
+    },
+    "release_report": {
+      "status": "ready",
+      "gates": [
+        {
+          "name": "contract-tests",
+          "status": "pass",
+          "evidence": {
+            "status": "pass",
+            "exit_code": 0,
+            "artifact_refs": ["verification_report"]
+          }
+        }
+      ]
+    }
+  },
+  "expected_checkpoints": {
+    "spec": {
+      "metadata": {
+        "actor_role": "planner",
+        "execution_mode": "stage_executor"
+      },
+      "review": {
+        "decision": "pass"
+      }
+    },
+    "implementation_plan": {
+      "metadata": {
+        "actor_role": "implementer",
+        "execution_mode": "stage_executor"
+      },
+      "review": {
+        "decision": "pass"
+      }
+    },
+    "verification": {
+      "metadata": {
+        "actor_role": "verifier",
+        "execution_mode": "stage_executor"
+      },
+      "review": {
+        "decision": "pass"
+      }
+    },
+    "release_readiness": {
+      "metadata": {
+        "actor_role": "release_captain",
+        "execution_mode": "stage_executor"
+      },
+      "review": {
+        "decision": "pass"
+      }
+    }
+  }
+}

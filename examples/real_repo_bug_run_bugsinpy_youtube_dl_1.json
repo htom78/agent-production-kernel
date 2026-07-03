@@ -1,0 +1,51 @@
+{
+  "bug_branch": "99036a1298089068dcf80c0985bfcc3f8c24f281",
+  "bug_commit": "99036a1298089068dcf80c0985bfcc3f8c24f281",
+  "checkpoint_refs": [
+    ".apk/real-bug-runs/bugsinpy-youtube-dl-1/software-bug-fix/checkpoint_reproduce.json",
+    ".apk/real-bug-runs/bugsinpy-youtube-dl-1/software-bug-fix/checkpoint_root_cause.json",
+    ".apk/real-bug-runs/bugsinpy-youtube-dl-1/software-bug-fix/checkpoint_system_fault.json",
+    ".apk/real-bug-runs/bugsinpy-youtube-dl-1/software-bug-fix/checkpoint_product_patch.json",
+    ".apk/real-bug-runs/bugsinpy-youtube-dl-1/software-bug-fix/checkpoint_verification.json",
+    ".apk/real-bug-runs/bugsinpy-youtube-dl-1/software-bug-fix/checkpoint_regression.json",
+    ".apk/real-bug-runs/bugsinpy-youtube-dl-1/software-bug-fix/checkpoint_knowledge_update.json"
+  ],
+  "failing_command": {
+    "artifact_refs": [
+      "bug_report"
+    ],
+    "command": "PATH=/Users/tom/Documents/New project/agent-production-kernel/.apk/corpus-shims/bugsinpy-youtube-dl-1:$PATH PYTHONPATH=<repo> python -m unittest -q test.test_utils.TestUtil.test_match_str",
+    "commit_sha": "99036a1298089068dcf80c0985bfcc3f8c24f281",
+    "exit_code": 1,
+    "status": "fail",
+    "stderr_digest": "sha256:763a2259504680523150a312423a7c75b00850ec596ca119cd8d5ca7bb62f9b9",
+    "stdout_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "timestamp": "2026-06-30T11:44:58.200933+00:00",
+    "tool_version": "Python 3.9.21"
+  },
+  "fix_branch": "1cc47c667419e0eadc0a6989256ab7b276852adf",
+  "fix_commit": "1cc47c667419e0eadc0a6989256ab7b276852adf",
+  "passing_command": {
+    "artifact_refs": [
+      "patch_plan"
+    ],
+    "command": "PATH=/Users/tom/Documents/New project/agent-production-kernel/.apk/corpus-shims/bugsinpy-youtube-dl-1:$PATH PYTHONPATH=<repo> python -m unittest -q test.test_utils.TestUtil.test_match_str",
+    "commit_sha": "1cc47c667419e0eadc0a6989256ab7b276852adf",
+    "exit_code": 0,
+    "status": "pass",
+    "stderr_digest": "sha256:5f4da3a10467ed523d52edf10edfcd360269e31f5319fbb2e3c0632fb4663431",
+    "stdout_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "timestamp": "2026-06-30T11:44:58.463965+00:00",
+    "tool_version": "Python 3.9.21"
+  },
+  "public_refs": [
+    "https://github.com/ytdl-org/youtube-dl",
+    "https://github.com/ytdl-org/youtube-dl/tree/99036a1298089068dcf80c0985bfcc3f8c24f281",
+    "https://github.com/ytdl-org/youtube-dl/tree/1cc47c667419e0eadc0a6989256ab7b276852adf",
+    "https://github.com/soarsmu/BugsInPy/tree/master/projects/youtube-dl/bugs/1"
+  ],
+  "repo_path": "/Users/tom/Documents/New project/agent-production-kernel/.apk/corpus-candidates/youtube-dl/repo",
+  "repo_url": "https://github.com/ytdl-org/youtube-dl",
+  "run_id": "bugsinpy-youtube-dl-1",
+  "version": "1.0"
+}

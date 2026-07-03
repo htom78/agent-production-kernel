@@ -1,0 +1,25 @@
+{
+  "artifact": "system_fault_report",
+  "type": "object",
+  "required": ["version", "issue_id", "fix_system_first", "system_faults"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {"type": "string", "const": "1.0"},
+    "issue_id": {"type": "string", "minLength": 1},
+    "fix_system_first": {"type": "boolean"},
+    "system_faults": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["category", "cause", "prevention"],
+        "additionalProperties": false,
+        "properties": {
+          "category": {"type": "string", "minLength": 1},
+          "cause": {"type": "string", "minLength": 1},
+          "prevention": {"type": "string", "minLength": 1}
+        }
+      }
+    }
+  }
+}

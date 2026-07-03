@@ -1,0 +1,63 @@
+{
+  "name": "incident-weak-release-evidence",
+  "pipeline": "software-incident-postmortem",
+  "tags": ["incident", "regression"],
+  "inputs": {
+    "incident_id": "INC-001"
+  },
+  "expected_artifacts": {
+    "root_cause_report": {
+      "failure_family": "weak_release_evidence",
+      "confidence": 0.84
+    },
+    "system_fault_report": {
+      "fix_system_first": true,
+      "system_faults": [
+        {
+          "category": "weak_release_gate"
+        }
+      ]
+    },
+    "knowledge_update": {
+      "trigger": "release incident with weak evidence"
+    }
+  },
+  "expected_checkpoints": {
+    "incident": {
+      "metadata": {
+        "actor_role": "planner",
+        "execution_mode": "stage_executor"
+      },
+      "review": {
+        "decision": "pass"
+      }
+    },
+    "root_cause": {
+      "metadata": {
+        "actor_role": "diagnoser",
+        "execution_mode": "stage_executor"
+      },
+      "review": {
+        "decision": "pass"
+      }
+    },
+    "system_fault": {
+      "metadata": {
+        "actor_role": "system_repairer",
+        "execution_mode": "stage_executor"
+      },
+      "review": {
+        "decision": "pass"
+      }
+    },
+    "knowledge_update": {
+      "metadata": {
+        "actor_role": "system_repairer",
+        "execution_mode": "stage_executor"
+      },
+      "review": {
+        "decision": "pass"
+      }
+    }
+  }
+}

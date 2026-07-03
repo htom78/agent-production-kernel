@@ -1,0 +1,13 @@
+{
+  "artifact": "feature_spec",
+  "type": "object",
+  "required": ["version", "feature_id", "user_value", "requirements", "acceptance_checks"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {"type": "string", "const": "1.0"},
+    "feature_id": {"type": "string", "minLength": 1},
+    "user_value": {"type": "string", "minLength": 1},
+    "requirements": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+    "acceptance_checks": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}}
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "name": "autonomy-boundary-failure-detected",
+  "pipeline": "kernel-autonomy",
+  "tags": ["autonomy", "regression", "negative"],
+  "expected_result": "fail",
+  "inputs": {
+    "run_id": "autonomy-boundary-fixture"
+  },
+  "mutations": [
+    {
+      "path": "artifacts.autonomy_run_report.decision",
+      "value": "executed"
+    }
+  ],
+  "expected_errors_contain": ["autonomy_run_report.decision"],
+  "expected_artifacts": {
+    "autonomy_run_report": {
+      "decision": "blocked",
+      "selected_action": {
+        "id": "run-real-bug-scenario"
+      }
+    }
+  },
+  "expected_checkpoints": {
+    "select_next_action": {
+      "status": "blocked"
+    }
+  }
+}

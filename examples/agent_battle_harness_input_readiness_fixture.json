@@ -1,0 +1,226 @@
+{
+  "critic_veto": {
+    "active": false,
+    "enabled": true,
+    "reason": "No veto: external judges did not raise a veto."
+  },
+  "cross_examination": [
+    {
+      "challenge": "Can high external judge scores advance without ready input reports?",
+      "from_role": "critic",
+      "response": "No. The harness must hold until the bound self_assessment and battle_report inputs pass the readiness gate.",
+      "status": "answered",
+      "to_role": "architect"
+    }
+  ],
+  "input_reports": {
+    "battle_report": "generated:battle_report.build_battle_report",
+    "battle_report_run_id": "agent-battle-input-readiness-fixture",
+    "self_assessment_report": "generated:self_assess.build_report",
+    "self_assessment_run_id": "agent-battle-input-readiness-fixture"
+  },
+  "judge_audit": [
+    {
+      "check": "required judges present",
+      "evidence_refs": [
+        "schemas/artifacts/agent_battle_harness_report.json",
+        "scripts/agent_battle_harness.py"
+      ],
+      "status": "pass"
+    },
+    {
+      "check": "exactly one report per required judge",
+      "evidence_refs": [
+        "agent_battle_harness_report.protocol.required_judges",
+        "agent_battle_harness_report.judges.role"
+      ],
+      "status": "pass"
+    },
+    {
+      "check": "independent agent evidence present",
+      "evidence_refs": [
+        "agent_battle_harness_report.protocol.evidence_mode",
+        "agent_battle_harness_report.judges.source"
+      ],
+      "status": "pass"
+    },
+    {
+      "check": "input reports bind to source run ids",
+      "evidence_refs": [
+        "agent_battle_harness_report.input_reports.self_assessment_report",
+        "agent_battle_harness_report.input_reports.self_assessment_run_id",
+        "agent_battle_harness_report.input_reports.battle_report",
+        "agent_battle_harness_report.input_reports.battle_report_run_id"
+      ],
+      "status": "fail"
+    },
+    {
+      "check": "input reports meet advance readiness gate",
+      "evidence_refs": [
+        "agent_battle_harness_report.input_reports.self_assessment_report.dimensions",
+        "agent_battle_harness_report.input_reports.self_assessment_report.next_actions",
+        "agent_battle_harness_report.input_reports.battle_report.next_actions"
+      ],
+      "status": "fail"
+    },
+    {
+      "check": "external judge reports match harness run",
+      "evidence_refs": [
+        "agent_battle_harness_report.run_id",
+        "agent_battle_harness_report.judges.input_run_id"
+      ],
+      "status": "pass"
+    },
+    {
+      "check": "external judge verdicts allow advance",
+      "evidence_refs": [
+        "agent_battle_harness_report.judges.verdict"
+      ],
+      "status": "pass"
+    },
+    {
+      "check": "external judge scores meet minimum",
+      "evidence_refs": [
+        "agent_battle_harness_report.protocol.minimum_score_to_advance",
+        "agent_battle_harness_report.judges.score"
+      ],
+      "status": "pass"
+    },
+    {
+      "check": "external judge sources are unique",
+      "evidence_refs": [
+        "agent_battle_harness_report.judges.source_report"
+      ],
+      "status": "pass"
+    },
+    {
+      "check": "blind review hides peer scores",
+      "evidence_refs": [
+        "agent_battle_harness_report.judges.peer_scores_visible"
+      ],
+      "status": "pass"
+    },
+    {
+      "check": "critic veto is wired into outcome",
+      "evidence_refs": [
+        "agent_battle_harness_report.critic_veto",
+        "agent_battle_harness_report.outcome"
+      ],
+      "status": "pass"
+    }
+  ],
+  "judges": [
+    {
+      "context_hash": "sha256:fixture-architect",
+      "context_refs": [
+        "apkernel/core.py",
+        "scripts/agent_battle_harness.py"
+      ],
+      "findings": [
+        "External score is high, but input report readiness is not file-backed."
+      ],
+      "input_run_id": "agent-battle-input-readiness-fixture",
+      "peer_scores_visible": false,
+      "role": "architect",
+      "score": 96,
+      "source": "external_agent_report",
+      "source_report": "codex-subagent://fixture-input-readiness-architect",
+      "stance": "Architecture cannot advance without ready source reports.",
+      "verdict": "advance",
+      "veto_vote": {
+        "active": false,
+        "reason": "No veto."
+      }
+    },
+    {
+      "context_hash": "sha256:fixture-test-engineer",
+      "context_refs": [
+        "tests/test_kernel.py",
+        "scripts/replay_regressions.py"
+      ],
+      "findings": [
+        "The false-green path is captured as a replayable hold fixture."
+      ],
+      "input_run_id": "agent-battle-input-readiness-fixture",
+      "peer_scores_visible": false,
+      "role": "test_engineer",
+      "score": 96,
+      "source": "external_agent_report",
+      "source_report": "codex-subagent://fixture-input-readiness-test-engineer",
+      "stance": "The readiness gate must be observable in replay.",
+      "verdict": "advance",
+      "veto_vote": {
+        "active": false,
+        "reason": "No veto."
+      }
+    },
+    {
+      "context_hash": "sha256:fixture-code-reviewer",
+      "context_refs": [
+        "schemas/artifacts/agent_battle_harness_report.json",
+        "examples/golden_*.json"
+      ],
+      "findings": [
+        "Advance is blocked by failed input binding and readiness audit checks."
+      ],
+      "input_run_id": "agent-battle-input-readiness-fixture",
+      "peer_scores_visible": false,
+      "role": "code_reviewer",
+      "score": 96,
+      "source": "external_agent_report",
+      "source_report": "codex-subagent://fixture-input-readiness-code-reviewer",
+      "stance": "The artifact contract now distinguishes judge confidence from source readiness.",
+      "verdict": "advance",
+      "veto_vote": {
+        "active": false,
+        "reason": "No veto."
+      }
+    },
+    {
+      "context_hash": "sha256:fixture-critic",
+      "context_refs": [
+        "docs/SELF_DRIVING.md",
+        "scripts/self_assess.py"
+      ],
+      "findings": [
+        "A hold is the correct result until self_assess and battle_report are bound to ready files."
+      ],
+      "input_run_id": "agent-battle-input-readiness-fixture",
+      "peer_scores_visible": false,
+      "role": "critic",
+      "score": 96,
+      "source": "external_agent_report",
+      "source_report": "codex-subagent://fixture-input-readiness-critic",
+      "stance": "High judge scores alone are not enough evidence to promote APK.",
+      "verdict": "advance",
+      "veto_vote": {
+        "active": false,
+        "reason": "No veto."
+      }
+    }
+  ],
+  "outcome": {
+    "accepted_actions": [
+      "Bind ready self_assessment and battle_report inputs before advance."
+    ],
+    "score": 96,
+    "verdict": "hold"
+  },
+  "protocol": {
+    "blind_review": true,
+    "critic_veto": true,
+    "cross_exam_rounds": 2,
+    "evidence_mode": "independent_agent_reports",
+    "independent_contexts": true,
+    "minimum_score_to_advance": 95,
+    "required_judges": [
+      "architect",
+      "test_engineer",
+      "code_reviewer",
+      "critic"
+    ]
+  },
+  "run_id": "agent-battle-input-readiness-fixture",
+  "subject": "Agent Battle input readiness false-green guard",
+  "version": "1.0"
+}

@@ -1,0 +1,99 @@
+{
+  "artifact": "real_repo_bug_run",
+  "type": "object",
+  "required": [
+    "version",
+    "run_id",
+    "repo_url",
+    "repo_path",
+    "bug_branch",
+    "fix_branch",
+    "bug_commit",
+    "fix_commit",
+    "failing_command",
+    "passing_command",
+    "checkpoint_refs",
+    "public_refs"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "version": {"type": "string", "const": "1.0"},
+    "run_id": {"type": "string", "minLength": 1},
+    "repo_url": {"type": "string", "minLength": 1},
+    "repo_path": {"type": "string", "minLength": 1},
+    "bug_branch": {"type": "string", "minLength": 1},
+    "fix_branch": {"type": "string", "minLength": 1},
+    "bug_commit": {"type": "string", "minLength": 1},
+    "fix_commit": {"type": "string", "minLength": 1},
+    "failing_command": {
+      "type": "object",
+      "required": [
+        "command",
+        "status",
+        "exit_code",
+        "stdout_digest",
+        "stderr_digest",
+        "commit_sha",
+        "tool_version",
+        "timestamp",
+        "artifact_refs"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "command": {"type": "string", "minLength": 1},
+        "status": {"type": "string", "const": "fail"},
+        "exit_code": {"type": "integer"},
+        "stdout_digest": {"type": "string", "minLength": 1},
+        "stderr_digest": {"type": "string", "minLength": 1},
+        "commit_sha": {"type": "string", "minLength": 1},
+        "tool_version": {"type": "string", "minLength": 1},
+        "timestamp": {"type": "string", "minLength": 1},
+        "artifact_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "passing_command": {
+      "type": "object",
+      "required": [
+        "command",
+        "status",
+        "exit_code",
+        "stdout_digest",
+        "stderr_digest",
+        "commit_sha",
+        "tool_version",
+        "timestamp",
+        "artifact_refs"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "command": {"type": "string", "minLength": 1},
+        "status": {"type": "string", "const": "pass"},
+        "exit_code": {"type": "integer"},
+        "stdout_digest": {"type": "string", "minLength": 1},
+        "stderr_digest": {"type": "string", "minLength": 1},
+        "commit_sha": {"type": "string", "minLength": 1},
+        "tool_version": {"type": "string", "minLength": 1},
+        "timestamp": {"type": "string", "minLength": 1},
+        "artifact_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "checkpoint_refs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "public_refs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string", "minLength": 1}
+    }
+  }
+}

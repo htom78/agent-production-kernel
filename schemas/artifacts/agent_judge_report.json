@@ -1,0 +1,39 @@
+{
+  "artifact": "agent_judge_report",
+  "type": "object",
+  "required": [
+    "version",
+    "run_id",
+    "role",
+    "score",
+    "verdict",
+    "stance",
+    "findings",
+    "context_refs",
+    "source_report",
+    "veto_active",
+    "veto_reason"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "version": {"type": "string", "const": "1.0"},
+    "run_id": {"type": "string", "minLength": 1},
+    "role": {"type": "string", "minLength": 1},
+    "score": {"type": "number", "minimum": 0, "maximum": 100},
+    "verdict": {"type": "string", "enum": ["advance", "hold", "needs_human"]},
+    "stance": {"type": "string", "minLength": 1},
+    "findings": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "context_refs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "source_report": {"type": "string", "minLength": 1},
+    "veto_active": {"type": "boolean"},
+    "veto_reason": {"type": "string", "minLength": 1}
+  }
+}

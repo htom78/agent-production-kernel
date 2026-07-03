@@ -1,0 +1,24 @@
+{
+  "name": "real-repo-bug-run-failure-detected",
+  "pipeline": "real-repo-bug-run",
+  "tags": ["real-repo", "regression", "negative"],
+  "expected_result": "fail",
+  "inputs": {
+    "run_id": "real-repo-privacy-cache"
+  },
+  "mutations": [
+    {
+      "path": "artifacts.real_repo_bug_run.passing_command.status",
+      "value": "fail"
+    }
+  ],
+  "expected_errors_contain": ["real_repo_bug_run.passing_command.status"],
+  "expected_artifacts": {
+    "real_repo_bug_run": {
+      "passing_command": {
+        "status": "pass",
+        "exit_code": 0
+      }
+    }
+  }
+}

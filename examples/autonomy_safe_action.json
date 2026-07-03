@@ -1,0 +1,10 @@
+{
+  "action": {
+    "id": "verify-current-state",
+    "priority": "P2",
+    "target_files": ["apkernel", "scripts", "tests"],
+    "title": "Run current local verification gates",
+    "verification_commands": ["python3 -m compileall apkernel scripts tests"]
+  },
+  "version": "1.0"
+}

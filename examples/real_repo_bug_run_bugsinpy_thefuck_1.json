@@ -1,0 +1,51 @@
+{
+  "bug_branch": "2ced7a7f33ae0bec3ffc7a43ce95330bdf6cfcb9",
+  "bug_commit": "2ced7a7f33ae0bec3ffc7a43ce95330bdf6cfcb9",
+  "checkpoint_refs": [
+    ".apk/real-bug-runs/bugsinpy-thefuck-1/software-bug-fix/checkpoint_reproduce.json",
+    ".apk/real-bug-runs/bugsinpy-thefuck-1/software-bug-fix/checkpoint_root_cause.json",
+    ".apk/real-bug-runs/bugsinpy-thefuck-1/software-bug-fix/checkpoint_system_fault.json",
+    ".apk/real-bug-runs/bugsinpy-thefuck-1/software-bug-fix/checkpoint_product_patch.json",
+    ".apk/real-bug-runs/bugsinpy-thefuck-1/software-bug-fix/checkpoint_verification.json",
+    ".apk/real-bug-runs/bugsinpy-thefuck-1/software-bug-fix/checkpoint_regression.json",
+    ".apk/real-bug-runs/bugsinpy-thefuck-1/software-bug-fix/checkpoint_knowledge_update.json"
+  ],
+  "failing_command": {
+    "artifact_refs": [
+      "bug_report"
+    ],
+    "command": "PATH=/Users/tom/Documents/New project/agent-production-kernel/.apk/corpus-shims/bugsinpy-thefuck-1:$PATH PYTHONPATH=<repo> pytest tests/rules/test_pip_unknown_command.py::test_get_new_command",
+    "commit_sha": "2ced7a7f33ae0bec3ffc7a43ce95330bdf6cfcb9",
+    "exit_code": 1,
+    "status": "fail",
+    "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_digest": "sha256:c32c0680b5ae47753f23c555dbc806a34ef4ffacc9c9ebf5831c17b02f664eaf",
+    "timestamp": "2026-06-30T11:45:04.965401+00:00",
+    "tool_version": "Python 3.9.21"
+  },
+  "fix_branch": "444908ce1c17767ef4aaf9e0b4950497914f7f63",
+  "fix_commit": "444908ce1c17767ef4aaf9e0b4950497914f7f63",
+  "passing_command": {
+    "artifact_refs": [
+      "patch_plan"
+    ],
+    "command": "PATH=/Users/tom/Documents/New project/agent-production-kernel/.apk/corpus-shims/bugsinpy-thefuck-1:$PATH PYTHONPATH=<repo> pytest tests/rules/test_pip_unknown_command.py::test_get_new_command",
+    "commit_sha": "444908ce1c17767ef4aaf9e0b4950497914f7f63",
+    "exit_code": 0,
+    "status": "pass",
+    "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_digest": "sha256:c641a8e38fae735900a46c360153634b77d371319b07b67054839c2cdf42e58d",
+    "timestamp": "2026-06-30T11:45:05.333380+00:00",
+    "tool_version": "Python 3.9.21"
+  },
+  "public_refs": [
+    "https://github.com/nvbn/thefuck",
+    "https://github.com/nvbn/thefuck/tree/2ced7a7f33ae0bec3ffc7a43ce95330bdf6cfcb9",
+    "https://github.com/nvbn/thefuck/tree/444908ce1c17767ef4aaf9e0b4950497914f7f63",
+    "https://github.com/soarsmu/BugsInPy/tree/master/projects/thefuck/bugs/1"
+  ],
+  "repo_path": "/Users/tom/Documents/New project/agent-production-kernel/.apk/corpus-candidates/thefuck/repo",
+  "repo_url": "https://github.com/nvbn/thefuck",
+  "run_id": "bugsinpy-thefuck-1",
+  "version": "1.0"
+}

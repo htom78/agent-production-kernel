@@ -1,0 +1,25 @@
+{
+  "run_id": "demo-feature-build",
+  "pipeline": "software-feature-build",
+  "feature_id": "FEAT-001",
+  "user_value": "Operators can inspect release readiness without changing runtime state.",
+  "requirements": [
+    "Expose read-only release gate status",
+    "Show rollback readiness before approval"
+  ],
+  "acceptance_checks": [
+    "Release report contains at least one passing gate",
+    "Rollback plan is present"
+  ],
+  "human_approval_grants": {
+    "release_readiness": {
+      "grant_id": "human-grant-FEAT-001-release-readiness",
+      "run_id": "demo-feature-build",
+      "stage": "release_readiness",
+      "approver_role": "human_operator",
+      "decision": "approved",
+      "reason": "Human operator explicitly approves the read-only feature readiness demo after reviewing release_report evidence.",
+      "evidence_refs": ["release_report"]
+    }
+  }
+}

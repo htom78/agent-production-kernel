@@ -1,0 +1,35 @@
+{
+  "name": "agent-battle-harness-input-readiness-gate",
+  "pipeline": "agent-battle-harness-input-readiness",
+  "tags": ["battle-harness", "regression"],
+  "inputs": {
+    "run_id": "agent-battle-input-readiness-fixture"
+  },
+  "expected_artifacts": {
+    "agent_battle_harness_report": {
+      "protocol": {
+        "evidence_mode": "independent_agent_reports",
+        "independent_contexts": true,
+        "minimum_score_to_advance": 95
+      },
+      "judge_audit": [
+        {
+          "check": "input reports meet advance readiness gate",
+          "status": "fail"
+        }
+      ],
+      "outcome": {
+        "verdict": "hold"
+      },
+      "judges": [
+        {
+          "role": "critic",
+          "source": "external_agent_report",
+          "score": 96,
+          "verdict": "advance",
+          "peer_scores_visible": false
+        }
+      ]
+    }
+  }
+}

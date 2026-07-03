@@ -1,0 +1,69 @@
+{
+  "name": "cache-key-privacy-scope-regression",
+  "pipeline": "software-bug-fix",
+  "tags": ["bug-fix", "regression", "privacy"],
+  "inputs": {
+    "issue_id": "BUG-001"
+  },
+  "expected_artifacts": {
+    "root_cause_report": {
+      "failure_family": "state_key_under_specification",
+      "confidence": 0.92
+    },
+    "system_fault_report": {
+      "fix_system_first": true
+    },
+    "decision_log": {
+      "decisions": [
+        {
+          "stage": "system_fault",
+          "selected": "system_then_product",
+          "confidence": 0.87,
+          "artifact_refs": ["root_cause_report", "system_fault_report"]
+        }
+      ]
+    },
+    "verification_report": {
+      "overall_status": "pass",
+      "commands": [
+        {
+          "status": "pass",
+          "exit_code": 0,
+          "artifact_refs": ["patch_plan"]
+        }
+      ]
+    },
+    "regression_case": {
+      "id": "reg-cache-key-privacy-scope",
+      "expected_guard": "cache keys must differ"
+    }
+  },
+  "expected_checkpoints": {
+    "system_fault": {
+      "status": "completed",
+      "metadata": {
+        "actor_role": "system_repairer",
+        "execution_mode": "stage_executor",
+        "tools_available": ["harness_editor", "schema_checker", "eval_case_writer"],
+        "tools_used": []
+      },
+      "review": {
+        "decision": "pass",
+        "reviewer_role": "reviewer"
+      }
+    },
+    "verification": {
+      "status": "completed",
+      "metadata": {
+        "actor_role": "verifier",
+        "execution_mode": "stage_executor",
+        "tools_available": ["test_runner", "typecheck_runner", "lint_runner", "runtime_probe"],
+        "tools_used": []
+      },
+      "review": {
+        "decision": "pass",
+        "reviewer_role": "reviewer"
+      }
+    }
+  }
+}

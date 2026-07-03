@@ -1,0 +1,16 @@
+{
+  "name": "software-release",
+  "version": "1.0",
+  "category": "software_engineering",
+  "description": "Release gate pipeline with inspectable readiness and rollback evidence.",
+  "stages": [
+    {
+      "name": "release_gate",
+      "skill": "packs/software/release-captain",
+      "produces": ["release_report"],
+      "tools_available": ["release_gate_runner", "test_runner", "typecheck_runner", "runtime_probe"],
+      "review_focus": ["Every gate has machine-readable evidence", "Rollback plan is available before release"],
+      "success_criteria": ["requires:gates", "requires:status", "requires:rollback_plan"]
+    }
+  ]
+}

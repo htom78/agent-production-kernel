@@ -1,0 +1,16 @@
+{
+  "run_id": "demo-bug-fix",
+  "pipeline": "software-bug-fix",
+  "issue_id": "BUG-001",
+  "observed_behavior": "A request with include_private=false can reuse a cached response produced for include_private=true.",
+  "expected_behavior": "Privacy-affecting request flags must produce distinct cache keys.",
+  "reproduction_steps": [
+    "Call fetch_user_summary(user_id=42, include_private=true, fields=['email']).",
+    "Call fetch_user_summary(user_id=42, include_private=false, fields=['email']).",
+    "Observe the second response can include private email data from the first cache entry."
+  ],
+  "evidence": [
+    "Cache key currently uses only user_id.",
+    "Changing include_private does not change the cache lookup key."
+  ]
+}

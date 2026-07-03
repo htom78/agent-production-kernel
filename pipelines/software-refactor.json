@@ -1,0 +1,43 @@
+{
+  "name": "software-refactor",
+  "version": "1.0",
+  "category": "software_engineering",
+  "description": "Behavior-preserving change pipeline with invariants and verification before code movement.",
+  "stages": [
+    {
+      "name": "invariants",
+      "skill": "packs/software/refactor-planner",
+      "produces": ["refactor_plan"],
+      "tools_available": ["repo_search", "test_runner", "call_graph_probe"],
+      "review_focus": ["Invariants are observable", "Safe steps are reversible"],
+      "success_criteria": ["requires:invariants", "requires:safe_steps"]
+    },
+    {
+      "name": "patch_plan",
+      "skill": "packs/software/product-patch-planner",
+      "required_artifacts_in": ["refactor_plan"],
+      "produces": ["patch_plan"],
+      "tools_available": ["patch_applier", "test_runner"],
+      "review_focus": ["No behavior change is smuggled into refactor", "Verification matches invariants"],
+      "success_criteria": ["requires:changes", "requires:verification_commands"]
+    },
+    {
+      "name": "verification",
+      "skill": "packs/software/verifier",
+      "required_artifacts_in": ["patch_plan"],
+      "produces": ["verification_report"],
+      "tools_available": ["test_runner", "typecheck_runner", "lint_runner"],
+      "review_focus": ["All invariants are covered by checks"],
+      "success_criteria": ["requires:overall_status"]
+    },
+    {
+      "name": "regression",
+      "skill": "packs/software/regression-writer",
+      "required_artifacts_in": ["verification_report"],
+      "produces": ["regression_case"],
+      "tools_available": ["replay_harness"],
+      "review_focus": ["Regression protects the refactor invariant"],
+      "success_criteria": ["requires:expected_guard"]
+    }
+  ]
+}

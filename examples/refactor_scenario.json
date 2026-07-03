@@ -1,0 +1,13 @@
+{
+  "run_id": "demo-refactor",
+  "pipeline": "software-refactor",
+  "target": "checkpoint writer",
+  "invariants": [
+    "Completed stages keep their canonical artifact",
+    "Existing decision logs remain readable"
+  ],
+  "safe_steps": [
+    "Extract checkpoint validation helpers",
+    "Keep public checkpoint path format unchanged"
+  ]
+}

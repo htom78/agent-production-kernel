@@ -1,0 +1,21 @@
+{
+  "name": "research-brief-confidence-failure-detected",
+  "pipeline": "research-brief",
+  "tags": ["research", "regression", "negative", "second-pack"],
+  "expected_result": "fail",
+  "inputs": {
+    "question_id": "RQ-001"
+  },
+  "mutations": [
+    {
+      "path": "artifacts.research_brief.confidence",
+      "value": 0.2
+    }
+  ],
+  "expected_errors_contain": ["research_brief.confidence"],
+  "expected_artifacts": {
+    "research_brief": {
+      "confidence": 0.82
+    }
+  }
+}

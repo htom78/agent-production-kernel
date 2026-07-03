@@ -1,0 +1,17 @@
+{
+  "run_id": "demo-release",
+  "pipeline": "software-release",
+  "release_id": "REL-001",
+  "rollback_plan": "Revert release tag and disable the rollout flag.",
+  "human_approval_grants": {
+    "release_gate": {
+      "grant_id": "human-grant-REL-001-release-gate",
+      "run_id": "demo-release",
+      "stage": "release_gate",
+      "approver_role": "human_operator",
+      "decision": "approved",
+      "reason": "Human operator explicitly approves the release gate demo after reviewing release_report evidence and rollback readiness.",
+      "evidence_refs": ["release_report"]
+    }
+  }
+}

@@ -1,0 +1,163 @@
+{
+  "tools": [
+    {
+      "name": "repo_search",
+      "capability": "code_intelligence",
+      "provider": "local",
+      "runtime": "LOCAL",
+      "dependencies": ["cmd:rg"],
+      "input_artifacts": [],
+      "output_artifacts": [],
+      "agent_skills": ["code-review", "architecture"]
+    },
+    {
+      "name": "call_graph_probe",
+      "capability": "code_intelligence",
+      "provider": "local",
+      "runtime": "LOCAL",
+      "dependencies": [],
+      "input_artifacts": ["bug_report"],
+      "output_artifacts": ["root_cause_report"],
+      "agent_skills": ["architecture"]
+    },
+    {
+      "name": "test_runner",
+      "capability": "verification",
+      "provider": "local",
+      "runtime": "LOCAL",
+      "dependencies": [],
+      "input_artifacts": ["patch_plan"],
+      "output_artifacts": ["verification_report"],
+      "agent_skills": ["error-resolver"]
+    },
+    {
+      "name": "typecheck_runner",
+      "capability": "verification",
+      "provider": "local",
+      "runtime": "LOCAL",
+      "dependencies": [],
+      "input_artifacts": ["patch_plan"],
+      "output_artifacts": ["verification_report"],
+      "fallback_tools": ["test_runner"]
+    },
+    {
+      "name": "lint_runner",
+      "capability": "verification",
+      "provider": "local",
+      "runtime": "LOCAL",
+      "dependencies": [],
+      "input_artifacts": ["patch_plan"],
+      "output_artifacts": ["verification_report"],
+      "fallback_tools": ["test_runner"]
+    },
+    {
+      "name": "schema_checker",
+      "capability": "contract_validation",
+      "provider": "kernel",
+      "runtime": "LOCAL",
+      "dependencies": [],
+      "input_artifacts": [],
+      "output_artifacts": ["system_fault_report"]
+    },
+    {
+      "name": "eval_case_writer",
+      "capability": "regression_harness",
+      "provider": "kernel",
+      "runtime": "LOCAL",
+      "dependencies": [],
+      "input_artifacts": ["bug_report", "root_cause_report"],
+      "output_artifacts": ["regression_case"]
+    },
+    {
+      "name": "replay_harness",
+      "capability": "regression_harness",
+      "provider": "kernel",
+      "runtime": "LOCAL",
+      "dependencies": [],
+      "input_artifacts": ["regression_case"],
+      "output_artifacts": ["verification_report"]
+    },
+    {
+      "name": "release_gate_runner",
+      "capability": "release_governance",
+      "provider": "kernel",
+      "runtime": "LOCAL",
+      "dependencies": [],
+      "input_artifacts": ["verification_report"],
+      "output_artifacts": ["release_report"]
+    },
+    {
+      "name": "browser_probe",
+      "capability": "runtime_probe",
+      "provider": "external_optional",
+      "runtime": "HYBRID",
+      "dependencies": [],
+      "input_artifacts": [],
+      "output_artifacts": ["bug_report"]
+    },
+    {
+      "name": "runtime_probe",
+      "capability": "runtime_probe",
+      "provider": "external_optional",
+      "runtime": "HYBRID",
+      "dependencies": [],
+      "input_artifacts": [],
+      "output_artifacts": ["verification_report", "incident_report"]
+    },
+    {
+      "name": "patch_applier",
+      "capability": "change_application",
+      "provider": "agent",
+      "runtime": "LOCAL",
+      "dependencies": [],
+      "input_artifacts": ["patch_plan"],
+      "output_artifacts": ["verification_report"]
+    },
+    {
+      "name": "skill_editor",
+      "capability": "knowledge_update",
+      "provider": "agent",
+      "runtime": "LOCAL",
+      "dependencies": [],
+      "input_artifacts": ["knowledge_update"],
+      "output_artifacts": []
+    },
+    {
+      "name": "harness_editor",
+      "capability": "system_repair",
+      "provider": "agent",
+      "runtime": "LOCAL",
+      "dependencies": [],
+      "input_artifacts": ["system_fault_report"],
+      "output_artifacts": ["regression_case", "knowledge_update"]
+    },
+    {
+      "name": "product_context_reader",
+      "capability": "product_context",
+      "provider": "local",
+      "runtime": "LOCAL",
+      "dependencies": [],
+      "input_artifacts": [],
+      "output_artifacts": ["feature_spec"]
+    },
+    {
+      "name": "log_collector",
+      "capability": "incident_analysis",
+      "provider": "external_optional",
+      "runtime": "HYBRID",
+      "dependencies": [],
+      "input_artifacts": [],
+      "output_artifacts": ["incident_report", "root_cause_report"]
+    },
+    {
+      "name": "autonomy_runner",
+      "capability": "self_driving_control",
+      "provider": "kernel",
+      "runtime": "LOCAL",
+      "dependencies": [],
+      "input_artifacts": ["self_assessment_report", "battle_report"],
+      "output_artifacts": ["autonomy_run_report"],
+      "fallback_tools": ["test_runner"]
+    }
+  ]
+}

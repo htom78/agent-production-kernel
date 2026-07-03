@@ -1,0 +1,123 @@
+{
+  "checkpoints": {
+    "approval_gate": {
+      "artifacts": {},
+      "metadata": {
+        "actor_role": "release_captain",
+        "approval_required": true,
+        "stop_reason": "human approval required before publish"
+      },
+      "pipeline": "checkpoint-branch-replay",
+      "pipeline_version": "1.0",
+      "review": null,
+      "run_id": "branch-replay-fixture",
+      "stage": "approval_gate",
+      "status": "awaiting_human",
+      "timestamp": "2026-06-30T00:00:00+00:00",
+      "version": "1.0"
+    },
+    "external_dependency": {
+      "artifacts": {
+        "verification_report": {
+          "commands": [
+            {
+              "artifact_refs": ["verification_report"],
+              "command": "gh auth status",
+              "commit_sha": "workspace-uncommitted",
+              "exit_code": 2,
+              "status": "blocked",
+              "stderr_digest": "sha256:blockedstderr",
+              "stdout_digest": "sha256:blockedstdout",
+              "timestamp": "2026-06-30T00:00:00+00:00",
+              "tool_version": "gh"
+            }
+          ],
+          "issue_id": "BRANCH-BLOCKED",
+          "overall_status": "blocked",
+          "version": "1.0"
+        }
+      },
+      "metadata": {
+        "actor_role": "verifier",
+        "requires_user_choice": true,
+        "stop_reason": "credentials or external network boundary required"
+      },
+      "pipeline": "checkpoint-branch-replay",
+      "pipeline_version": "1.0",
+      "review": null,
+      "run_id": "branch-replay-fixture",
+      "stage": "external_dependency",
+      "status": "blocked",
+      "timestamp": "2026-06-30T00:00:00+00:00",
+      "version": "1.0"
+    },
+    "verification": {
+      "artifacts": {
+        "verification_report": {
+          "commands": [
+            {
+              "artifact_refs": ["verification_report"],
+              "command": "python3 -m unittest discover -s tests -v",
+              "commit_sha": "workspace-uncommitted",
+              "exit_code": 1,
+              "status": "fail",
+              "stderr_digest": "sha256:failedstderr",
+              "stdout_digest": "sha256:failedstdout",
+              "timestamp": "2026-06-30T00:00:00+00:00",
+              "tool_version": "python 3.14.6"
+            }
+          ],
+          "issue_id": "BRANCH-FAILED",
+          "overall_status": "fail",
+          "version": "1.0"
+        }
+      },
+      "metadata": {
+        "actor_role": "verifier",
+        "failure_family": "gate_failed"
+      },
+      "pipeline": "checkpoint-branch-replay",
+      "pipeline_version": "1.0",
+      "review": {
+        "decision": "revise",
+        "findings": [
+          {
+            "detail": "unit test command failed",
+            "severity": "critical",
+            "title": "verification failed"
+          }
+        ],
+        "stage": "verification"
+      },
+      "run_id": "branch-replay-fixture",
+      "stage": "verification",
+      "status": "failed",
+      "timestamp": "2026-06-30T00:00:00+00:00",
+      "version": "1.0"
+    }
+  },
+  "checkpoint_refs": [
+    "examples/checkpoint_branch_replay_fixture.json#checkpoints.approval_gate",
+    "examples/checkpoint_branch_replay_fixture.json#checkpoints.verification",
+    "examples/checkpoint_branch_replay_fixture.json#checkpoints.external_dependency"
+  ],
+  "run_id": "branch-replay-fixture",
+  "states": [
+    {
+      "reason": "human approval required before publish",
+      "stage": "approval_gate",
+      "status": "awaiting_human"
+    },
+    {
+      "reason": "verification command failed",
+      "stage": "verification",
+      "status": "failed"
+    },
+    {
+      "reason": "credentials or external network boundary required",
+      "stage": "external_dependency",
+      "status": "blocked"
+    }
+  ],
+  "version": "1.0"
+}

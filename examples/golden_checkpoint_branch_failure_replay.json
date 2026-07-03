@@ -1,0 +1,31 @@
+{
+  "name": "checkpoint-branch-status-failure-detected",
+  "pipeline": "checkpoint-branch-replay",
+  "tags": ["branch-replay", "regression", "negative"],
+  "expected_result": "fail",
+  "inputs": {
+    "run_id": "branch-replay-fixture"
+  },
+  "mutations": [
+    {
+      "path": "checkpoints.external_dependency.status",
+      "value": "completed"
+    }
+  ],
+  "expected_errors_contain": ["checkpoint:external_dependency.status"],
+  "expected_artifacts": {
+    "checkpoint_branch_replay": {
+      "states": [
+        {
+          "stage": "external_dependency",
+          "status": "blocked"
+        }
+      ]
+    }
+  },
+  "expected_checkpoints": {
+    "external_dependency": {
+      "status": "blocked"
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "name": "checkpoint-failed-branch",
+  "pipeline": "checkpoint-branch-replay",
+  "tags": ["branch-replay", "regression", "failed"],
+  "inputs": {
+    "run_id": "branch-replay-fixture"
+  },
+  "expected_artifacts": {
+    "checkpoint_branch_replay": {
+      "states": [
+        {
+          "stage": "verification",
+          "status": "failed"
+        }
+      ]
+    }
+  },
+  "expected_checkpoints": {
+    "verification": {
+      "status": "failed",
+      "metadata": {
+        "actor_role": "verifier",
+        "failure_family": "gate_failed"
+      },
+      "review": {
+        "decision": "revise"
+      }
+    }
+  }
+}

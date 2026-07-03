@@ -1,0 +1,14 @@
+{
+  "artifact": "incident_report",
+  "type": "object",
+  "required": ["version", "incident_id", "impact", "timeline", "mitigation", "followups"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {"type": "string", "const": "1.0"},
+    "incident_id": {"type": "string", "minLength": 1},
+    "impact": {"type": "string", "minLength": 1},
+    "timeline": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+    "mitigation": {"type": "string", "minLength": 1},
+    "followups": {"type": "array", "items": {"type": "string", "minLength": 1}}
+  }
+}

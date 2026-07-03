@@ -1,0 +1,43 @@
+{
+  "name": "software-feature-build",
+  "version": "1.0",
+  "category": "software_engineering",
+  "description": "Feature pipeline that keeps user value, acceptance checks, implementation, verification, and release readiness separate.",
+  "stages": [
+    {
+      "name": "spec",
+      "skill": "packs/software/feature-spec-director",
+      "produces": ["feature_spec"],
+      "tools_available": ["repo_search", "product_context_reader"],
+      "review_focus": ["User value is explicit", "Acceptance checks are testable"],
+      "success_criteria": ["requires:feature_id", "requires:acceptance_checks"]
+    },
+    {
+      "name": "implementation_plan",
+      "skill": "packs/software/product-patch-planner",
+      "required_artifacts_in": ["feature_spec"],
+      "produces": ["patch_plan"],
+      "tools_available": ["repo_search", "call_graph_probe"],
+      "review_focus": ["Plan maps every requirement to code surface", "Rollback is possible"],
+      "success_criteria": ["requires:changes", "requires:verification_commands"]
+    },
+    {
+      "name": "verification",
+      "skill": "packs/software/verifier",
+      "required_artifacts_in": ["patch_plan"],
+      "produces": ["verification_report"],
+      "tools_available": ["test_runner", "typecheck_runner", "lint_runner", "runtime_probe"],
+      "review_focus": ["Acceptance checks have direct evidence"],
+      "success_criteria": ["requires:overall_status"]
+    },
+    {
+      "name": "release_readiness",
+      "skill": "packs/software/release-captain",
+      "required_artifacts_in": ["verification_report"],
+      "produces": ["release_report"],
+      "tools_available": ["release_gate_runner", "runtime_probe"],
+      "review_focus": ["All release gates are explicit", "Rollback plan is ready"],
+      "success_criteria": ["requires:gates", "requires:rollback_plan"]
+    }
+  ]
+}

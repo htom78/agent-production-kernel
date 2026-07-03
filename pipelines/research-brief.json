@@ -1,0 +1,34 @@
+{
+  "name": "research-brief",
+  "version": "1.0",
+  "category": "research",
+  "description": "Research workflow that scopes a question, gathers evidence, and produces a brief.",
+  "stages": [
+    {
+      "name": "scope_question",
+      "skill": "packs/research/question-scoper",
+      "produces": ["research_question"],
+      "tools_available": ["research_question_scoper"],
+      "review_focus": ["Question is bounded", "Success criteria are inspectable"],
+      "success_criteria": ["requires:question", "requires:success_criteria"]
+    },
+    {
+      "name": "gather_evidence",
+      "skill": "packs/research/evidence-curator",
+      "required_artifacts_in": ["research_question"],
+      "produces": ["source_evidence"],
+      "tools_available": ["source_collector", "source_quality_checker"],
+      "review_focus": ["Evidence names claims", "Sources include reliability ratings"],
+      "success_criteria": ["requires:sources", "requires:coverage_notes"]
+    },
+    {
+      "name": "synthesize",
+      "skill": "packs/research/brief-synthesizer",
+      "required_artifacts_in": ["source_evidence"],
+      "produces": ["research_brief"],
+      "tools_available": ["brief_synthesizer"],
+      "review_focus": ["Thesis follows from evidence", "Open questions are preserved"],
+      "success_criteria": ["requires:thesis", "requires:findings"]
+    }
+  ]
+}

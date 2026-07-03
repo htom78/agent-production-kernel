@@ -1,0 +1,37 @@
+{
+  "name": "research-brief-general-kernel-proof",
+  "pipeline": "research-brief",
+  "tags": ["research", "regression", "second-pack"],
+  "inputs": {
+    "question_id": "RQ-001"
+  },
+  "expected_artifacts": {
+    "research_question": {
+      "question_id": "RQ-001"
+    },
+    "source_evidence": {
+      "sources": [
+        {
+          "reliability": "high",
+          "citation": "packs/registry.json"
+        }
+      ]
+    },
+    "research_brief": {
+      "thesis": "A general agent production kernel must separate domain packs from the core control plane.",
+      "confidence": 0.82
+    }
+  },
+  "expected_checkpoints": {
+    "synthesize": {
+      "status": "completed",
+      "metadata": {
+        "actor_role": "synthesis_writer",
+        "execution_mode": "stage_executor"
+      },
+      "review": {
+        "decision": "pass"
+      }
+    }
+  }
+}

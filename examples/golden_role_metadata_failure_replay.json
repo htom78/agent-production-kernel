@@ -1,0 +1,35 @@
+{
+  "name": "role-metadata-failure-detected",
+  "pipeline": "software-feature-build",
+  "tags": ["feature-build", "regression", "negative", "role-policy"],
+  "expected_result": "fail",
+  "inputs": {
+    "feature_id": "FEAT-001"
+  },
+  "mutations": [
+    {
+      "path": "checkpoints.release_readiness.metadata.actor_role",
+      "value": "implementer"
+    }
+  ],
+  "expected_errors_contain": ["checkpoint:release_readiness.metadata.actor_role"],
+  "expected_artifacts": {
+    "release_report": {
+      "status": "ready"
+    }
+  },
+  "expected_checkpoints": {
+    "release_readiness": {
+      "metadata": {
+        "actor_role": "release_captain",
+        "execution_mode": "stage_executor",
+        "tools_available": ["release_gate_runner", "runtime_probe"],
+        "tools_used": []
+      },
+      "review": {
+        "decision": "pass",
+        "reviewer_role": "human_operator"
+      }
+    }
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "autonomy_run_report": {
+    "boundaries": ["external_repo", "requires_user_confirmation"],
+    "commands": [],
+    "decision": "blocked",
+    "run_id": "autonomy-boundary-fixture",
+    "selected_action": {
+      "id": "run-real-bug-scenario",
+      "priority": "P2",
+      "target_files": ["examples", "scripts", "docs"],
+      "title": "Run one real repository bug through the kernel and preserve artifacts",
+      "verification_commands": ["python3 scripts/verify.py", "python3 scripts/replay_regressions.py"]
+    },
+    "stop_reason": "real external repository boundary requires user confirmation",
+    "version": "1.0"
+  },
+  "checkpoints": {
+    "select_next_action": {
+      "artifacts": {
+        "autonomy_run_report": {
+          "boundaries": ["external_repo", "requires_user_confirmation"],
+          "commands": [],
+          "decision": "blocked",
+          "run_id": "autonomy-boundary-fixture",
+          "selected_action": {
+            "id": "run-real-bug-scenario",
+            "priority": "P2",
+            "target_files": ["examples", "scripts", "docs"],
+            "title": "Run one real repository bug through the kernel and preserve artifacts",
+            "verification_commands": ["python3 scripts/verify.py", "python3 scripts/replay_regressions.py"]
+          },
+          "stop_reason": "real external repository boundary requires user confirmation",
+          "version": "1.0"
+        }
+      },
+      "metadata": {
+        "actor_role": "autonomy_runner",
+        "execution_mode": "bounded_runner"
+      },
+      "pipeline": "kernel-autonomy",
+      "pipeline_version": "1.0",
+      "review": {
+        "decision": "pass",
+        "findings": [],
+        "stage": "select_next_action"
+      },
+      "run_id": "autonomy-boundary-fixture",
+      "stage": "select_next_action",
+      "status": "blocked",
+      "timestamp": "2026-06-30T00:00:00+00:00",
+      "version": "1.0"
+    }
+  },
+  "version": "1.0"
+}

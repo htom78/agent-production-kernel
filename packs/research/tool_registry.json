@@ -1,0 +1,40 @@
+{
+  "tools": [
+    {
+      "name": "research_question_scoper",
+      "capability": "research_scoping",
+      "provider": "kernel",
+      "runtime": "LOCAL",
+      "dependencies": [],
+      "input_artifacts": [],
+      "output_artifacts": ["research_question"]
+    },
+    {
+      "name": "source_collector",
+      "capability": "evidence_collection",
+      "provider": "local",
+      "runtime": "LOCAL",
+      "dependencies": [],
+      "input_artifacts": ["research_question"],
+      "output_artifacts": ["source_evidence"]
+    },
+    {
+      "name": "source_quality_checker",
+      "capability": "evidence_validation",
+      "provider": "kernel",
+      "runtime": "LOCAL",
+      "dependencies": [],
+      "input_artifacts": ["source_evidence"],
+      "output_artifacts": ["source_evidence"]
+    },
+    {
+      "name": "brief_synthesizer",
+      "capability": "research_synthesis",
+      "provider": "kernel",
+      "runtime": "LOCAL",
+      "dependencies": [],
+      "input_artifacts": ["source_evidence"],
+      "output_artifacts": ["research_brief"]
+    }
+  ]
+}

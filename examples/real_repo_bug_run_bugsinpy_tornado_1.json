@@ -1,0 +1,51 @@
+{
+  "bug_branch": "6a5a0bfa370b6c0d3dbbf9589a560a98202d2baa",
+  "bug_commit": "6a5a0bfa370b6c0d3dbbf9589a560a98202d2baa",
+  "checkpoint_refs": [
+    ".apk/real-bug-runs/bugsinpy-tornado-1/software-bug-fix/checkpoint_reproduce.json",
+    ".apk/real-bug-runs/bugsinpy-tornado-1/software-bug-fix/checkpoint_root_cause.json",
+    ".apk/real-bug-runs/bugsinpy-tornado-1/software-bug-fix/checkpoint_system_fault.json",
+    ".apk/real-bug-runs/bugsinpy-tornado-1/software-bug-fix/checkpoint_product_patch.json",
+    ".apk/real-bug-runs/bugsinpy-tornado-1/software-bug-fix/checkpoint_verification.json",
+    ".apk/real-bug-runs/bugsinpy-tornado-1/software-bug-fix/checkpoint_regression.json",
+    ".apk/real-bug-runs/bugsinpy-tornado-1/software-bug-fix/checkpoint_knowledge_update.json"
+  ],
+  "failing_command": {
+    "artifact_refs": [
+      "bug_report"
+    ],
+    "command": "PATH=/Users/tom/Documents/New project/agent-production-kernel/.apk/corpus-shims/bugsinpy-tornado-1:$PATH PYTHONPATH=<repo> python -m unittest -q tornado.test.websocket_test.WebSocketTest.test_nodelay",
+    "commit_sha": "6a5a0bfa370b6c0d3dbbf9589a560a98202d2baa",
+    "exit_code": 1,
+    "status": "fail",
+    "stderr_digest": "sha256:59b5bdf6947a7a77d900b13779d3c15a6add47be1c089d034d8777d55f2ba678",
+    "stdout_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "timestamp": "2026-06-30T11:45:00.015778+00:00",
+    "tool_version": "Python 3.9.21"
+  },
+  "fix_branch": "4677c54cc18bbfbdf0f4dadf11610fab6203fd63",
+  "fix_commit": "4677c54cc18bbfbdf0f4dadf11610fab6203fd63",
+  "passing_command": {
+    "artifact_refs": [
+      "patch_plan"
+    ],
+    "command": "PATH=/Users/tom/Documents/New project/agent-production-kernel/.apk/corpus-shims/bugsinpy-tornado-1:$PATH PYTHONPATH=<repo> python -m unittest -q tornado.test.websocket_test.WebSocketTest.test_nodelay",
+    "commit_sha": "4677c54cc18bbfbdf0f4dadf11610fab6203fd63",
+    "exit_code": 0,
+    "status": "pass",
+    "stderr_digest": "sha256:014bb69283d3357871ae41f464a58654b212aab2b2b901b6661070b84ca79ee0",
+    "stdout_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "timestamp": "2026-06-30T11:45:00.232586+00:00",
+    "tool_version": "Python 3.9.21"
+  },
+  "public_refs": [
+    "https://github.com/tornadoweb/tornado",
+    "https://github.com/tornadoweb/tornado/tree/6a5a0bfa370b6c0d3dbbf9589a560a98202d2baa",
+    "https://github.com/tornadoweb/tornado/tree/4677c54cc18bbfbdf0f4dadf11610fab6203fd63",
+    "https://github.com/soarsmu/BugsInPy/tree/master/projects/tornado/bugs/1"
+  ],
+  "repo_path": "/Users/tom/Documents/New project/agent-production-kernel/.apk/corpus-candidates/tornado/repo",
+  "repo_url": "https://github.com/tornadoweb/tornado",
+  "run_id": "bugsinpy-tornado-1",
+  "version": "1.0"
+}

@@ -1,0 +1,26 @@
+{
+  "name": "autonomy-runner-blocks-external-boundary",
+  "pipeline": "kernel-autonomy",
+  "tags": ["autonomy", "regression", "boundary"],
+  "inputs": {
+    "run_id": "autonomy-boundary-fixture"
+  },
+  "expected_artifacts": {
+    "autonomy_run_report": {
+      "decision": "blocked",
+      "selected_action": {
+        "id": "run-real-bug-scenario"
+      },
+      "boundaries": ["external_repo", "requires_user_confirmation"]
+    }
+  },
+  "expected_checkpoints": {
+    "select_next_action": {
+      "status": "blocked",
+      "metadata": {
+        "actor_role": "autonomy_runner",
+        "execution_mode": "bounded_runner"
+      }
+    }
+  }
+}

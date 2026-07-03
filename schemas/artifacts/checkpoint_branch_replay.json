@@ -1,0 +1,30 @@
+{
+  "artifact": "checkpoint_branch_replay",
+  "type": "object",
+  "required": ["version", "run_id", "states", "checkpoint_refs", "checkpoints"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {"type": "string", "const": "1.0"},
+    "run_id": {"type": "string", "minLength": 1},
+    "states": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "type": "object",
+        "required": ["stage", "status", "reason"],
+        "additionalProperties": false,
+        "properties": {
+          "stage": {"type": "string", "minLength": 1},
+          "status": {"type": "string", "enum": ["awaiting_human", "failed", "blocked"]},
+          "reason": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "checkpoint_refs": {
+      "type": "array",
+      "minItems": 3,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "checkpoints": {"type": "object"}
+  }
+}

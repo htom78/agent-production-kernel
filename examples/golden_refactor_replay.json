@@ -1,0 +1,66 @@
+{
+  "name": "refactor-invariant-preservation",
+  "pipeline": "software-refactor",
+  "tags": ["refactor", "regression"],
+  "inputs": {
+    "target": "checkpoint writer"
+  },
+  "expected_artifacts": {
+    "refactor_plan": {
+      "target": "checkpoint writer",
+      "invariants": ["Existing decision logs remain readable"]
+    },
+    "verification_report": {
+      "overall_status": "pass",
+      "commands": [
+        {
+          "status": "pass",
+          "exit_code": 0,
+          "artifact_refs": ["refactor_plan", "patch_plan"]
+        }
+      ]
+    },
+    "regression_case": {
+      "id": "reg-refactor-invariant",
+      "expected_guard": "all declared invariants hold"
+    }
+  },
+  "expected_checkpoints": {
+    "invariants": {
+      "metadata": {
+        "actor_role": "planner",
+        "execution_mode": "stage_executor"
+      },
+      "review": {
+        "decision": "pass"
+      }
+    },
+    "patch_plan": {
+      "metadata": {
+        "actor_role": "implementer",
+        "execution_mode": "stage_executor"
+      },
+      "review": {
+        "decision": "pass"
+      }
+    },
+    "verification": {
+      "metadata": {
+        "actor_role": "verifier",
+        "execution_mode": "stage_executor"
+      },
+      "review": {
+        "decision": "pass"
+      }
+    },
+    "regression": {
+      "metadata": {
+        "actor_role": "system_repairer",
+        "execution_mode": "stage_executor"
+      },
+      "review": {
+        "decision": "pass"
+      }
+    }
+  }
+}

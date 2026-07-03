@@ -1,0 +1,35 @@
+{
+  "constraints": [
+    "Use only structured local evidence in this deterministic scenario",
+    "Preserve uncertainty instead of overclaiming"
+  ],
+  "expected_thesis": "A general agent production kernel must separate domain packs from the core control plane.",
+  "question": "What proves that an agent production kernel is general rather than software-only?",
+  "question_id": "RQ-001",
+  "run_id": "demo-research-brief",
+  "sources": [
+    {
+      "citation": "docs/ARCHITECTURE.md#domain-packs",
+      "claim": "Domain packs should provide manifests, schemas, tools, roles, and adapters on top of the core.",
+      "reliability": "high",
+      "title": "Architecture domain pack contract"
+    },
+    {
+      "citation": "packs/registry.json",
+      "claim": "A registry can make pack discovery explicit instead of hardcoding one software pack.",
+      "reliability": "high",
+      "title": "Pack registry"
+    },
+    {
+      "citation": "examples/golden_research_brief_replay.json",
+      "claim": "A non-software replay scenario is a minimal generality proof.",
+      "reliability": "medium",
+      "title": "Research replay"
+    }
+  ],
+  "success_criteria": [
+    "The answer distinguishes core runtime from domain pack wiring",
+    "The evidence includes a non-software pack",
+    "The output preserves remaining uncertainty"
+  ]
+}

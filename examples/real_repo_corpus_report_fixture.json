@@ -1,0 +1,109 @@
+{
+  "approval_boundary": {
+    "prohibited_without_approval": [],
+    "reason": "The checked corpus already meets the public non-author repo and failure-family targets.",
+    "requested_actions": [],
+    "required": false,
+    "status": "not_required"
+  },
+  "corpus_id": "real-repo-bug-corpus",
+  "entries": [
+    {
+      "artifact_file": "examples/real_repo_bug_run_fixture.json",
+      "author_owned": true,
+      "bug_commit": "90d5cf1a0fa7340a3ea7d65f88eb27253396b890",
+      "failure_family": "state_key_under_specification",
+      "failing_command_timestamp": "2026-06-30T09:06:15.774321+00:00",
+      "fix_commit": "49944608ef05991a89694b5ca52c93ff83da3c45",
+      "passing_command_timestamp": "2026-06-30T09:06:15.874079+00:00",
+      "repo_url": "https://github.com/htom78/apk-real-bug-demo",
+      "run_id": "real-repo-privacy-cache",
+      "status": "verified"
+    },
+    {
+      "artifact_file": "examples/real_repo_bug_run_bugsinpy_youtube_dl_1.json",
+      "author_owned": false,
+      "bug_commit": "99036a1298089068dcf80c0985bfcc3f8c24f281",
+      "failure_family": "string_pattern_matching",
+      "failing_command_timestamp": "2026-06-30T11:44:58.200933+00:00",
+      "fix_commit": "1cc47c667419e0eadc0a6989256ab7b276852adf",
+      "passing_command_timestamp": "2026-06-30T11:44:58.463965+00:00",
+      "repo_url": "https://github.com/ytdl-org/youtube-dl",
+      "run_id": "bugsinpy-youtube-dl-1",
+      "status": "verified"
+    },
+    {
+      "artifact_file": "examples/real_repo_bug_run_bugsinpy_tornado_1.json",
+      "author_owned": false,
+      "bug_commit": "6a5a0bfa370b6c0d3dbbf9589a560a98202d2baa",
+      "failure_family": "network_option_contract",
+      "failing_command_timestamp": "2026-06-30T11:45:00.015778+00:00",
+      "fix_commit": "4677c54cc18bbfbdf0f4dadf11610fab6203fd63",
+      "passing_command_timestamp": "2026-06-30T11:45:00.232586+00:00",
+      "repo_url": "https://github.com/tornadoweb/tornado",
+      "run_id": "bugsinpy-tornado-1",
+      "status": "verified"
+    },
+    {
+      "artifact_file": "examples/real_repo_bug_run_bugsinpy_ansible_1.json",
+      "author_owned": false,
+      "bug_commit": "25c5388fdec9e56517a93feb5e8d485680946c25",
+      "failure_family": "api_shape_contract",
+      "failing_command_timestamp": "2026-06-30T11:45:02.586334+00:00",
+      "fix_commit": "343ffaa18b63c92e182b16c3ad84b8d81ca4df69",
+      "passing_command_timestamp": "2026-06-30T11:45:03.120176+00:00",
+      "repo_url": "https://github.com/ansible/ansible",
+      "run_id": "bugsinpy-ansible-1",
+      "status": "verified"
+    },
+    {
+      "artifact_file": "examples/real_repo_bug_run_bugsinpy_thefuck_1.json",
+      "author_owned": false,
+      "bug_commit": "2ced7a7f33ae0bec3ffc7a43ce95330bdf6cfcb9",
+      "failure_family": "command_parser_regex",
+      "failing_command_timestamp": "2026-06-30T11:45:04.965401+00:00",
+      "fix_commit": "444908ce1c17767ef4aaf9e0b4950497914f7f63",
+      "passing_command_timestamp": "2026-06-30T11:45:05.333380+00:00",
+      "repo_url": "https://github.com/nvbn/thefuck",
+      "run_id": "bugsinpy-thefuck-1",
+      "status": "verified"
+    },
+    {
+      "artifact_file": "examples/real_repo_bug_run_bugsinpy_black_1.json",
+      "author_owned": false,
+      "bug_commit": "26c9465a22c732ab1e17b0dec578fa3432e9b558",
+      "failure_family": "runtime_environment_assumption",
+      "failing_command_timestamp": "2026-06-30T11:45:10.915877+00:00",
+      "fix_commit": "c0a7582e3d4cc8bec3b7f5a6c52b36880dcb57d7",
+      "passing_command_timestamp": "2026-06-30T11:45:13.365190+00:00",
+      "repo_url": "https://github.com/psf/black",
+      "run_id": "bugsinpy-black-1",
+      "status": "verified"
+    }
+  ],
+  "summary": {
+    "failure_family_count": 6,
+    "missing_failure_families": 0,
+    "missing_non_author_repos": 0,
+    "non_author_repo_count": 5,
+    "target_met": true,
+    "total_repo_count": 6
+  },
+  "freshness": {
+    "artifact_source": "checked_in_manifest_artifacts",
+    "external_execution": false,
+    "fresh_artifact_count": 6,
+    "fresh_live_artifact_count": 0,
+    "freshness_window_hours": 24.0,
+    "latest_command_timestamp": "2026-06-30T11:45:13.365190+00:00",
+    "live_artifact_count": 6,
+    "oldest_command_timestamp": "2026-06-30T09:06:15.774321+00:00",
+    "producer_command": "python3 scripts/verify_real_repo_corpus.py",
+    "producer_roundtrip_status": "pass",
+    "stale_live_artifact_count": 6,
+    "unique_artifact_count": 6
+  },
+  "target_failure_family_count": 3,
+  "target_repo_count": 5,
+  "version": "1.0"
+}

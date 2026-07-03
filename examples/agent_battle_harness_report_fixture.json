@@ -1,0 +1,211 @@
+{
+  "critic_veto": {
+    "active": false,
+    "enabled": true,
+    "reason": "No veto: self_assess, battle_report, corpus, and next-action gates are satisfied."
+  },
+  "cross_examination": [
+    {
+      "challenge": "Does the control plane still confuse evidence readiness with autonomous execution?",
+      "from_role": "critic",
+      "response": "No. The autonomy runner records no_action when self_assess has no safe next action and blocks bounded boundaries explicitly.",
+      "status": "answered",
+      "to_role": "architect"
+    },
+    {
+      "challenge": "Is the real-repo proof stronger than checked-in fixtures alone?",
+      "from_role": "test_engineer",
+      "response": "No. This local run is a derived harness report and must hold until independent judge reports are supplied.",
+      "status": "answered",
+      "to_role": "code_reviewer"
+    }
+  ],
+  "input_reports": {
+    "battle_report": "generated:battle_report.build_battle_report",
+    "battle_report_run_id": "agent-battle-20260630T123207Z",
+    "self_assessment_report": "generated:self_assess.build_report",
+    "self_assessment_run_id": "agent-battle-20260630T123207Z"
+  },
+  "judge_audit": [
+    {
+      "check": "required judges present",
+      "evidence_refs": [
+        "schemas/artifacts/agent_battle_harness_report.json",
+        "scripts/agent_battle_harness.py"
+      ],
+      "status": "pass"
+    },
+    {
+      "check": "exactly one report per required judge",
+      "evidence_refs": [
+        "agent_battle_harness_report.protocol.required_judges",
+        "agent_battle_harness_report.judges.role"
+      ],
+      "status": "pass"
+    },
+    {
+      "check": "independent agent evidence present",
+      "evidence_refs": [
+        "agent_battle_harness_report.protocol.evidence_mode",
+        "agent_battle_harness_report.judges.source"
+      ],
+      "status": "fail"
+    },
+    {
+      "check": "input reports bind to source run ids",
+      "evidence_refs": [
+        "agent_battle_harness_report.input_reports.self_assessment_report",
+        "agent_battle_harness_report.input_reports.self_assessment_run_id",
+        "agent_battle_harness_report.input_reports.battle_report",
+        "agent_battle_harness_report.input_reports.battle_report_run_id"
+      ],
+      "status": "pass"
+    },
+    {
+      "check": "input reports meet advance readiness gate",
+      "evidence_refs": [
+        "agent_battle_harness_report.input_reports.self_assessment_report.dimensions",
+        "agent_battle_harness_report.input_reports.self_assessment_report.next_actions",
+        "agent_battle_harness_report.input_reports.battle_report.next_actions"
+      ],
+      "status": "pass"
+    },
+    {
+      "check": "blind review hides peer scores",
+      "evidence_refs": [
+        "agent_battle_harness_report.judges.peer_scores_visible"
+      ],
+      "status": "pass"
+    },
+    {
+      "check": "critic veto is wired into outcome",
+      "evidence_refs": [
+        "agent_battle_harness_report.critic_veto",
+        "agent_battle_harness_report.outcome"
+      ],
+      "status": "pass"
+    }
+  ],
+  "judges": [
+    {
+      "context_hash": "sha256:9e39247dc48c203c61305bec400d0168e57a9fe262cf026c76f02783092fc9a9",
+      "input_run_id": "agent-battle-20260630T123207Z",
+      "context_refs": [
+        "apkernel/core.py",
+        "pipelines",
+        "packs/registry.json"
+      ],
+      "source": "derived_battle_report",
+      "source_report": "generated:battle_report.judges.architect",
+      "findings": [
+        "Autonomy is still proposal-driven rather than fully executing queued work.",
+        "Add an explicit approval/runtime boundary for high-risk operations."
+      ],
+      "peer_scores_visible": false,
+      "role": "architect",
+      "score": 95.7,
+      "verdict": "advance",
+      "stance": "The kernel is now a coherent control-plane skeleton with real executor and role-policy paths.",
+      "veto_vote": {
+        "active": false,
+        "reason": "No veto: required gates are satisfied."
+      }
+    },
+    {
+      "context_hash": "sha256:72d0d4d83cd0395d88b0b8c2c2b7bf61acca17cab6b6bf4901753fde3559a527",
+      "input_run_id": "agent-battle-20260630T123207Z",
+      "context_refs": [
+        "scripts/verify.py",
+        "scripts/replay_regressions.py",
+        "tests/test_kernel.py"
+      ],
+      "source": "derived_battle_report",
+      "source_report": "generated:battle_report.judges.test_engineer",
+      "findings": [
+        "Golden coverage is still scenario-level and does not yet measure broad branch coverage.",
+        "Add branch-level replay cases for awaiting_human, failed, and blocked statuses."
+      ],
+      "peer_scores_visible": false,
+      "role": "test_engineer",
+      "score": 98.0,
+      "verdict": "advance",
+      "stance": "The verifier and replay suite now cover positive checkpoints and negative replay mutations.",
+      "veto_vote": {
+        "active": false,
+        "reason": "No veto: required gates are satisfied."
+      }
+    },
+    {
+      "context_hash": "sha256:a0641473a870605907de7b2cf90e2277452b919ceea88db1460d3138473ea67d",
+      "input_run_id": "agent-battle-20260630T123207Z",
+      "context_refs": [
+        "schemas/artifacts",
+        "examples/golden_*.json",
+        "apkernel/replay.py"
+      ],
+      "source": "derived_battle_report",
+      "source_report": "generated:battle_report.judges.code_reviewer",
+      "findings": [
+        "There is no git metadata in this checkout, so diff hygiene cannot be verified locally.",
+        "Run the same gates inside a real repository checkout before release."
+      ],
+      "peer_scores_visible": false,
+      "role": "code_reviewer",
+      "score": 97.3,
+      "verdict": "advance",
+      "stance": "The strongest prior false-green paths are guarded by schema, semantic checks, and clean-state tests.",
+      "veto_vote": {
+        "active": false,
+        "reason": "No veto: required gates are satisfied."
+      }
+    },
+    {
+      "context_hash": "sha256:16d05704fffd6fdae8b5c3842193b386595f20e8104dc30d28812f46b34adebd",
+      "input_run_id": "agent-battle-20260630T123207Z",
+      "context_refs": [
+        "docs/SELF_DRIVING.md",
+        "scripts/self_assess.py",
+        "scripts/battle_report.py"
+      ],
+      "source": "derived_battle_report",
+      "source_report": "generated:battle_report.judges.critic",
+      "findings": [
+        "Demo executors are deterministic and do not yet call external tools or models.",
+        "Maintain the verified corpus and rerun gates before release."
+      ],
+      "peer_scores_visible": false,
+      "role": "critic",
+      "score": 95.7,
+      "verdict": "advance",
+      "stance": "The system has a public real-repo proof corpus; the remaining risk is freshness and release discipline.",
+      "veto_vote": {
+        "active": false,
+        "reason": "No veto: required gates are satisfied."
+      }
+    }
+  ],
+  "outcome": {
+    "accepted_actions": [
+      "Maintain the verified corpus and rerun gates before release."
+    ],
+    "score": 96.6,
+    "verdict": "hold"
+  },
+  "protocol": {
+    "blind_review": true,
+    "critic_veto": true,
+    "cross_exam_rounds": 2,
+    "evidence_mode": "derived_report",
+    "independent_contexts": false,
+    "minimum_score_to_advance": 95,
+    "required_judges": [
+      "architect",
+      "test_engineer",
+      "code_reviewer",
+      "critic"
+    ]
+  },
+  "run_id": "agent-battle-20260630T123207Z",
+  "subject": "Agent Battle validation readiness for Agent Production Kernel",
+  "version": "1.0"
+}

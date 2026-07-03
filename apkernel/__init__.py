@@ -1,0 +1,54 @@
+"""Agent Production Kernel public API."""
+
+from .core import (
+    ContractError,
+    CheckpointStore,
+    PipelineManifest,
+    ApprovalRecord,
+    FunctionStageExecutor,
+    RoleContract,
+    RolePolicy,
+    ReviewResult,
+    Reviewer,
+    RunEngine,
+    SchemaRegistry,
+    StageExecutionContext,
+    StageExecutor,
+    ToolContract,
+    ToolRegistry,
+    load_json,
+    validate_artifact_semantics,
+)
+from .replay import ReplayHarness, ReplayResult, ReplayScenario, artifacts_from_checkpoints, checkpoints_from_paths
+from .packs import DomainPack, ScenarioSpec, StaticReplaySpec, load_domain_packs
+from .corpus import build_real_repo_corpus_report
+
+__all__ = [
+    "ContractError",
+    "CheckpointStore",
+    "FunctionStageExecutor",
+    "ApprovalRecord",
+    "PipelineManifest",
+    "RoleContract",
+    "RolePolicy",
+    "ReviewResult",
+    "Reviewer",
+    "RunEngine",
+    "SchemaRegistry",
+    "StageExecutionContext",
+    "StageExecutor",
+    "ToolContract",
+    "ToolRegistry",
+    "load_json",
+    "validate_artifact_semantics",
+    "artifacts_from_checkpoints",
+    "checkpoints_from_paths",
+    "ReplayHarness",
+    "ReplayResult",
+    "ReplayScenario",
+    "DomainPack",
+    "ScenarioSpec",
+    "StaticReplaySpec",
+    "load_domain_packs",
+    "build_real_repo_corpus_report",
+]

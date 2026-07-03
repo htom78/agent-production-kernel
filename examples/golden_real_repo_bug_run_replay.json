@@ -1,0 +1,28 @@
+{
+  "name": "real-repo-privacy-cache-run",
+  "pipeline": "real-repo-bug-run",
+  "tags": ["real-repo", "regression"],
+  "inputs": {
+    "run_id": "real-repo-privacy-cache"
+  },
+  "expected_artifacts": {
+    "real_repo_bug_run": {
+      "repo_url": "https://github.com/htom78/apk-real-bug-demo",
+      "bug_branch": "main",
+      "fix_branch": "fix/privacy-cache-key",
+      "failing_command": {
+        "status": "fail",
+        "exit_code": 1,
+        "artifact_refs": ["bug_report"]
+      },
+      "passing_command": {
+        "status": "pass",
+        "exit_code": 0,
+        "artifact_refs": ["patch_plan"]
+      },
+      "public_refs": [
+        "https://github.com/htom78/apk-real-bug-demo/tree/fix/privacy-cache-key"
+      ]
+    }
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "name": "release-readiness-gates",
+  "pipeline": "software-release",
+  "tags": ["release", "regression"],
+  "inputs": {
+    "release_id": "REL-001"
+  },
+  "expected_artifacts": {
+    "release_report": {
+      "status": "ready",
+      "gates": [
+        {
+          "name": "unit-tests",
+          "status": "pass",
+          "evidence": {
+            "status": "pass",
+            "exit_code": 0,
+            "artifact_refs": ["release_report"]
+          }
+        },
+        {
+          "name": "rollback-plan",
+          "status": "pass",
+          "evidence": {
+            "status": "pass",
+            "exit_code": 0,
+            "artifact_refs": ["release_report"]
+          }
+        }
+      ]
+    }
+  },
+  "expected_checkpoints": {
+    "release_gate": {
+      "status": "completed",
+      "metadata": {
+        "actor_role": "release_captain",
+        "execution_mode": "stage_executor"
+      },
+      "review": {
+        "decision": "pass"
+      }
+    }
+  }
+}

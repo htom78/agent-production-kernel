@@ -1,0 +1,93 @@
+{
+  "packs": [
+    {
+      "name": "software",
+      "role_policy_file": "packs/software/roles.json",
+      "tool_registry_file": "packs/software/tool_registry.json",
+      "pipelines": [
+        "software-bug-fix",
+        "software-feature-build",
+        "software-refactor",
+        "software-incident-postmortem",
+        "software-release",
+        "kernel-autonomy"
+      ],
+      "scenarios": [
+        {
+          "pipeline": "software-bug-fix",
+          "scenario_file": "bug_fix_scenario.json",
+          "executor": "apkernel.software:build_demo_bug_fix_executor"
+        },
+        {
+          "pipeline": "software-feature-build",
+          "scenario_file": "feature_build_scenario.json",
+          "executor": "apkernel.software:build_demo_feature_executor"
+        },
+        {
+          "pipeline": "software-refactor",
+          "scenario_file": "refactor_scenario.json",
+          "executor": "apkernel.software:build_demo_refactor_executor"
+        },
+        {
+          "pipeline": "software-incident-postmortem",
+          "scenario_file": "incident_postmortem_scenario.json",
+          "executor": "apkernel.software:build_demo_incident_executor"
+        },
+        {
+          "pipeline": "software-release",
+          "scenario_file": "release_scenario.json",
+          "executor": "apkernel.software:build_demo_release_executor"
+        }
+      ],
+      "static_replays": [
+        {
+          "pipeline": "real-repo-bug-run",
+          "fixture_file": "real_repo_bug_run_fixture.json",
+          "artifact": "real_repo_bug_run"
+        },
+        {
+          "pipeline": "real-repo-corpus",
+          "fixture_file": "real_repo_corpus_report_fixture.json",
+          "artifact": "real_repo_corpus_report"
+        },
+        {
+          "pipeline": "agent-battle-harness",
+          "fixture_file": "agent_battle_harness_report_fixture.json",
+          "artifact": "agent_battle_harness_report"
+        },
+        {
+          "pipeline": "agent-battle-harness-input-readiness",
+          "fixture_file": "agent_battle_harness_input_readiness_fixture.json",
+          "artifact": "agent_battle_harness_report"
+        },
+        {
+          "pipeline": "checkpoint-branch-replay",
+          "fixture_file": "checkpoint_branch_replay_fixture.json",
+          "artifact": "checkpoint_branch_replay",
+          "checkpoints_field": "checkpoints"
+        },
+        {
+          "pipeline": "kernel-autonomy",
+          "fixture_file": "autonomy_run_replay_fixture.json",
+          "artifact": "autonomy_run_report",
+          "artifact_field": "autonomy_run_report",
+          "checkpoints_field": "checkpoints"
+        }
+      ]
+    },
+    {
+      "name": "research",
+      "role_policy_file": "packs/research/roles.json",
+      "tool_registry_file": "packs/research/tool_registry.json",
+      "pipelines": ["research-brief"],
+      "scenarios": [
+        {
+          "pipeline": "research-brief",
+          "scenario_file": "research_brief_scenario.json",
+          "executor": "apkernel.research:build_demo_research_brief_executor"
+        }
+      ],
+      "static_replays": []
+    }
+  ]
+}

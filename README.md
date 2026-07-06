@@ -6,8 +6,8 @@ four-phase system sketched from OpenMontage:
 1. **Kernel:** pipeline manifests, artifact schemas, tool registry,
    checkpoints, decision logs, review, replay hooks, and a `RunEngine` that
    enforces stage order and artifact lineage.
-2. **Domain Packs:** software engineering plus a minimal research pack, both
-   loaded through `packs/registry.json`.
+2. **Domain Packs:** software engineering, research, and design-production
+   packs, all loaded through `packs/registry.json`.
 3. **External Harness/Loop Adapters:** contracts for SWE-bench/SWE-agent style
    patch loops, OpenHands-style sandbox runtimes, LangGraph-style durable
    execution, and eval/trace systems.
@@ -51,6 +51,7 @@ pipelines/                Pipeline manifests
 schemas/artifacts/        Artifact contracts
 packs/software/           Software engineering domain pack
 packs/research/           Minimal non-software research domain pack
+packs/design/             Design review and visual-quality domain pack
 packs/registry.json       Domain pack discovery and executor registry
 integrations/             External harness/loop adapter contracts
 examples/                 Replayable example scenarios
@@ -185,3 +186,21 @@ copies the fixed regression test into the buggy checkout, runs the focused
 test in an isolated local venv, records failing and passing command evidence,
 and writes `real_repo_bug_run` artifacts for the corpus manifest. It does not
 use credentials, paid services, pushes, branches, or pull requests.
+
+## Design Pack
+
+`packs/design/` adapts ideas from the MIT-licensed
+[`Trystan-SA/claude-design-system-prompt`](https://github.com/Trystan-SA/claude-design-system-prompt)
+repo into APK's contract layer. The upstream project is a prompt and skill
+library; APK treats it as domain knowledge, not as the control plane.
+
+The `design-review` pipeline turns that knowledge into structured artifacts:
+
+```text
+design_brief -> design_context -> design_prototype_report
+  -> accessibility_audit -> visual_quality_report -> design_release_report
+```
+
+This makes design work auditable: accessibility blockers cannot be marked pass,
+open AI-template or interaction-state findings cannot become a passing visual
+quality report, and a design release is ready only when its evidence gates pass.

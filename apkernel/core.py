@@ -366,6 +366,12 @@ def _artifact_semantic_errors(artifact_name: str, artifact: dict[str, Any]) -> l
         return _approval_decision_errors(artifact)
     if artifact_name == "agent_judge_report":
         return _agent_judge_report_errors(artifact)
+    if artifact_name == "accessibility_audit":
+        return _accessibility_audit_errors(artifact)
+    if artifact_name == "visual_quality_report":
+        return _visual_quality_report_errors(artifact)
+    if artifact_name == "design_release_report":
+        return _design_release_report_errors(artifact)
     return []
 
 
@@ -411,6 +417,56 @@ def _release_report_errors(report: dict[str, Any]) -> list[str]:
         errors.append(f"release_report.status {report_status} requires every gate to pass")
     if report_status == "blocked" and all(status == "pass" for status in gate_statuses):
         errors.append("release_report.status blocked requires at least one non-passing gate")
+    return errors
+
+
+def _accessibility_audit_errors(report: dict[str, Any]) -> list[str]:
+    errors: list[str] = []
+    checks = report.get("checks", [])
+    blockers = report.get("blockers", [])
+    verdict = report.get("verdict")
+    failed_checks = [
+        check for check in checks
+        if isinstance(check, dict) and check.get("status") == "fail"
+    ]
+    if verdict == "pass" and blockers:
+        errors.append("accessibility_audit.verdict pass requires no blockers")
+    if verdict == "pass" and failed_checks:
+        errors.append("accessibility_audit.verdict pass requires no failed checks")
+    if verdict == "fail" and not blockers and not failed_checks:
+        errors.append("accessibility_audit.verdict fail requires blockers or failed checks")
+    return errors
+
+
+def _visual_quality_report_errors(report: dict[str, Any]) -> list[str]:
+    errors: list[str] = []
+    verdict = report.get("verdict")
+    open_serious_findings: list[dict[str, Any]] = []
+    for field in ("ai_slop_findings", "hierarchy_findings", "interaction_state_findings"):
+        for finding in report.get(field, []):
+            if not isinstance(finding, dict):
+                continue
+            if finding.get("status") == "open" and finding.get("severity") in {"blocker", "quality"}:
+                open_serious_findings.append(finding)
+    if verdict == "pass" and open_serious_findings:
+        errors.append("visual_quality_report.verdict pass requires no open blocker or quality findings")
+    if verdict == "fail" and not open_serious_findings:
+        errors.append("visual_quality_report.verdict fail requires an open blocker or quality finding")
+    return errors
+
+
+def _design_release_report_errors(report: dict[str, Any]) -> list[str]:
+    errors: list[str] = []
+    status = report.get("status")
+    gates = report.get("gates", [])
+    gate_statuses = [
+        gate.get("status") for gate in gates
+        if isinstance(gate, dict)
+    ]
+    if status == "ready" and any(gate_status != "pass" for gate_status in gate_statuses):
+        errors.append("design_release_report.status ready requires every gate to pass")
+    if status == "hold" and gate_statuses and all(gate_status == "pass" for gate_status in gate_statuses):
+        errors.append("design_release_report.status hold requires at least one non-passing gate")
     return errors
 
 

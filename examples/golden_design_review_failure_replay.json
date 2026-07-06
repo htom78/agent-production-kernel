@@ -1,0 +1,34 @@
+{
+  "name": "design-review-release-gate-failure-detected",
+  "pipeline": "design-review",
+  "tags": [
+    "design",
+    "regression",
+    "negative"
+  ],
+  "expected_result": "fail",
+  "inputs": {
+    "design_id": "DESIGN-001"
+  },
+  "mutations": [
+    {
+      "path": "artifacts.design_release_report.gates[0].status",
+      "value": "fail"
+    }
+  ],
+  "expected_errors_contain": [
+    "design_release_report.gates"
+  ],
+  "expected_artifacts": {
+    "design_release_report": {
+      "status": "ready",
+      "gates": [
+        {
+          "name": "accessibility-aa",
+          "status": "pass",
+          "evidence_artifact": "accessibility_audit"
+        }
+      ]
+    }
+  }
+}

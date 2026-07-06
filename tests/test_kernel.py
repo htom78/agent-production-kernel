@@ -22,6 +22,7 @@ from apkernel.software import (
     build_demo_release_executor,
 )
 from apkernel.research import build_demo_research_brief_executor
+from apkernel.design import build_demo_design_review_executor
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -348,8 +349,11 @@ class KernelContractTests(unittest.TestCase):
         by_name = {pack.name: pack for pack in packs}
         self.assertIn("software", by_name)
         self.assertIn("research", by_name)
+        self.assertIn("design", by_name)
         self.assertIn("research-brief", by_name["research"].pipelines)
         self.assertEqual(by_name["research"].scenarios[0].pipeline, "research-brief")
+        self.assertIn("design-review", by_name["design"].pipelines)
+        self.assertEqual(by_name["design"].scenarios[0].pipeline, "design-review")
 
     def test_self_assessment_report_validates_and_names_next_action(self) -> None:
         spec = importlib.util.spec_from_file_location(
@@ -1717,6 +1721,105 @@ class KernelContractTests(unittest.TestCase):
                     set(checkpoint["metadata"]["tools_used"]),
                     set(checkpoint["metadata"]["tools_available"]),
                 )
+
+    def test_design_pack_pipeline_runs_with_stage_executor(self) -> None:
+        manifest = PipelineManifest.load(ROOT / "pipelines" / "design-review.json")
+        scenario = load_json(ROOT / "examples" / "design_review_scenario.json")
+        reviewer = Reviewer(self.schemas)
+        role_policy = RolePolicy.load(ROOT / "packs" / "design" / "roles.json")
+
+        with tempfile.TemporaryDirectory() as tmp:
+            store = CheckpointStore(Path(tmp), self.schemas, role_policy)
+            engine = RunEngine(store, reviewer)
+            checkpoints = engine.run_with_executor(
+                manifest,
+                scenario["run_id"],
+                build_demo_design_review_executor(scenario),
+                scenario=scenario,
+                metadata={"execution_mode": "stage_executor", "domain_pack": "design"},
+            )
+            self.assertEqual(set(checkpoints), set(manifest.stage_names()))
+            actual = artifacts_from_checkpoints(tuple(checkpoints.values()))
+            self.assertEqual(actual["accessibility_audit"]["verdict"], "pass")
+            self.assertEqual(actual["visual_quality_report"]["verdict"], "pass")
+            self.assertEqual(actual["design_release_report"]["status"], "ready")
+            self.assertIn(
+                "Trystan-SA/claude-design-system-prompt",
+                actual["design_context"]["upstream_attribution"],
+            )
+            for checkpoint_path in checkpoints.values():
+                checkpoint = load_json(Path(checkpoint_path))
+                actor_role = checkpoint["metadata"]["actor_role"]
+                review_role = checkpoint["review"]["reviewer_role"]
+                allowed_reviewers = role_policy.roles[actor_role].review_by
+                if allowed_reviewers:
+                    self.assertIn(review_role, allowed_reviewers)
+                self.assertIn("tools_available", checkpoint["metadata"])
+                self.assertIn("tools_used", checkpoint["metadata"])
+                self.assertLessEqual(
+                    set(checkpoint["metadata"]["tools_used"]),
+                    set(checkpoint["metadata"]["tools_available"]),
+                )
+
+    def test_accessibility_audit_semantics_reject_fake_pass_with_blocker(self) -> None:
+        report = {
+            "version": "1.0",
+            "design_id": "DESIGN-FAIL",
+            "wcag_level": "AA",
+            "verdict": "pass",
+            "checks": [
+                {
+                    "category": "contrast",
+                    "status": "pass",
+                    "evidence": "Claimed pass.",
+                }
+            ],
+            "blockers": ["Focus ring removed without replacement."],
+            "fixes_applied": [],
+        }
+        self.schemas.validate("accessibility_audit", report)
+        with self.assertRaisesRegex(ContractError, "requires no blockers"):
+            validate_artifact_semantics("accessibility_audit", report)
+
+    def test_visual_quality_report_semantics_reject_open_ai_slop_pass(self) -> None:
+        report = {
+            "version": "1.0",
+            "design_id": "DESIGN-FAIL",
+            "verdict": "pass",
+            "ai_slop_findings": [
+                {
+                    "rule": "ai-slop-check.gradients",
+                    "severity": "quality",
+                    "status": "open",
+                    "evidence": "Hero still uses saturated multi-stop gradient.",
+                }
+            ],
+            "hierarchy_findings": [],
+            "interaction_state_findings": [],
+            "fixes_applied": [],
+        }
+        self.schemas.validate("visual_quality_report", report)
+        with self.assertRaisesRegex(ContractError, "requires no open blocker or quality findings"):
+            validate_artifact_semantics("visual_quality_report", report)
+
+    def test_design_release_report_semantics_reject_ready_with_failed_gate(self) -> None:
+        report = {
+            "version": "1.0",
+            "design_id": "DESIGN-FAIL",
+            "status": "ready",
+            "gates": [
+                {
+                    "name": "accessibility-aa",
+                    "status": "fail",
+                    "evidence_artifact": "accessibility_audit",
+                }
+            ],
+            "open_decisions": [],
+            "attribution_refs": ["https://github.com/Trystan-SA/claude-design-system-prompt"],
+        }
+        self.schemas.validate("design_release_report", report)
+        with self.assertRaisesRegex(ContractError, "requires every gate to pass"):
+            validate_artifact_semantics("design_release_report", report)
 
     def test_role_policy_rejects_wrong_stage_owner(self) -> None:
         manifest = PipelineManifest.load(ROOT / "pipelines" / "software-bug-fix.json")

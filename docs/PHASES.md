@@ -63,6 +63,29 @@ Delivered:
 This pack proves that the kernel can run a non-software workflow through the
 same manifest, role, checkpoint, and replay mechanisms.
 
+## Phase 2c: Design Pack Generality Proof
+
+Delivered:
+
+- `pipelines/design-review.json`
+- `packs/design/roles.json`
+- `packs/design/tool_registry.json`
+- `packs/design/*.md`
+- `schemas/artifacts/design_brief.json`
+- `schemas/artifacts/design_context.json`
+- `schemas/artifacts/design_prototype_report.json`
+- `schemas/artifacts/accessibility_audit.json`
+- `schemas/artifacts/visual_quality_report.json`
+- `schemas/artifacts/design_release_report.json`
+- `examples/design_review_scenario.json`
+- `examples/golden_design_review_replay.json`
+- `examples/golden_design_review_failure_replay.json`
+
+This pack adapts the MIT-licensed `Trystan-SA/claude-design-system-prompt`
+prompt and skill library as domain knowledge. APK does not install that prompt
+as its global operating instruction; it converts the useful ideas into schemas,
+checkpoints, replay fixtures, and semantic gates.
+
 ## Phase 3: External Harness/Loop Adapter Layer
 
 Delivered:

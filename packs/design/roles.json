@@ -1,0 +1,190 @@
+{
+  "version": "1.0",
+  "handoff_rule": "Design roles may communicate only through canonical design artifacts, checkpoints, review findings, and release-gate evidence.",
+  "roles": [
+    {
+      "name": "design_planner",
+      "owns_stages": [
+        "scope_design"
+      ],
+      "allowed_inputs": [
+        "product_context",
+        "brand_context",
+        "repo_context"
+      ],
+      "required_outputs": [
+        "design_brief"
+      ],
+      "must_not": [
+        "invent a brand or audience when source context is available"
+      ],
+      "review_by": [
+        "design_reviewer"
+      ],
+      "approval_by": []
+    },
+    {
+      "name": "design_system_analyst",
+      "owns_stages": [
+        "extract_design_context"
+      ],
+      "allowed_inputs": [
+        "design_brief",
+        "brand_context",
+        "repo_context",
+        "screenshots"
+      ],
+      "required_outputs": [
+        "design_context"
+      ],
+      "must_not": [
+        "silently fill token gaps that should remain user decisions"
+      ],
+      "review_by": [
+        "design_reviewer"
+      ],
+      "approval_by": []
+    },
+    {
+      "name": "prototyper",
+      "owns_stages": [
+        "prototype_surface"
+      ],
+      "allowed_inputs": [
+        "design_brief",
+        "design_context"
+      ],
+      "required_outputs": [
+        "design_prototype_report"
+      ],
+      "must_not": [
+        "claim a rendered prototype without render evidence"
+      ],
+      "review_by": [
+        "design_reviewer"
+      ],
+      "approval_by": []
+    },
+    {
+      "name": "accessibility_reviewer",
+      "owns_stages": [
+        "accessibility_audit"
+      ],
+      "allowed_inputs": [
+        "design_prototype_report"
+      ],
+      "required_outputs": [
+        "accessibility_audit"
+      ],
+      "must_not": [
+        "mark WCAG blockers or failed focus checks as pass"
+      ],
+      "review_by": [
+        "design_reviewer"
+      ],
+      "approval_by": []
+    },
+    {
+      "name": "visual_reviewer",
+      "owns_stages": [
+        "visual_quality_gate"
+      ],
+      "allowed_inputs": [
+        "design_prototype_report",
+        "accessibility_audit"
+      ],
+      "required_outputs": [
+        "visual_quality_report"
+      ],
+      "must_not": [
+        "pass a design with open AI-template tropes or missing interaction states"
+      ],
+      "review_by": [
+        "design_reviewer"
+      ],
+      "approval_by": []
+    },
+    {
+      "name": "design_release_captain",
+      "owns_stages": [
+        "design_release_gate"
+      ],
+      "allowed_inputs": [
+        "accessibility_audit",
+        "visual_quality_report",
+        "design_context"
+      ],
+      "required_outputs": [
+        "design_release_report"
+      ],
+      "must_not": [
+        "treat prompt compliance as release evidence without structured gates"
+      ],
+      "review_by": [
+        "design_reviewer"
+      ],
+      "approval_by": []
+    },
+    {
+      "name": "design_reviewer",
+      "owns_stages": [
+        "all"
+      ],
+      "allowed_inputs": [
+        "any_design_artifact"
+      ],
+      "required_outputs": [
+        "review"
+      ],
+      "must_not": [
+        "accept an artifact that fails its schema or semantic gate"
+      ],
+      "review_by": [],
+      "approval_by": []
+    }
+  ],
+  "handoff_artifacts": [
+    {
+      "from": "design_planner",
+      "to": "design_system_analyst",
+      "artifact": "design_brief",
+      "required_review": "pass"
+    },
+    {
+      "from": "design_system_analyst",
+      "to": "prototyper",
+      "artifact": "design_context",
+      "required_review": "pass"
+    },
+    {
+      "from": "prototyper",
+      "to": "accessibility_reviewer",
+      "artifact": "design_prototype_report",
+      "required_review": "pass"
+    },
+    {
+      "from": "prototyper",
+      "to": "visual_reviewer",
+      "artifact": "design_prototype_report",
+      "required_review": "pass"
+    },
+    {
+      "from": "accessibility_reviewer",
+      "to": "visual_reviewer",
+      "artifact": "accessibility_audit",
+      "required_review": "pass"
+    },
+    {
+      "from": "accessibility_reviewer",
+      "to": "design_release_captain",
+      "artifact": "accessibility_audit",
+      "required_review": "pass"
+    },
+    {
+      "from": "visual_reviewer",
+      "to": "design_release_captain",
+      "artifact": "visual_quality_report",
+      "required_review": "pass"
+    }
+  ]
+}

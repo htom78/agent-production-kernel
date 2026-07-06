@@ -1,0 +1,190 @@
+{
+  "tools": [
+    {
+      "name": "design_context_reader",
+      "capability": "design_context",
+      "provider": "local",
+      "runtime": "LOCAL",
+      "dependencies": [],
+      "input_artifacts": [],
+      "output_artifacts": [
+        "design_brief"
+      ]
+    },
+    {
+      "name": "design_source_reader",
+      "capability": "design_system_extraction",
+      "provider": "local",
+      "runtime": "LOCAL",
+      "dependencies": [
+        "cmd:rg"
+      ],
+      "input_artifacts": [
+        "design_brief"
+      ],
+      "output_artifacts": [
+        "design_context"
+      ]
+    },
+    {
+      "name": "design_token_extractor",
+      "capability": "design_system_extraction",
+      "provider": "agent",
+      "runtime": "LOCAL",
+      "dependencies": [],
+      "input_artifacts": [
+        "design_brief"
+      ],
+      "output_artifacts": [
+        "design_context"
+      ],
+      "fallback_tools": [
+        "design_source_reader"
+      ]
+    },
+    {
+      "name": "component_inventory",
+      "capability": "design_system_extraction",
+      "provider": "agent",
+      "runtime": "LOCAL",
+      "dependencies": [],
+      "input_artifacts": [
+        "design_brief"
+      ],
+      "output_artifacts": [
+        "design_context"
+      ]
+    },
+    {
+      "name": "html_renderer",
+      "capability": "design_runtime_probe",
+      "provider": "external_optional",
+      "runtime": "HYBRID",
+      "dependencies": [],
+      "input_artifacts": [
+        "design_context"
+      ],
+      "output_artifacts": [
+        "design_prototype_report"
+      ]
+    },
+    {
+      "name": "interaction_probe",
+      "capability": "design_runtime_probe",
+      "provider": "external_optional",
+      "runtime": "HYBRID",
+      "dependencies": [],
+      "input_artifacts": [
+        "design_prototype_report"
+      ],
+      "output_artifacts": [
+        "design_prototype_report"
+      ]
+    },
+    {
+      "name": "contrast_checker",
+      "capability": "accessibility_verification",
+      "provider": "agent",
+      "runtime": "LOCAL",
+      "dependencies": [],
+      "input_artifacts": [
+        "design_prototype_report"
+      ],
+      "output_artifacts": [
+        "accessibility_audit"
+      ]
+    },
+    {
+      "name": "dom_semantics_probe",
+      "capability": "accessibility_verification",
+      "provider": "agent",
+      "runtime": "LOCAL",
+      "dependencies": [],
+      "input_artifacts": [
+        "design_prototype_report"
+      ],
+      "output_artifacts": [
+        "accessibility_audit"
+      ]
+    },
+    {
+      "name": "keyboard_focus_probe",
+      "capability": "accessibility_verification",
+      "provider": "agent",
+      "runtime": "LOCAL",
+      "dependencies": [],
+      "input_artifacts": [
+        "design_prototype_report"
+      ],
+      "output_artifacts": [
+        "accessibility_audit"
+      ]
+    },
+    {
+      "name": "motion_forms_probe",
+      "capability": "accessibility_verification",
+      "provider": "agent",
+      "runtime": "LOCAL",
+      "dependencies": [],
+      "input_artifacts": [
+        "design_prototype_report"
+      ],
+      "output_artifacts": [
+        "accessibility_audit"
+      ]
+    },
+    {
+      "name": "ai_slop_detector",
+      "capability": "visual_quality_verification",
+      "provider": "agent",
+      "runtime": "LOCAL",
+      "dependencies": [],
+      "input_artifacts": [
+        "design_prototype_report"
+      ],
+      "output_artifacts": [
+        "visual_quality_report"
+      ]
+    },
+    {
+      "name": "hierarchy_rhythm_probe",
+      "capability": "visual_quality_verification",
+      "provider": "agent",
+      "runtime": "LOCAL",
+      "dependencies": [],
+      "input_artifacts": [
+        "design_prototype_report"
+      ],
+      "output_artifacts": [
+        "visual_quality_report"
+      ]
+    },
+    {
+      "name": "interaction_state_probe",
+      "capability": "visual_quality_verification",
+      "provider": "agent",
+      "runtime": "LOCAL",
+      "dependencies": [],
+      "input_artifacts": [
+        "design_prototype_report"
+      ],
+      "output_artifacts": [
+        "visual_quality_report"
+      ]
+    },
+    {
+      "name": "design_release_gate_runner",
+      "capability": "design_release_governance",
+      "provider": "kernel",
+      "runtime": "LOCAL",
+      "dependencies": [],
+      "input_artifacts": [
+        "accessibility_audit",
+        "visual_quality_report"
+      ],
+      "output_artifacts": [
+        "design_release_report"
+      ]
+    }
+  ]
+}

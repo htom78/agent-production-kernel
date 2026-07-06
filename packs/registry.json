@@ -88,6 +88,22 @@
         }
       ],
       "static_replays": []
+    },
+    {
+      "name": "design",
+      "role_policy_file": "packs/design/roles.json",
+      "tool_registry_file": "packs/design/tool_registry.json",
+      "pipelines": [
+        "design-review"
+      ],
+      "scenarios": [
+        {
+          "pipeline": "design-review",
+          "scenario_file": "design_review_scenario.json",
+          "executor": "apkernel.design:build_demo_design_review_executor"
+        }
+      ],
+      "static_replays": []
     }
   ]
 }

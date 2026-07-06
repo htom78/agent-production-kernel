@@ -1,0 +1,141 @@
+{
+  "name": "design-review",
+  "version": "1.0",
+  "category": "design_production",
+  "description": "Design quality pipeline that turns a design prompt library into structured brief, context, prototype evidence, accessibility, visual quality, and release gates.",
+  "stages": [
+    {
+      "name": "scope_design",
+      "skill": "packs/design/design-brief-director",
+      "produces": [
+        "design_brief"
+      ],
+      "tools_available": [
+        "design_context_reader"
+      ],
+      "review_focus": [
+        "Audience, surface, primary goal, and constraints are explicit",
+        "Design work starts from available context instead of invented style"
+      ],
+      "success_criteria": [
+        "requires:design_id",
+        "requires:primary_goal"
+      ]
+    },
+    {
+      "name": "extract_design_context",
+      "skill": "packs/design/design-system-extractor",
+      "required_artifacts_in": [
+        "design_brief"
+      ],
+      "produces": [
+        "design_context"
+      ],
+      "tools_available": [
+        "design_source_reader",
+        "design_token_extractor",
+        "component_inventory"
+      ],
+      "review_focus": [
+        "Tokens are traced to provided sources or declared as gaps",
+        "Reusable components and interaction patterns are inventoried"
+      ],
+      "success_criteria": [
+        "requires:tokens",
+        "requires:components"
+      ]
+    },
+    {
+      "name": "prototype_surface",
+      "skill": "packs/design/prototype-builder",
+      "required_artifacts_in": [
+        "design_context"
+      ],
+      "produces": [
+        "design_prototype_report"
+      ],
+      "tools_available": [
+        "html_renderer",
+        "interaction_probe"
+      ],
+      "review_focus": [
+        "Prototype evidence names the medium and interactive states",
+        "Render checks are explicit instead of assumed"
+      ],
+      "success_criteria": [
+        "requires:artifact_path",
+        "requires:render_checks"
+      ]
+    },
+    {
+      "name": "accessibility_audit",
+      "skill": "packs/design/accessibility-auditor",
+      "required_artifacts_in": [
+        "design_prototype_report"
+      ],
+      "produces": [
+        "accessibility_audit"
+      ],
+      "tools_available": [
+        "contrast_checker",
+        "dom_semantics_probe",
+        "keyboard_focus_probe",
+        "motion_forms_probe"
+      ],
+      "review_focus": [
+        "WCAG AA blockers are not marked as pass",
+        "Contrast, semantics, keyboard/focus, motion, and forms are all covered"
+      ],
+      "success_criteria": [
+        "requires:verdict",
+        "requires:checks"
+      ]
+    },
+    {
+      "name": "visual_quality_gate",
+      "skill": "packs/design/visual-quality-reviewer",
+      "required_artifacts_in": [
+        "design_prototype_report",
+        "accessibility_audit"
+      ],
+      "produces": [
+        "visual_quality_report"
+      ],
+      "tools_available": [
+        "ai_slop_detector",
+        "hierarchy_rhythm_probe",
+        "interaction_state_probe"
+      ],
+      "review_focus": [
+        "AI-template tropes are recorded and fixed",
+        "Hierarchy, rhythm, and interaction states are explicit"
+      ],
+      "success_criteria": [
+        "requires:verdict",
+        "requires:fixes_applied"
+      ]
+    },
+    {
+      "name": "design_release_gate",
+      "skill": "packs/design/design-release-captain",
+      "required_artifacts_in": [
+        "accessibility_audit",
+        "visual_quality_report"
+      ],
+      "produces": [
+        "design_release_report"
+      ],
+      "tools_available": [
+        "design_release_gate_runner"
+      ],
+      "review_focus": [
+        "A ready design has passing accessibility and visual quality gates",
+        "Attribution and open decisions are preserved"
+      ],
+      "success_criteria": [
+        "requires:status",
+        "requires:gates"
+      ]
+    }
+  ]
+}

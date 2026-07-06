@@ -1,0 +1,105 @@
+{
+  "name": "design-review-quality-gates",
+  "pipeline": "design-review",
+  "tags": [
+    "design",
+    "regression"
+  ],
+  "inputs": {
+    "design_id": "DESIGN-001"
+  },
+  "expected_artifacts": {
+    "design_brief": {
+      "design_id": "DESIGN-001",
+      "primary_goal": "Help operators inspect and adjust design-quality gates without hiding evidence."
+    },
+    "design_context": {
+      "design_id": "DESIGN-001",
+      "tokens": {
+        "spacing": [
+          "--space-md: 16px"
+        ]
+      },
+      "components": [
+        "Evidence table"
+      ]
+    },
+    "accessibility_audit": {
+      "verdict": "pass",
+      "checks": [
+        {
+          "category": "contrast",
+          "status": "pass"
+        },
+        {
+          "category": "keyboard_focus",
+          "status": "pass"
+        }
+      ],
+      "blockers": []
+    },
+    "visual_quality_report": {
+      "verdict": "pass",
+      "ai_slop_findings": [
+        {
+          "rule": "ai-slop-check.gradients",
+          "status": "fixed"
+        }
+      ],
+      "interaction_state_findings": [
+        {
+          "rule": "interaction-states-pass.complete-states",
+          "status": "fixed"
+        }
+      ]
+    },
+    "design_release_report": {
+      "status": "ready",
+      "gates": [
+        {
+          "name": "accessibility-aa",
+          "status": "pass",
+          "evidence_artifact": "accessibility_audit"
+        },
+        {
+          "name": "visual-quality",
+          "status": "pass",
+          "evidence_artifact": "visual_quality_report"
+        }
+      ]
+    }
+  },
+  "expected_checkpoints": {
+    "scope_design": {
+      "metadata": {
+        "actor_role": "design_planner",
+        "execution_mode": "stage_executor"
+      },
+      "review": {
+        "decision": "pass"
+      }
+    },
+    "accessibility_audit": {
+      "metadata": {
+        "actor_role": "accessibility_reviewer",
+        "tools_used": [
+          "contrast_checker",
+          "dom_semantics_probe",
+          "keyboard_focus_probe",
+          "motion_forms_probe"
+        ]
+      },
+      "review": {
+        "decision": "pass"
+      }
+    },
+    "design_release_gate": {
+      "metadata": {
+        "actor_role": "design_release_captain"
+      },
+      "review": {
+        "decision": "pass"
+      }
+    }
+  }
+}

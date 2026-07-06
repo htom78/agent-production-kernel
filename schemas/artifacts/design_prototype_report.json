@@ -1,0 +1,80 @@
+{
+  "artifact": "design_prototype_report",
+  "type": "object",
+  "required": [
+    "version",
+    "design_id",
+    "artifact_path",
+    "medium",
+    "interaction_model",
+    "states_covered",
+    "render_checks"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "design_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "artifact_path": {
+      "type": "string",
+      "minLength": 1
+    },
+    "medium": {
+      "type": "string",
+      "enum": [
+        "page",
+        "prototype",
+        "dashboard",
+        "slide_deck"
+      ]
+    },
+    "interaction_model": {
+      "type": "string",
+      "minLength": 1
+    },
+    "states_covered": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "render_checks": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "status",
+          "evidence"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pass",
+              "fail",
+              "blocked"
+            ]
+          },
+          "evidence": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  }
+}

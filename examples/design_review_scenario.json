@@ -1,0 +1,57 @@
+{
+  "run_id": "demo-design-review",
+  "pipeline": "design-review",
+  "design_id": "DESIGN-001",
+  "surface": "Interactive SaaS settings prototype",
+  "audience": "Power users who repeatedly configure agent production workflows",
+  "primary_goal": "Help operators inspect and adjust design-quality gates without hiding evidence.",
+  "constraints": [
+    "Use structured evidence instead of prompt-only claims",
+    "Prefer existing tokens over invented visual language",
+    "Treat accessibility and visual quality as release gates"
+  ],
+  "source_refs": [
+    "https://github.com/Trystan-SA/claude-design-system-prompt",
+    "codex/system-prompt.md",
+    "codex/skills/accessibility-audit.md",
+    "codex/skills/ai-slop-check.md",
+    "codex/skills/polish-pass.md"
+  ],
+  "tokens": {
+    "colors": [
+      "--color-bg: #FAFAFA",
+      "--color-text: #1A1A1A",
+      "--color-primary: oklch(48% 0.14 250)"
+    ],
+    "typography": [
+      "--font-sans: ui-sans-serif",
+      "--text-base: 16px",
+      "--text-3xl: 30px"
+    ],
+    "spacing": [
+      "--space-xs: 4px",
+      "--space-sm: 8px",
+      "--space-md: 16px",
+      "--space-lg: 24px",
+      "--space-xl: 40px"
+    ],
+    "radii": [
+      "--radius-sm: 4px",
+      "--radius-md: 8px"
+    ],
+    "shadows": [
+      "--shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.08)"
+    ]
+  },
+  "components": [
+    "Gate summary panel",
+    "Evidence table",
+    "Primary action button",
+    "Inline validation message"
+  ],
+  "gaps": [
+    "No final brand photography supplied"
+  ],
+  "artifact_path": "examples/design_review_demo.html",
+  "medium": "prototype"
+}

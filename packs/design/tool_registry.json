@@ -60,7 +60,9 @@
       "capability": "design_runtime_probe",
       "provider": "external_optional",
       "runtime": "HYBRID",
-      "dependencies": [],
+      "dependencies": [
+        "cmd:playwright"
+      ],
       "input_artifacts": [
         "design_context"
       ],
@@ -73,7 +75,9 @@
       "capability": "design_runtime_probe",
       "provider": "external_optional",
       "runtime": "HYBRID",
-      "dependencies": [],
+      "dependencies": [
+        "cmd:playwright"
+      ],
       "input_artifacts": [
         "design_prototype_report"
       ],
@@ -88,7 +92,8 @@
       "runtime": "LOCAL",
       "dependencies": [],
       "input_artifacts": [
-        "design_prototype_report"
+        "design_prototype_report",
+        "accessibility_audit"
       ],
       "output_artifacts": [
         "accessibility_audit"
@@ -101,7 +106,8 @@
       "runtime": "LOCAL",
       "dependencies": [],
       "input_artifacts": [
-        "design_prototype_report"
+        "design_prototype_report",
+        "accessibility_audit"
       ],
       "output_artifacts": [
         "accessibility_audit"
@@ -166,7 +172,8 @@
       "runtime": "LOCAL",
       "dependencies": [],
       "input_artifacts": [
-        "design_prototype_report"
+        "design_prototype_report",
+        "accessibility_audit"
       ],
       "output_artifacts": [
         "visual_quality_report"
@@ -179,6 +186,7 @@
       "runtime": "LOCAL",
       "dependencies": [],
       "input_artifacts": [
+        "design_context",
         "accessibility_audit",
         "visual_quality_report"
       ],

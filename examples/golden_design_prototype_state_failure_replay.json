@@ -1,0 +1,29 @@
+{
+  "name": "design-prototype-state-failure-detected",
+  "pipeline": "design-review",
+  "tags": [
+    "design",
+    "regression",
+    "negative"
+  ],
+  "expected_result": "fail",
+  "inputs": {
+    "design_id": "DESIGN-001"
+  },
+  "mutations": [
+    {
+      "path": "artifacts.design_prototype_report.states_covered[5]",
+      "value": "loading-claim-removed"
+    }
+  ],
+  "expected_errors_contain": [
+    "design_prototype_report.states_covered missing expected item"
+  ],
+  "expected_artifacts": {
+    "design_prototype_report": {
+      "states_covered": [
+        "loading"
+      ]
+    }
+  }
+}

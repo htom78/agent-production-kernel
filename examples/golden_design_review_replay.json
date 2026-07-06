@@ -15,6 +15,9 @@
     },
     "design_context": {
       "design_id": "DESIGN-001",
+      "sources": [
+        "examples/design_sources/claude_design_system_prompt_summary.md"
+      ],
       "tokens": {
         "spacing": [
           "--space-md: 16px"
@@ -22,6 +25,31 @@
       },
       "components": [
         "Evidence table"
+      ],
+      "upstream_attribution": "Adapted from Trystan-SA/claude-design-system-prompt (MIT), using APK schemas/checkpoints as the source of truth."
+    },
+    "design_prototype_report": {
+      "artifact_path": "examples/design_review_demo.html",
+      "states_covered": [
+        "hover",
+        "active",
+        "focus-visible",
+        "disabled",
+        "loading"
+      ],
+      "probe": {
+        "tool": "scripts/probe_design_prototype.py",
+        "status": "pass"
+      },
+      "render_checks": [
+        {
+          "name": "browser-render-probe",
+          "status": "pass"
+        },
+        {
+          "name": "interaction-state-probe",
+          "status": "pass"
+        }
       ]
     },
     "accessibility_audit": {
@@ -66,6 +94,10 @@
           "status": "pass",
           "evidence_artifact": "visual_quality_report"
         }
+      ],
+      "attribution_refs": [
+        "examples/design_sources/claude_design_system_prompt_summary.md",
+        "Adapted from Trystan-SA/claude-design-system-prompt (MIT), using APK schemas/checkpoints as the source of truth."
       ]
     }
   },

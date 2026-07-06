@@ -1,0 +1,29 @@
+{
+  "name": "design-source-ref-failure-detected",
+  "pipeline": "design-review",
+  "tags": [
+    "design",
+    "regression",
+    "negative"
+  ],
+  "expected_result": "fail",
+  "inputs": {
+    "design_id": "DESIGN-001"
+  },
+  "mutations": [
+    {
+      "path": "artifacts.design_brief.source_refs[1]",
+      "value": "examples/design_sources/missing.md"
+    }
+  ],
+  "expected_errors_contain": [
+    "design_brief.source_refs missing expected item"
+  ],
+  "expected_artifacts": {
+    "design_brief": {
+      "source_refs": [
+        "examples/design_sources/claude_design_system_prompt_summary.md"
+      ]
+    }
+  }
+}

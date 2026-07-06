@@ -337,6 +337,25 @@ class KernelContractTests(unittest.TestCase):
                 for artifact_name in stage.get("produces", []):
                     self.assertIn(artifact_name, self.schemas.schemas, f"{path.name}:{stage['name']}")
 
+    def test_stage_tools_declare_required_input_artifacts(self) -> None:
+        tools = {}
+        for pack in load_domain_packs(ROOT):
+            tools.update(pack.tool_registry(ROOT).tools)
+        for path in sorted((ROOT / "pipelines").glob("*.json")):
+            manifest = PipelineManifest.load(path)
+            for stage in manifest.stages:
+                required_inputs = set(stage.get("required_artifacts_in", []))
+                if not required_inputs:
+                    continue
+                declared_tool_inputs = set()
+                for tool_name in stage.get("tools_available", []):
+                    declared_tool_inputs.update(tools[tool_name].input_artifacts)
+                self.assertLessEqual(
+                    required_inputs,
+                    declared_tool_inputs,
+                    f"{path.name}:{stage['name']} missing tool inputs {sorted(required_inputs - declared_tool_inputs)}",
+                )
+
     def test_tool_registry_groups_capabilities(self) -> None:
         registry = ToolRegistry.load(ROOT / "packs" / "software" / "tool_registry.json")
         grouped = registry.by_capability()
@@ -1413,6 +1432,23 @@ class KernelContractTests(unittest.TestCase):
             self.assertTrue(report_path.exists())
             self.assertEqual(report_path.parent, Path(tmp))
 
+    def test_agent_battle_harness_report_writer_can_mirror_current(self) -> None:
+        spec = importlib.util.spec_from_file_location(
+            "agent_battle_harness_writer", ROOT / "scripts" / "agent_battle_harness.py"
+        )
+        self.assertIsNotNone(spec)
+        self.assertIsNotNone(spec.loader)
+        module = importlib.util.module_from_spec(spec)
+        sys.modules["agent_battle_harness_writer"] = module
+        spec.loader.exec_module(module)
+        with tempfile.TemporaryDirectory() as tmp:
+            report = {"version": "1.0", "run_id": "unit-writer"}
+            report_path = Path(tmp) / "run" / "agent_battle_harness_report.json"
+            current_path = Path(tmp) / "current" / "agent_battle_harness_report.json"
+            module._write_report_files(report, report_path, current_report_path=current_path)
+            self.assertEqual(load_json(report_path), report)
+            self.assertEqual(load_json(current_path), report)
+
     def test_agent_battle_harness_cli_builds_independent_report_with_run_id(self) -> None:
         run_id = "unit-agent-battle-cli-independent"
         with tempfile.TemporaryDirectory() as tmp:
@@ -1747,6 +1783,14 @@ class KernelContractTests(unittest.TestCase):
                 "Trystan-SA/claude-design-system-prompt",
                 actual["design_context"]["upstream_attribution"],
             )
+            self.assertIn(
+                "examples/design_sources/claude_design_system_prompt_summary.md",
+                actual["design_release_report"]["attribution_refs"],
+            )
+            self.assertIn(
+                "browser-render-probe",
+                [check["name"] for check in actual["design_prototype_report"]["render_checks"]],
+            )
             for checkpoint_path in checkpoints.values():
                 checkpoint = load_json(Path(checkpoint_path))
                 actor_role = checkpoint["metadata"]["actor_role"]
@@ -1760,6 +1804,22 @@ class KernelContractTests(unittest.TestCase):
                     set(checkpoint["metadata"]["tools_used"]),
                     set(checkpoint["metadata"]["tools_available"]),
                 )
+
+    def test_design_prototype_probe_script_renders_demo(self) -> None:
+        result = subprocess.run(
+            [sys.executable, "scripts/probe_design_prototype.py", "examples/design_review_demo.html"],
+            cwd=ROOT,
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        report = json.loads(result.stdout)
+        self.assertEqual(report["status"], "pass")
+        self.assertIn(
+            "browser-render-probe",
+            [check["name"] for check in report["checks"]],
+        )
 
     def test_accessibility_audit_semantics_reject_fake_pass_with_blocker(self) -> None:
         report = {
@@ -1780,6 +1840,244 @@ class KernelContractTests(unittest.TestCase):
         self.schemas.validate("accessibility_audit", report)
         with self.assertRaisesRegex(ContractError, "requires no blockers"):
             validate_artifact_semantics("accessibility_audit", report)
+
+    def test_design_brief_semantics_reject_missing_local_source_ref(self) -> None:
+        report = {
+            "version": "1.0",
+            "design_id": "DESIGN-FAIL",
+            "surface": "Prototype",
+            "audience": "Operators",
+            "primary_goal": "Inspect evidence.",
+            "constraints": ["Use local sources."],
+            "source_refs": ["examples/design_sources/missing.md"],
+        }
+        self.schemas.validate("design_brief", report)
+        with self.assertRaisesRegex(ContractError, "missing local source"):
+            validate_artifact_semantics("design_brief", report)
+
+    def test_design_semantics_lazy_load_from_public_api(self) -> None:
+        code = """
+from apkernel import ContractError, validate_artifact_semantics
+
+report = {
+    "version": "1.0",
+    "design_id": "DESIGN-FAIL",
+    "surface": "Prototype",
+    "audience": "Operators",
+    "primary_goal": "Inspect evidence.",
+    "constraints": ["Use local sources."],
+    "source_refs": ["examples/design_sources/missing.md"],
+}
+try:
+    validate_artifact_semantics("design_brief", report)
+except ContractError as exc:
+    raise SystemExit(0 if "missing local source" in str(exc) else 2)
+raise SystemExit(1)
+"""
+        result = subprocess.run(
+            [sys.executable, "-c", code],
+            cwd=ROOT,
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+
+    def test_design_semantics_reject_external_noop_pre_registration(self) -> None:
+        code = """
+from apkernel import ContractError, register_artifact_semantic_validator
+
+try:
+    register_artifact_semantic_validator("design_brief", lambda artifact: [])
+except ContractError as exc:
+    raise SystemExit(0 if "must be registered by" in str(exc) else 2)
+raise SystemExit(1)
+"""
+        result = subprocess.run(
+            [sys.executable, "-c", code],
+            cwd=ROOT,
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+
+    def test_design_semantics_loader_failure_does_not_cache_bypass(self) -> None:
+        code = """
+import apkernel.core as core
+
+report = {
+    "version": "1.0",
+    "design_id": "DESIGN-FAIL",
+    "surface": "Prototype",
+    "audience": "Operators",
+    "primary_goal": "Inspect evidence.",
+    "constraints": ["Use local sources."],
+    "source_refs": ["examples/design_sources/missing.md"],
+}
+
+original_load_json = core.load_json
+failed_once = {"value": False}
+
+def flaky_load_json(path):
+    if str(path).endswith("packs/registry.json") and not failed_once["value"]:
+        failed_once["value"] = True
+        raise OSError("synthetic registry read failure")
+    return original_load_json(path)
+
+core.load_json = flaky_load_json
+try:
+    try:
+        core.validate_artifact_semantics("design_brief", report)
+    except core.ContractError:
+        pass
+    else:
+        raise SystemExit(1)
+finally:
+    core.load_json = original_load_json
+
+try:
+    core.validate_artifact_semantics("design_brief", report)
+except core.ContractError as exc:
+    raise SystemExit(0 if "missing local source" in str(exc) else 2)
+raise SystemExit(3)
+"""
+        result = subprocess.run(
+            [sys.executable, "-c", code],
+            cwd=ROOT,
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+
+    def test_design_prototype_report_semantics_reject_missing_artifact(self) -> None:
+        report = {
+            "version": "1.0",
+            "design_id": "DESIGN-FAIL",
+            "artifact_path": "examples/missing_design_artifact.html",
+            "medium": "prototype",
+            "interaction_model": "Clickable prototype.",
+            "states_covered": [
+                "default",
+                "hover",
+                "active",
+                "focus-visible",
+                "disabled",
+                "loading",
+            ],
+            "probe": {
+                "tool": "scripts/probe_design_prototype.py",
+                "status": "pass",
+                "screenshot_path": "examples/missing_probe.png",
+            },
+            "render_checks": [
+                {
+                    "name": "browser-render-probe",
+                    "status": "pass",
+                    "evidence": "Render probe claims pass.",
+                },
+                {
+                    "name": "interaction-state-probe",
+                    "status": "pass",
+                    "evidence": "Interaction probe claims pass.",
+                }
+            ],
+        }
+        self.schemas.validate("design_prototype_report", report)
+        with self.assertRaisesRegex(ContractError, "artifact_path does not exist"):
+            validate_artifact_semantics("design_prototype_report", report)
+
+    def test_design_prototype_report_semantics_reject_claimed_loading_without_marker(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            artifact = Path(tmp) / "prototype.html"
+            screenshot = Path(tmp) / "probe.png"
+            artifact.write_text(
+                """
+                <!doctype html>
+                <style>
+                  button:hover {}
+                  button:active {}
+                  button:focus-visible {}
+                  button:disabled {}
+                </style>
+                <button type="button" disabled>Saving</button>
+                """,
+                encoding="utf-8",
+            )
+            screenshot.write_bytes(b"fake-png")
+            report = {
+                "version": "1.0",
+                "design_id": "DESIGN-FAIL",
+                "artifact_path": str(artifact),
+                "medium": "prototype",
+                "interaction_model": "Clickable prototype.",
+                "states_covered": [
+                    "default",
+                    "hover",
+                    "active",
+                    "focus-visible",
+                    "disabled",
+                    "loading",
+                ],
+                "probe": {
+                    "tool": "scripts/probe_design_prototype.py",
+                    "status": "pass",
+                    "screenshot_path": str(screenshot),
+                },
+                "render_checks": [
+                    {
+                        "name": "browser-render-probe",
+                        "status": "pass",
+                        "evidence": "Render probe claims pass.",
+                    },
+                    {
+                        "name": "interaction-state-probe",
+                        "status": "pass",
+                        "evidence": "Interaction probe claims pass.",
+                    }
+                ],
+            }
+            self.schemas.validate("design_prototype_report", report)
+            with self.assertRaisesRegex(ContractError, "claims 'loading' without an HTML state marker"):
+                validate_artifact_semantics("design_prototype_report", report)
+
+    def test_design_prototype_report_semantics_reject_forged_probe_without_screenshot(self) -> None:
+        report = {
+            "version": "1.0",
+            "design_id": "DESIGN-FAIL",
+            "artifact_path": "examples/design_review_demo.html",
+            "medium": "prototype",
+            "interaction_model": "Clickable prototype.",
+            "states_covered": [
+                "default",
+                "hover",
+                "active",
+                "focus-visible",
+                "disabled",
+                "loading",
+            ],
+            "probe": {
+                "tool": "scripts/probe_design_prototype.py",
+                "status": "pass",
+                "screenshot_path": "examples/missing_probe.png",
+            },
+            "render_checks": [
+                {
+                    "name": "browser-render-probe",
+                    "status": "pass",
+                    "evidence": "Render probe claims pass.",
+                },
+                {
+                    "name": "interaction-state-probe",
+                    "status": "pass",
+                    "evidence": "Interaction probe claims pass.",
+                },
+            ],
+        }
+        self.schemas.validate("design_prototype_report", report)
+        with self.assertRaisesRegex(ContractError, "probe.screenshot_path does not exist"):
+            validate_artifact_semantics("design_prototype_report", report)
 
     def test_visual_quality_report_semantics_reject_open_ai_slop_pass(self) -> None:
         report = {
@@ -1819,6 +2117,30 @@ class KernelContractTests(unittest.TestCase):
         }
         self.schemas.validate("design_release_report", report)
         with self.assertRaisesRegex(ContractError, "requires every gate to pass"):
+            validate_artifact_semantics("design_release_report", report)
+
+    def test_design_release_report_semantics_reject_missing_upstream_provenance(self) -> None:
+        report = {
+            "version": "1.0",
+            "design_id": "DESIGN-FAIL",
+            "status": "ready",
+            "gates": [
+                {
+                    "name": "accessibility-aa",
+                    "status": "pass",
+                    "evidence_artifact": "accessibility_audit",
+                },
+                {
+                    "name": "visual-quality",
+                    "status": "pass",
+                    "evidence_artifact": "visual_quality_report",
+                },
+            ],
+            "open_decisions": [],
+            "attribution_refs": ["examples/design_sources/local-only.md"],
+        }
+        self.schemas.validate("design_release_report", report)
+        with self.assertRaisesRegex(ContractError, "upstream project provenance"):
             validate_artifact_semantics("design_release_report", report)
 
     def test_role_policy_rejects_wrong_stage_owner(self) -> None:

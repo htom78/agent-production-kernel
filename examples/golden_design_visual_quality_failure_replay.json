@@ -1,0 +1,33 @@
+{
+  "name": "design-visual-quality-fake-pass-failure-detected",
+  "pipeline": "design-review",
+  "tags": [
+    "design",
+    "regression",
+    "negative"
+  ],
+  "expected_result": "fail",
+  "inputs": {
+    "design_id": "DESIGN-001"
+  },
+  "mutations": [
+    {
+      "path": "artifacts.visual_quality_report.ai_slop_findings[0].status",
+      "value": "open"
+    }
+  ],
+  "expected_errors_contain": [
+    "visual_quality_report.ai_slop_findings"
+  ],
+  "expected_artifacts": {
+    "visual_quality_report": {
+      "verdict": "pass",
+      "ai_slop_findings": [
+        {
+          "rule": "ai-slop-check.gradients",
+          "status": "fixed"
+        }
+      ]
+    }
+  }
+}

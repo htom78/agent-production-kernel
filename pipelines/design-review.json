@@ -119,6 +119,7 @@
       "name": "design_release_gate",
       "skill": "packs/design/design-release-captain",
       "required_artifacts_in": [
+        "design_context",
         "accessibility_audit",
         "visual_quality_report"
       ],

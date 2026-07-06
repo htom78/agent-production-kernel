@@ -1,0 +1,29 @@
+{
+  "name": "design-prototype-probe-failure-detected",
+  "pipeline": "design-review",
+  "tags": [
+    "design",
+    "regression",
+    "negative"
+  ],
+  "expected_result": "fail",
+  "inputs": {
+    "design_id": "DESIGN-001"
+  },
+  "mutations": [
+    {
+      "path": "artifacts.design_prototype_report.probe.status",
+      "value": "fail"
+    }
+  ],
+  "expected_errors_contain": [
+    "design_prototype_report.probe.status expected 'pass'"
+  ],
+  "expected_artifacts": {
+    "design_prototype_report": {
+      "probe": {
+        "status": "pass"
+      }
+    }
+  }
+}

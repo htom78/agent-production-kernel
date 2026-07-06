@@ -84,7 +84,9 @@ Delivered:
 This pack adapts the MIT-licensed `Trystan-SA/claude-design-system-prompt`
 prompt and skill library as domain knowledge. APK does not install that prompt
 as its global operating instruction; it converts the useful ideas into schemas,
-checkpoints, replay fixtures, and semantic gates.
+checkpoints, replay fixtures, pack-registered semantic gates, local source
+summaries, and a file-bound prototype fixture with a Playwright-backed browser
+render probe.
 
 ## Phase 3: External Harness/Loop Adapter Layer
 
@@ -104,13 +106,16 @@ boundaries rather than kernel dependencies.
 Delivered:
 
 - `packs/software/roles.json`
+- `packs/research/roles.json`
+- `packs/design/roles.json`
 
 Roles are not free-form chat participants. Each role owns stages, accepts
 canonical inputs, emits canonical outputs, and hands off only after review.
 
 The current engine enforces stage order and artifact lineage; role ownership is
-enforced at checkpoint write time for completed approval-sensitive stages. The
-`autonomy_runner` role owns the `select_next_action` stage.
+enforced at checkpoint write time for completed approval-sensitive stages across
+registered domain packs. The `autonomy_runner` role owns the
+`select_next_action` stage.
 
 ## System Invariant
 

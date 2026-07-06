@@ -1,0 +1,29 @@
+{
+  "name": "design-release-attribution-failure-detected",
+  "pipeline": "design-review",
+  "tags": [
+    "design",
+    "regression",
+    "negative"
+  ],
+  "expected_result": "fail",
+  "inputs": {
+    "design_id": "DESIGN-001"
+  },
+  "mutations": [
+    {
+      "path": "artifacts.design_release_report.attribution_refs[5]",
+      "value": "unknown-upstream"
+    }
+  ],
+  "expected_errors_contain": [
+    "design_release_report.attribution_refs missing expected item"
+  ],
+  "expected_artifacts": {
+    "design_release_report": {
+      "attribution_refs": [
+        "Adapted from Trystan-SA/claude-design-system-prompt (MIT), using APK schemas/checkpoints as the source of truth."
+      ]
+    }
+  }
+}

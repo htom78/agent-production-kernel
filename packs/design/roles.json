@@ -157,6 +157,12 @@
       "required_review": "pass"
     },
     {
+      "from": "design_system_analyst",
+      "to": "design_release_captain",
+      "artifact": "design_context",
+      "required_review": "pass"
+    },
+    {
       "from": "prototyper",
       "to": "accessibility_reviewer",
       "artifact": "design_prototype_report",

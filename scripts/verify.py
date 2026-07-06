@@ -60,6 +60,16 @@ def _verify_pipeline_manifests(root: Path, schemas: SchemaRegistry, tools: dict[
             for tool_name in stage.get("tools_available", []):
                 if tool_name not in tools:
                     raise ContractError(f"{path.name}:{stage['name']} references unknown tool {tool_name}")
+            required_inputs = set(stage.get("required_artifacts_in", []))
+            if required_inputs:
+                declared_tool_inputs: set[str] = set()
+                for tool_name in stage.get("tools_available", []):
+                    declared_tool_inputs.update(tools[tool_name].input_artifacts)
+                missing_inputs = sorted(required_inputs - declared_tool_inputs)
+                if missing_inputs:
+                    raise ContractError(
+                        f"{path.name}:{stage['name']} tools_available do not declare input artifacts {missing_inputs}"
+                    )
         manifests.append(manifest)
     if not manifests:
         raise ContractError("no pipeline manifests found")

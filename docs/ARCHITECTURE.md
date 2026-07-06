@@ -44,9 +44,12 @@ A domain pack provides:
 Packs are discovered through `packs/registry.json`. The software pack is the
 first domain pack; the research pack is the first non-software proof that the
 core control plane can run another domain through manifest, roles, executor,
-checkpoint, and replay. The design pack then tests a higher-judgment domain: it
-turns a prompt/skill library into inspectable design artifacts, accessibility
-gates, visual quality gates, and release evidence.
+checkpoint, and replay. Packs can also register artifact semantic validators
+through an optional `semantic_module` entry, so domain-specific policy remains
+owned by the pack rather than hardcoded into the kernel core. The design pack
+then tests a higher-judgment domain: it turns a prompt/skill library into
+inspectable design artifacts, accessibility gates, visual quality gates, and
+release evidence.
 
 ## Why External Tools Are Adapters
 

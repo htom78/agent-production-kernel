@@ -8,6 +8,8 @@ from __future__ import annotations
 
 import dataclasses
 import datetime as dt
+import inspect
+import importlib
 import json
 import shutil
 from pathlib import Path
@@ -43,6 +45,32 @@ ALLOWED_BATTLE_REPORT_ACTIONS = {
     "Run and preserve an independent multi-agent battle report for APK.",
     "Address the current independent Agent Battle hold findings.",
 }
+ArtifactSemanticValidator = Callable[[dict[str, Any]], list[str]]
+_DOMAIN_ARTIFACT_SEMANTIC_VALIDATORS: dict[str, ArtifactSemanticValidator] = {}
+_DOMAIN_ARTIFACT_SEMANTIC_VALIDATOR_SOURCES: dict[str, str] = {}
+_DOMAIN_ARTIFACT_SEMANTIC_LOAD_ATTEMPTS: set[str] = set()
+_DOMAIN_ARTIFACT_SEMANTIC_MODULE_CACHE: dict[str, str | None] = {}
+
+
+def register_artifact_semantic_validator(
+    artifact_name: str,
+    validator: ArtifactSemanticValidator,
+    *,
+    source: str | None = None,
+) -> None:
+    if not artifact_name:
+        raise ContractError("artifact semantic validator name is required")
+    expected_source = _expected_domain_semantic_module(artifact_name)
+    if expected_source is not None:
+        caller_source = source or _caller_module_name()
+        if caller_source != expected_source:
+            raise ContractError(
+                f"semantic validator for {artifact_name!r} must be registered by {expected_source!r}, got {caller_source!r}"
+            )
+    if artifact_name in _DOMAIN_ARTIFACT_SEMANTIC_VALIDATORS:
+        raise ContractError(f"semantic validator already registered for {artifact_name!r}")
+    _DOMAIN_ARTIFACT_SEMANTIC_VALIDATORS[artifact_name] = validator
+    _DOMAIN_ARTIFACT_SEMANTIC_VALIDATOR_SOURCES[artifact_name] = source or _caller_module_name()
 
 
 def load_json(path: Path) -> dict[str, Any]:
@@ -51,6 +79,73 @@ def load_json(path: Path) -> dict[str, Any]:
     if not isinstance(value, dict):
         raise ContractError(f"{path} must contain a JSON object")
     return value
+
+
+def _caller_module_name() -> str:
+    frame = inspect.currentframe()
+    if frame is None or frame.f_back is None:
+        return "<unknown>"
+    caller = frame.f_back.f_back if frame.f_back.f_back is not None else frame.f_back
+    return str(caller.f_globals.get("__name__", "<unknown>"))
+
+
+def _expected_domain_semantic_module(artifact_name: str) -> str | None:
+    if artifact_name in _DOMAIN_ARTIFACT_SEMANTIC_MODULE_CACHE:
+        return _DOMAIN_ARTIFACT_SEMANTIC_MODULE_CACHE[artifact_name]
+    root = Path(__file__).resolve().parent.parent
+    registry_path = root / "packs" / "registry.json"
+    if not registry_path.exists():
+        _DOMAIN_ARTIFACT_SEMANTIC_MODULE_CACHE[artifact_name] = None
+        return None
+    try:
+        registry = load_json(registry_path)
+    except (OSError, json.JSONDecodeError) as exc:
+        raise ContractError(f"could not load domain pack registry: {exc}") from exc
+    packs = registry.get("packs")
+    if not isinstance(packs, list):
+        raise ContractError("packs/registry.json must define packs[]")
+    for pack in packs:
+        if not isinstance(pack, dict):
+            continue
+        semantic_module = pack.get("semantic_module")
+        pipelines = pack.get("pipelines")
+        if not isinstance(semantic_module, str) or not semantic_module:
+            continue
+        if not isinstance(pipelines, list) or not all(isinstance(item, str) for item in pipelines):
+            continue
+        for pipeline_name in pipelines:
+            manifest_path = root / "pipelines" / f"{pipeline_name}.json"
+            try:
+                manifest = load_json(manifest_path)
+            except (OSError, json.JSONDecodeError) as exc:
+                raise ContractError(f"could not load pipeline manifest {manifest_path}: {exc}") from exc
+            stages = manifest.get("stages")
+            if not isinstance(stages, list):
+                raise ContractError(f"pipeline {pipeline_name!r} must define stages[]")
+            for stage in stages:
+                if not isinstance(stage, dict):
+                    continue
+                produces = stage.get("produces", [])
+                if isinstance(produces, list) and artifact_name in produces:
+                    _DOMAIN_ARTIFACT_SEMANTIC_MODULE_CACHE[artifact_name] = semantic_module
+                    return semantic_module
+    _DOMAIN_ARTIFACT_SEMANTIC_MODULE_CACHE[artifact_name] = None
+    return None
+
+
+def _load_domain_semantic_validator(artifact_name: str) -> None:
+    if artifact_name in _DOMAIN_ARTIFACT_SEMANTIC_LOAD_ATTEMPTS:
+        return
+    semantic_module = _expected_domain_semantic_module(artifact_name)
+    if semantic_module is None:
+        _DOMAIN_ARTIFACT_SEMANTIC_LOAD_ATTEMPTS.add(artifact_name)
+        return
+    importlib.import_module(semantic_module)
+    if artifact_name not in _DOMAIN_ARTIFACT_SEMANTIC_VALIDATORS:
+        raise ContractError(
+            f"semantic module {semantic_module!r} did not register validator for {artifact_name!r}"
+        )
+    _DOMAIN_ARTIFACT_SEMANTIC_LOAD_ATTEMPTS.add(artifact_name)
 
 
 def _json_type_matches(expected: str, value: Any) -> bool:
@@ -366,12 +461,12 @@ def _artifact_semantic_errors(artifact_name: str, artifact: dict[str, Any]) -> l
         return _approval_decision_errors(artifact)
     if artifact_name == "agent_judge_report":
         return _agent_judge_report_errors(artifact)
-    if artifact_name == "accessibility_audit":
-        return _accessibility_audit_errors(artifact)
-    if artifact_name == "visual_quality_report":
-        return _visual_quality_report_errors(artifact)
-    if artifact_name == "design_release_report":
-        return _design_release_report_errors(artifact)
+    validator = _DOMAIN_ARTIFACT_SEMANTIC_VALIDATORS.get(artifact_name)
+    if validator is None:
+        _load_domain_semantic_validator(artifact_name)
+        validator = _DOMAIN_ARTIFACT_SEMANTIC_VALIDATORS.get(artifact_name)
+    if validator is not None:
+        return validator(artifact)
     return []
 
 
@@ -417,56 +512,6 @@ def _release_report_errors(report: dict[str, Any]) -> list[str]:
         errors.append(f"release_report.status {report_status} requires every gate to pass")
     if report_status == "blocked" and all(status == "pass" for status in gate_statuses):
         errors.append("release_report.status blocked requires at least one non-passing gate")
-    return errors
-
-
-def _accessibility_audit_errors(report: dict[str, Any]) -> list[str]:
-    errors: list[str] = []
-    checks = report.get("checks", [])
-    blockers = report.get("blockers", [])
-    verdict = report.get("verdict")
-    failed_checks = [
-        check for check in checks
-        if isinstance(check, dict) and check.get("status") == "fail"
-    ]
-    if verdict == "pass" and blockers:
-        errors.append("accessibility_audit.verdict pass requires no blockers")
-    if verdict == "pass" and failed_checks:
-        errors.append("accessibility_audit.verdict pass requires no failed checks")
-    if verdict == "fail" and not blockers and not failed_checks:
-        errors.append("accessibility_audit.verdict fail requires blockers or failed checks")
-    return errors
-
-
-def _visual_quality_report_errors(report: dict[str, Any]) -> list[str]:
-    errors: list[str] = []
-    verdict = report.get("verdict")
-    open_serious_findings: list[dict[str, Any]] = []
-    for field in ("ai_slop_findings", "hierarchy_findings", "interaction_state_findings"):
-        for finding in report.get(field, []):
-            if not isinstance(finding, dict):
-                continue
-            if finding.get("status") == "open" and finding.get("severity") in {"blocker", "quality"}:
-                open_serious_findings.append(finding)
-    if verdict == "pass" and open_serious_findings:
-        errors.append("visual_quality_report.verdict pass requires no open blocker or quality findings")
-    if verdict == "fail" and not open_serious_findings:
-        errors.append("visual_quality_report.verdict fail requires an open blocker or quality finding")
-    return errors
-
-
-def _design_release_report_errors(report: dict[str, Any]) -> list[str]:
-    errors: list[str] = []
-    status = report.get("status")
-    gates = report.get("gates", [])
-    gate_statuses = [
-        gate.get("status") for gate in gates
-        if isinstance(gate, dict)
-    ]
-    if status == "ready" and any(gate_status != "pass" for gate_status in gate_statuses):
-        errors.append("design_release_report.status ready requires every gate to pass")
-    if status == "hold" and gate_statuses and all(gate_status == "pass" for gate_status in gate_statuses):
-        errors.append("design_release_report.status hold requires at least one non-passing gate")
     return errors
 
 

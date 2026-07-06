@@ -465,6 +465,20 @@ def _display_path(path: Path) -> str:
     return str(path.relative_to(ROOT)) if path.is_relative_to(ROOT) else str(path)
 
 
+def _write_report_files(
+    report: dict[str, Any],
+    report_path: Path,
+    *,
+    current_report_path: Path | None = None,
+) -> None:
+    encoded = json.dumps(report, indent=2, sort_keys=True)
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    report_path.write_text(encoded, encoding="utf-8")
+    if current_report_path is not None:
+        current_report_path.parent.mkdir(parents=True, exist_ok=True)
+        current_report_path.write_text(encoded, encoding="utf-8")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--self-report", type=Path)
@@ -507,12 +521,17 @@ def main() -> int:
     schemas.validate("agent_battle_harness_report", report)
     validate_artifact_semantics("agent_battle_harness_report", report)
 
+    default_output = args.output_dir is None
     output_dir = args.output_dir or ROOT / ".apk" / "agent-battle-harness" / run_id
     if not output_dir.is_absolute():
         output_dir = ROOT / output_dir
-    output_dir.mkdir(parents=True, exist_ok=True)
     report_path = output_dir / "agent_battle_harness_report.json"
-    report_path.write_text(json.dumps(report, indent=2, sort_keys=True), encoding="utf-8")
+    current_report_path = (
+        ROOT / ".apk" / "agent-battle-harness" / "current" / "agent_battle_harness_report.json"
+        if default_output
+        else None
+    )
+    _write_report_files(report, report_path, current_report_path=current_report_path)
     summary = {
         "status": "pass" if report["outcome"]["verdict"] == "advance" else report["outcome"]["verdict"],
         "report": _display_path(report_path),

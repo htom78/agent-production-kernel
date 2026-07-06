@@ -30,7 +30,9 @@ python3 scripts/self_assess.py
 python3 scripts/battle_report.py
 ```
 
-All commands use only the Python standard library.
+Core kernel checks use the Python standard library. The design pack's prototype
+render gate also requires the local `playwright` command and Python Playwright
+runtime declared in `packs/design/tool_registry.json`.
 
 ## Evidence Boundary
 
@@ -193,6 +195,10 @@ use credentials, paid services, pushes, branches, or pull requests.
 [`Trystan-SA/claude-design-system-prompt`](https://github.com/Trystan-SA/claude-design-system-prompt)
 repo into APK's contract layer. The upstream project is a prompt and skill
 library; APK treats it as domain knowledge, not as the control plane.
+The pack registers its own semantic validators through `packs/registry.json`,
+so design-specific rules do not live in the kernel core. The prototype stage
+uses a Playwright-backed browser probe instead of treating a readable HTML file
+as render evidence.
 
 The `design-review` pipeline turns that knowledge into structured artifacts:
 
@@ -204,3 +210,5 @@ design_brief -> design_context -> design_prototype_report
 This makes design work auditable: accessibility blockers cannot be marked pass,
 open AI-template or interaction-state findings cannot become a passing visual
 quality report, and a design release is ready only when its evidence gates pass.
+The demo scenario also preserves local source summaries and a real HTML
+prototype fixture so render and provenance claims are file-bound.

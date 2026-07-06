@@ -1,0 +1,34 @@
+{
+  "name": "design-accessibility-fake-pass-failure-detected",
+  "pipeline": "design-review",
+  "tags": [
+    "design",
+    "regression",
+    "negative"
+  ],
+  "expected_result": "fail",
+  "inputs": {
+    "design_id": "DESIGN-001"
+  },
+  "mutations": [
+    {
+      "path": "artifacts.accessibility_audit.checks[0].status",
+      "value": "fail"
+    }
+  ],
+  "expected_errors_contain": [
+    "accessibility_audit.checks"
+  ],
+  "expected_artifacts": {
+    "accessibility_audit": {
+      "verdict": "pass",
+      "checks": [
+        {
+          "category": "contrast",
+          "status": "pass"
+        }
+      ],
+      "blockers": []
+    }
+  }
+}

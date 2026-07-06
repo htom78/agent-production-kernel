@@ -12,10 +12,10 @@
   ],
   "source_refs": [
     "https://github.com/Trystan-SA/claude-design-system-prompt",
-    "codex/system-prompt.md",
-    "codex/skills/accessibility-audit.md",
-    "codex/skills/ai-slop-check.md",
-    "codex/skills/polish-pass.md"
+    "examples/design_sources/claude_design_system_prompt_summary.md",
+    "examples/design_sources/accessibility_audit_summary.md",
+    "examples/design_sources/ai_slop_check_summary.md",
+    "examples/design_sources/polish_pass_summary.md"
   ],
   "tokens": {
     "colors": [

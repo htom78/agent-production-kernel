@@ -92,6 +92,7 @@ class DomainPack:
     pipelines: tuple[str, ...]
     scenarios: tuple[ScenarioSpec, ...]
     static_replays: tuple[StaticReplaySpec, ...]
+    semantic_module: str | None = None
 
     @classmethod
     def from_dict(cls, raw: dict[str, Any]) -> "DomainPack":
@@ -109,8 +110,11 @@ class DomainPack:
             raise ContractError(f"pack {raw['name']} pipelines must be strings")
         scenarios = raw.get("scenarios", [])
         static_replays = raw.get("static_replays", [])
+        semantic_module = raw.get("semantic_module")
         if not isinstance(scenarios, list) or not isinstance(static_replays, list):
             raise ContractError(f"pack {raw['name']} scenarios/static_replays must be lists")
+        if semantic_module is not None and not isinstance(semantic_module, str):
+            raise ContractError(f"pack {raw['name']} semantic_module must be a string")
         return cls(
             name=raw["name"],
             role_policy_file=raw["role_policy_file"],
@@ -118,6 +122,7 @@ class DomainPack:
             pipelines=tuple(pipelines),
             scenarios=tuple(ScenarioSpec.from_dict(item) for item in scenarios),
             static_replays=tuple(StaticReplaySpec.from_dict(item) for item in static_replays),
+            semantic_module=semantic_module,
         )
 
     def role_policy(self, root: Path) -> RolePolicy:
@@ -136,4 +141,7 @@ def load_domain_packs(root: Path) -> list[DomainPack]:
     names = [pack.name for pack in loaded]
     if len(set(names)) != len(names):
         raise ContractError(f"duplicate domain pack names: {names}")
+    for pack in loaded:
+        if pack.semantic_module:
+            importlib.import_module(pack.semantic_module)
     return loaded

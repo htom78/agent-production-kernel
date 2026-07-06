@@ -2,15 +2,34 @@
 
 from __future__ import annotations
 
+import json
+import subprocess
+import sys
+from pathlib import Path
 from typing import Any
 
-from .core import ContractError, FunctionStageExecutor, StageExecutionContext
+from .core import (
+    ContractError,
+    FunctionStageExecutor,
+    StageExecutionContext,
+    register_artifact_semantic_validator,
+)
 
 
+ROOT = Path(__file__).resolve().parent.parent
 UPSTREAM_ATTRIBUTION = (
     "Adapted from Trystan-SA/claude-design-system-prompt "
     "(MIT), using APK schemas/checkpoints as the source of truth."
 )
+REQUIRED_INTERACTION_STATES = {
+    "default",
+    "hover",
+    "active",
+    "focus-visible",
+    "disabled",
+    "loading",
+}
+REQUIRED_RELEASE_GATES = {"accessibility-aa", "visual-quality"}
 
 
 def _require_prior(context: StageExecutionContext, artifact_name: str) -> dict[str, Any]:
@@ -27,6 +46,207 @@ def _finding(rule: str, evidence: str, *, status: str = "fixed", severity: str =
         "status": status,
         "evidence": evidence,
     }
+
+
+def _is_url(value: str) -> bool:
+    return value.startswith("https://") or value.startswith("http://")
+
+
+def _local_path(value: str) -> Path:
+    path = Path(value)
+    return path if path.is_absolute() else ROOT / path
+
+
+def _probe_design_prototype(artifact_path: str) -> dict[str, Any]:
+    result = subprocess.run(
+        [sys.executable, "scripts/probe_design_prototype.py", artifact_path],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    try:
+        report = json.loads(result.stdout)
+    except json.JSONDecodeError as exc:
+        raise ContractError(
+            f"prototype render probe did not return JSON: {exc}; stderr={result.stderr.strip()}"
+        ) from exc
+    if result.returncode != 0 or report.get("status") != "pass":
+        raise ContractError(f"prototype render probe failed: {json.dumps(report, sort_keys=True)}")
+    return report
+
+
+def _design_brief_errors(report: dict[str, Any]) -> list[str]:
+    errors: list[str] = []
+    for ref in report.get("source_refs", []):
+        if not isinstance(ref, str):
+            continue
+        if _is_url(ref):
+            continue
+        if not _local_path(ref).exists():
+            errors.append(f"design_brief.source_refs contains missing local source {ref!r}")
+    return errors
+
+
+def _design_context_errors(report: dict[str, Any]) -> list[str]:
+    errors: list[str] = []
+    for source in report.get("sources", []):
+        if not isinstance(source, str):
+            continue
+        if _is_url(source):
+            continue
+        if not _local_path(source).exists():
+            errors.append(f"design_context.sources contains missing local source {source!r}")
+    tokens = report.get("tokens", {})
+    if isinstance(tokens, dict):
+        for category in ("colors", "typography", "spacing", "radii"):
+            if not tokens.get(category):
+                errors.append(f"design_context.tokens.{category} must preserve source-traced values")
+    if "Trystan-SA/claude-design-system-prompt" not in str(report.get("upstream_attribution", "")):
+        errors.append("design_context.upstream_attribution must preserve upstream project attribution")
+    return errors
+
+
+def _design_prototype_report_errors(report: dict[str, Any]) -> list[str]:
+    errors: list[str] = []
+    artifact_path = report.get("artifact_path")
+    artifact_text = ""
+    if isinstance(artifact_path, str):
+        path = _local_path(artifact_path)
+        if not path.exists():
+            errors.append(f"design_prototype_report.artifact_path does not exist: {artifact_path!r}")
+        elif path.suffix.lower() not in {".html", ".htm"}:
+            errors.append("design_prototype_report.artifact_path must point to an HTML artifact")
+        else:
+            try:
+                artifact_text = path.read_text(encoding="utf-8").lower()
+            except OSError as exc:
+                errors.append(f"design_prototype_report.artifact_path is not readable: {exc}")
+    states = set(report.get("states_covered", []))
+    missing_states = sorted(REQUIRED_INTERACTION_STATES - states)
+    if missing_states:
+        errors.append(f"design_prototype_report.states_covered missing {missing_states}")
+    if artifact_text:
+        state_markers = {
+            "default": ("<button", "<a "),
+            "hover": (":hover",),
+            "active": (":active",),
+            "focus-visible": (":focus-visible",),
+            "disabled": (":disabled", " disabled", "disabled>"),
+            "loading": ("aria-busy=\"true\"", "data-state=\"loading\"", "data-loading"),
+        }
+        for state, markers in state_markers.items():
+            if state in states and not any(marker in artifact_text for marker in markers):
+                errors.append(
+                    f"design_prototype_report.states_covered claims {state!r} without an HTML state marker"
+                )
+    probe = report.get("probe", {})
+    if isinstance(probe, dict):
+        if probe.get("tool") != "scripts/probe_design_prototype.py":
+            errors.append("design_prototype_report.probe.tool must name the browser probe script")
+        if probe.get("status") != "pass":
+            errors.append("design_prototype_report.probe.status must be pass")
+        screenshot_path = probe.get("screenshot_path")
+        if not isinstance(screenshot_path, str) or not screenshot_path:
+            errors.append("design_prototype_report.probe.screenshot_path is required")
+        elif not _local_path(screenshot_path).exists():
+            errors.append(
+                f"design_prototype_report.probe.screenshot_path does not exist: {screenshot_path!r}"
+            )
+    render_checks = [
+        check for check in report.get("render_checks", [])
+        if isinstance(check, dict)
+    ]
+    if not render_checks:
+        errors.append("design_prototype_report.render_checks must include at least one probe")
+    if any(check.get("status") != "pass" for check in render_checks):
+        errors.append("design_prototype_report pass path requires every render check to pass")
+    check_names = {str(check.get("name", "")) for check in render_checks}
+    for required_check in ("browser-render-probe", "interaction-state-probe"):
+        if required_check not in check_names:
+            errors.append(f"design_prototype_report.render_checks missing {required_check!r}")
+    for check in render_checks:
+        evidence = str(check.get("evidence", "")).lower()
+        if "artifact" not in evidence and "render" not in evidence and "probe" not in evidence:
+            errors.append(f"design_prototype_report.render_checks.{check.get('name')} evidence must name a concrete render/probe")
+    return errors
+
+
+def _accessibility_audit_errors(report: dict[str, Any]) -> list[str]:
+    errors: list[str] = []
+    checks = report.get("checks", [])
+    blockers = report.get("blockers", [])
+    verdict = report.get("verdict")
+    failed_checks = [
+        check for check in checks
+        if isinstance(check, dict) and check.get("status") == "fail"
+    ]
+    if verdict == "pass" and blockers:
+        errors.append("accessibility_audit.verdict pass requires no blockers")
+    if verdict == "pass" and failed_checks:
+        errors.append("accessibility_audit.verdict pass requires no failed checks")
+    if verdict == "fail" and not blockers and not failed_checks:
+        errors.append("accessibility_audit.verdict fail requires blockers or failed checks")
+    return errors
+
+
+def _visual_quality_report_errors(report: dict[str, Any]) -> list[str]:
+    errors: list[str] = []
+    verdict = report.get("verdict")
+    open_serious_findings: list[dict[str, Any]] = []
+    for field in ("ai_slop_findings", "hierarchy_findings", "interaction_state_findings"):
+        for finding in report.get(field, []):
+            if not isinstance(finding, dict):
+                continue
+            if finding.get("status") == "open" and finding.get("severity") in {"blocker", "quality"}:
+                open_serious_findings.append(finding)
+    if verdict == "pass" and open_serious_findings:
+        errors.append("visual_quality_report.verdict pass requires no open blocker or quality findings")
+    if verdict == "fail" and not open_serious_findings:
+        errors.append("visual_quality_report.verdict fail requires an open blocker or quality finding")
+    return errors
+
+
+def _design_release_report_errors(report: dict[str, Any]) -> list[str]:
+    errors: list[str] = []
+    status = report.get("status")
+    gates = [
+        gate for gate in report.get("gates", [])
+        if isinstance(gate, dict)
+    ]
+    gate_statuses = [gate.get("status") for gate in gates]
+    gate_names = {str(gate.get("name", "")) for gate in gates}
+    missing_gates = sorted(REQUIRED_RELEASE_GATES - gate_names)
+    if missing_gates:
+        errors.append(f"design_release_report.gates missing required gates {missing_gates}")
+    if status == "ready" and any(gate_status != "pass" for gate_status in gate_statuses):
+        errors.append("design_release_report.status ready requires every gate to pass")
+    if status == "hold" and gate_statuses and all(gate_status == "pass" for gate_status in gate_statuses):
+        errors.append("design_release_report.status hold requires at least one non-passing gate")
+    attribution_refs = report.get("attribution_refs", [])
+    if not any(
+        isinstance(ref, str) and "Trystan-SA/claude-design-system-prompt" in ref
+        for ref in attribution_refs
+    ):
+        errors.append("design_release_report.attribution_refs must include upstream project provenance")
+    return errors
+
+
+def _register_design_semantics() -> None:
+    validators = {
+        "design_brief": _design_brief_errors,
+        "design_context": _design_context_errors,
+        "design_prototype_report": _design_prototype_report_errors,
+        "accessibility_audit": _accessibility_audit_errors,
+        "visual_quality_report": _visual_quality_report_errors,
+        "design_release_report": _design_release_report_errors,
+    }
+    for artifact_name, validator in validators.items():
+        try:
+            register_artifact_semantic_validator(artifact_name, validator, source=__name__)
+        except ContractError as exc:
+            if "already registered" not in str(exc):
+                raise
 
 
 def build_demo_design_review_executor(scenario: dict[str, Any]) -> FunctionStageExecutor:
@@ -63,11 +283,16 @@ def build_demo_design_review_executor(scenario: dict[str, Any]) -> FunctionStage
 
     def prototype_surface(context: StageExecutionContext) -> dict[str, dict[str, Any]]:
         context_artifact = _require_prior(context, "design_context")
+        artifact_path = str(scenario["artifact_path"])
+        artifact = _local_path(artifact_path)
+        if not artifact.exists():
+            raise ContractError(f"prototype artifact does not exist: {artifact_path}")
+        probe_report = _probe_design_prototype(artifact_path)
         return {
             "design_prototype_report": {
                 "version": "1.0",
                 "design_id": context_artifact["design_id"],
-                "artifact_path": scenario["artifact_path"],
+                "artifact_path": artifact_path,
                 "medium": scenario["medium"],
                 "interaction_model": "Clickable HTML prototype with local state and explicit UI feedback.",
                 "states_covered": [
@@ -78,18 +303,12 @@ def build_demo_design_review_executor(scenario: dict[str, Any]) -> FunctionStage
                     "disabled",
                     "loading",
                 ],
-                "render_checks": [
-                    {
-                        "name": "static-html-render",
-                        "status": "pass",
-                        "evidence": "Prototype shell renders without missing canonical sections.",
-                    },
-                    {
-                        "name": "responsive-breakpoints",
-                        "status": "pass",
-                        "evidence": "Desktop and mobile layout constraints are represented in the artifact plan.",
-                    },
-                ],
+                "probe": {
+                    "tool": "scripts/probe_design_prototype.py",
+                    "status": probe_report["status"],
+                    "screenshot_path": probe_report["screenshot_path"],
+                },
+                "render_checks": probe_report["checks"],
             }
         }
 
@@ -171,6 +390,13 @@ def build_demo_design_review_executor(scenario: dict[str, Any]) -> FunctionStage
     def design_release_gate(context: StageExecutionContext) -> dict[str, dict[str, Any]]:
         audit = _require_prior(context, "accessibility_audit")
         quality = _require_prior(context, "visual_quality_report")
+        design_context = _require_prior(context, "design_context")
+        attribution_refs = list(dict.fromkeys(
+            [
+                *[str(source) for source in design_context.get("sources", [])],
+                str(design_context["upstream_attribution"]),
+            ]
+        ))
         return {
             "design_release_report": {
                 "version": "1.0",
@@ -189,10 +415,7 @@ def build_demo_design_review_executor(scenario: dict[str, Any]) -> FunctionStage
                     },
                 ],
                 "open_decisions": [],
-                "attribution_refs": [
-                    "https://github.com/Trystan-SA/claude-design-system-prompt",
-                    "https://raw.githubusercontent.com/Trystan-SA/claude-design-system-prompt/main/LICENSE",
-                ],
+                "attribution_refs": attribution_refs,
             }
         }
 
@@ -227,3 +450,6 @@ def build_demo_design_review_executor(scenario: dict[str, Any]) -> FunctionStage
             "design_release_gate": ("design_release_gate_runner",),
         },
     )
+
+
+_register_design_semantics()

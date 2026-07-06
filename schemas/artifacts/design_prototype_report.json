@@ -8,6 +8,7 @@
     "medium",
     "interaction_model",
     "states_covered",
+    "probe",
     "render_checks"
   ],
   "additionalProperties": false,
@@ -43,6 +44,33 @@
       "items": {
         "type": "string",
         "minLength": 1
+      }
+    },
+    "probe": {
+      "type": "object",
+      "required": [
+        "tool",
+        "status",
+        "screenshot_path"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "tool": {
+          "type": "string",
+          "const": "scripts/probe_design_prototype.py"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "pass",
+            "fail",
+            "blocked"
+          ]
+        },
+        "screenshot_path": {
+          "type": "string",
+          "minLength": 1
+        }
       }
     },
     "render_checks": {

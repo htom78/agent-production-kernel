@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import datetime as dt
 import json
+import subprocess
 import sys
 from pathlib import Path
 from typing import Any
@@ -29,6 +30,20 @@ def _average(values: list[float]) -> float:
     return round(sum(values) / len(values), 1)
 
 
+def _has_git_metadata() -> bool:
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "--is-inside-work-tree"],
+            cwd=ROOT,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+    except OSError:
+        return False
+    return result.returncode == 0 and result.stdout.strip() == "true"
+
+
 def build_battle_report(self_report: dict[str, Any], run_id: str) -> dict[str, Any]:
     contract = _dimension_score(self_report, "contract_integrity")
     execution = _dimension_score(self_report, "execution_reality")
@@ -48,6 +63,7 @@ def build_battle_report(self_report: dict[str, Any], run_id: str) -> dict[str, A
     semantic_fake_green_tests = self_assess._has_semantic_fake_green_tests()
     independent_battle = self_assess._has_independent_agent_battle_evidence()
     independent_battle_attempt = self_assess._has_current_independent_agent_battle_attempt()
+    has_git_metadata = _has_git_metadata()
     critic_stance = "The system has a public real-repo proof corpus; the remaining risk is freshness and release discipline."
     critic_concerns = ["Demo executors are deterministic and do not yet call external tools or models."]
     critic_actions = ["Maintain the verified corpus and rerun gates before release."]
@@ -97,8 +113,16 @@ def build_battle_report(self_report: dict[str, Any], run_id: str) -> dict[str, A
             "score": _average([contract, evidence, replay]),
             "stance": "The strongest prior false-green paths are guarded by schema, semantic checks, and clean-state tests.",
             "evidence_refs": ["schemas/artifacts", "apkernel/replay.py", "tests/test_kernel.py"],
-            "concerns": ["There is no git metadata in this checkout, so diff hygiene cannot be verified locally."],
-            "recommended_actions": ["Run the same gates inside a real repository checkout before release."],
+            "concerns": (
+                ["Git metadata is available; release evidence must still be bound to the current independent battle cycle."]
+                if has_git_metadata
+                else ["There is no git metadata in this checkout, so diff hygiene cannot be verified locally."]
+            ),
+            "recommended_actions": (
+                ["Preserve a current independent battle harness before claiming advance."]
+                if has_git_metadata
+                else ["Run the same gates inside a real repository checkout before release."]
+            ),
         },
         {
             "role": "critic",

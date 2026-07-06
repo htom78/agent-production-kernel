@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>APK Design Gate Demo</title>
+  <style>
+    :root {
+      --color-bg: #FAFAFA;
+      --color-surface: #F3F6FA;
+      --color-text: #1A1A1A;
+      --color-muted: #5C6670;
+      --color-primary: oklch(48% 0.14 250);
+      --color-border: #CCD5E0;
+      --space-sm: 8px;
+      --space-md: 16px;
+      --space-lg: 24px;
+      --space-xl: 40px;
+      --radius-md: 8px;
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--color-bg);
+      color: var(--color-text);
+      font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+
+    a {
+      color: var(--color-primary);
+      text-underline-offset: 3px;
+    }
+
+    a:focus-visible,
+    button:focus-visible {
+      outline: 3px solid var(--color-primary);
+      outline-offset: 3px;
+    }
+
+    .skip-link {
+      position: absolute;
+      left: var(--space-md);
+      top: var(--space-md);
+      transform: translateY(-120%);
+      background: var(--color-text);
+      color: var(--color-bg);
+      padding: var(--space-sm) var(--space-md);
+      border-radius: var(--radius-md);
+    }
+
+    .skip-link:focus {
+      transform: translateY(0);
+    }
+
+    header,
+    main {
+      width: min(960px, calc(100vw - 32px));
+      margin: 0 auto;
+    }
+
+    header {
+      padding: var(--space-xl) 0 var(--space-lg);
+    }
+
+    h1 {
+      margin: 0 0 var(--space-sm);
+      font-size: clamp(2rem, 6vw, 3rem);
+      line-height: 1.1;
+    }
+
+    .lede {
+      max-width: 680px;
+      color: var(--color-muted);
+      font-size: 1.125rem;
+    }
+
+    .panel {
+      display: grid;
+      gap: var(--space-md);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      padding: var(--space-lg);
+    }
+
+    .gate-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: var(--space-md);
+      text-align: left;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    th {
+      font-weight: 700;
+    }
+
+    .status {
+      display: inline-flex;
+      min-height: 44px;
+      align-items: center;
+      gap: var(--space-sm);
+      padding: var(--space-sm) var(--space-md);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      background: #FFFFFF;
+    }
+
+    .status::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--color-primary);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-md);
+      align-items: center;
+    }
+
+    button {
+      min-width: 44px;
+      min-height: 44px;
+      border: 1px solid var(--color-primary);
+      border-radius: var(--radius-md);
+      background: var(--color-primary);
+      color: #FAFAFA;
+      font: inherit;
+      font-weight: 700;
+      padding: var(--space-sm) var(--space-lg);
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    @media (max-width: 640px) {
+      th,
+      td {
+        display: block;
+        padding: var(--space-sm) 0;
+      }
+
+      tr {
+        display: block;
+        padding: var(--space-md) 0;
+        border-bottom: 1px solid var(--color-border);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <header>
+    <h1>Design Gate Evidence</h1>
+    <p class="lede">A compact prototype surface for inspecting APK design quality gates with explicit evidence and accessible controls.</p>
+  </header>
+  <main id="main">
+    <section class="panel" aria-labelledby="gate-heading">
+      <h2 id="gate-heading">Current Gates</h2>
+      <table class="gate-table">
+        <thead>
+          <tr>
+            <th scope="col">Gate</th>
+            <th scope="col">Status</th>
+            <th scope="col">Evidence</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Accessibility AA</td>
+            <td><span class="status">Pass</span></td>
+            <td>Contrast, landmarks, keyboard focus, and motion preferences checked.</td>
+          </tr>
+          <tr>
+            <td>Visual Quality</td>
+            <td><span class="status">Pass</span></td>
+            <td>Spacing tokens, interaction states, and AI-slop checks recorded.</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="actions">
+        <button type="button">Review Evidence</button>
+        <button type="button" disabled aria-busy="true" data-state="loading">Publishing</button>
+        <a href="design_sources/claude_design_system_prompt_summary.md">Source summary</a>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

@@ -93,6 +93,7 @@
       "name": "design",
       "role_policy_file": "packs/design/roles.json",
       "tool_registry_file": "packs/design/tool_registry.json",
+      "semantic_module": "apkernel.design",
       "pipelines": [
         "design-review"
       ],

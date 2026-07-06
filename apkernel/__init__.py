@@ -17,6 +17,7 @@ from .core import (
     ToolContract,
     ToolRegistry,
     load_json,
+    register_artifact_semantic_validator,
     validate_artifact_semantics,
 )
 from .replay import ReplayHarness, ReplayResult, ReplayScenario, artifacts_from_checkpoints, checkpoints_from_paths
@@ -40,6 +41,7 @@ __all__ = [
     "ToolContract",
     "ToolRegistry",
     "load_json",
+    "register_artifact_semantic_validator",
     "validate_artifact_semantics",
     "artifacts_from_checkpoints",
     "checkpoints_from_paths",

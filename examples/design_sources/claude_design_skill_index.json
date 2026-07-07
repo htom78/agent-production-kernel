@@ -1,0 +1,93 @@
+{
+  "source": "https://github.com/Trystan-SA/claude-design-system-prompt",
+  "commit": "3c3ddb0",
+  "license": "MIT",
+  "variant": "codex",
+  "source_root": "examples/design_sources/upstream/claude-design-system-prompt-3c3ddb0",
+  "skills": [
+    {
+      "name": "accessibility-audit",
+      "category": "review",
+      "source_path": "codex/skills/accessibility-audit.md",
+      "source_sha256": "sha256:292d00170d6a2edbc2c8108c095394ab047e57e54094a685e15fa6912fa537cc"
+    },
+    {
+      "name": "ai-slop-check",
+      "category": "review",
+      "source_path": "codex/skills/ai-slop-check.md",
+      "source_sha256": "sha256:7ac98b0f247a5b9821410e5e0687ed3cf71736649b127b31b6d7aadf40c56d44"
+    },
+    {
+      "name": "component-extract",
+      "category": "system",
+      "source_path": "codex/skills/component-extract.md",
+      "source_sha256": "sha256:57484d81130fb21118bc5caad4ed6ac6b5bab35f3c74c2dfd1bec6a0a361d574"
+    },
+    {
+      "name": "design-system-extract",
+      "category": "system",
+      "source_path": "codex/skills/design-system-extract.md",
+      "source_sha256": "sha256:06ee22b8e2447c69c76c70beb980b2a2d192921b3e913b49cbc753c631e7ce4b"
+    },
+    {
+      "name": "discovery-questions",
+      "category": "production",
+      "source_path": "codex/skills/discovery-questions.md",
+      "source_sha256": "sha256:c71f33989e8eb013801ac5778b76225baefc9101bf590e80172cf79d05d54ec8"
+    },
+    {
+      "name": "frontend-aesthetic-direction",
+      "category": "production",
+      "source_path": "codex/skills/frontend-aesthetic-direction.md",
+      "source_sha256": "sha256:3b7e11b4897279b69e356f125f6c730d86846b01d0d4a4b74e4f2efbc64c0d35"
+    },
+    {
+      "name": "generate-variations",
+      "category": "production",
+      "source_path": "codex/skills/generate-variations.md",
+      "source_sha256": "sha256:ea768b1905ae1b6eb421e04fb7905384bfdcc32cbabc38ceb4feff986d561b0e"
+    },
+    {
+      "name": "hierarchy-rhythm-review",
+      "category": "review",
+      "source_path": "codex/skills/hierarchy-rhythm-review.md",
+      "source_sha256": "sha256:abff1ef650a84e0465ec8ba35f73e8c5a80b7508428e25f5407812aee16ac9e4"
+    },
+    {
+      "name": "interaction-states-pass",
+      "category": "review",
+      "source_path": "codex/skills/interaction-states-pass.md",
+      "source_sha256": "sha256:80b687d2571f69af0b30cde6b9a3dcad2cffc75b5bb6ebbba168a5e2a8e87170"
+    },
+    {
+      "name": "make-a-deck",
+      "category": "production",
+      "source_path": "codex/skills/make-a-deck.md",
+      "source_sha256": "sha256:82a1296b8f9694f26c9d98213190cd3faf5070841d928d0309255adc3559e96a"
+    },
+    {
+      "name": "make-a-prototype",
+      "category": "production",
+      "source_path": "codex/skills/make-a-prototype.md",
+      "source_sha256": "sha256:a9edd45428ae73db2b62964db66121a5770dc566507b181970863a66b7d8b6c3"
+    },
+    {
+      "name": "make-tweakable",
+      "category": "production",
+      "source_path": "codex/skills/make-tweakable.md",
+      "source_sha256": "sha256:85a5d0b094783f9dddfbb149ef38f8b45ab0b1955a76baac90947845df6a0315"
+    },
+    {
+      "name": "polish-pass",
+      "category": "review",
+      "source_path": "codex/skills/polish-pass.md",
+      "source_sha256": "sha256:0e3dc866db5ad156e116adc0697f518c0ab5572cc8019e371f8528b05fa20449"
+    },
+    {
+      "name": "wireframe",
+      "category": "production",
+      "source_path": "codex/skills/wireframe.md",
+      "source_sha256": "sha256:30319dd592b75f53d9ceb44cf67c234e499d4e363f398af85ffd16b3b72c4e1a"
+    }
+  ]
+}

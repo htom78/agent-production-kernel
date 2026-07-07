@@ -1,0 +1,29 @@
+{
+  "name": "design-skill-corpus-variant-failure-detected",
+  "pipeline": "design-skill-corpus",
+  "tags": [
+    "design",
+    "regression",
+    "negative"
+  ],
+  "expected_result": "fail",
+  "inputs": {
+    "corpus_id": "claude-design-system-prompt-codex-skills"
+  },
+  "mutations": [
+    {
+      "path": "artifacts.design_skill_corpus.upstream.source_variant",
+      "value": "claude"
+    }
+  ],
+  "expected_errors_contain": [
+    "design_skill_corpus.upstream.source_variant expected 'codex'"
+  ],
+  "expected_artifacts": {
+    "design_skill_corpus": {
+      "upstream": {
+        "source_variant": "codex"
+      }
+    }
+  }
+}

@@ -12,7 +12,7 @@
   },
   "mutations": [
     {
-      "path": "artifacts.design_release_report.attribution_refs[5]",
+      "path": "artifacts.design_release_report.attribution_refs[7]",
       "value": "unknown-upstream"
     }
   ],

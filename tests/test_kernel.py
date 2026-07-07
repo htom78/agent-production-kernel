@@ -26,7 +26,7 @@ from apkernel.software import (
     build_demo_release_executor,
 )
 from apkernel.research import build_demo_research_brief_executor
-from apkernel.design import build_demo_design_review_executor
+from apkernel.design import build_demo_design_review_executor, build_design_skill_corpus_executor
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -482,7 +482,21 @@ class KernelContractTests(unittest.TestCase):
         self.assertIn("research-brief", by_name["research"].pipelines)
         self.assertEqual(by_name["research"].scenarios[0].pipeline, "research-brief")
         self.assertIn("design-review", by_name["design"].pipelines)
-        self.assertEqual(by_name["design"].scenarios[0].pipeline, "design-review")
+        self.assertIn("design-skill-corpus", by_name["design"].pipelines)
+        design_scenarios = {
+            spec.pipeline: spec
+            for spec in by_name["design"].scenarios
+        }
+        self.assertIn("design-review", design_scenarios)
+        self.assertIn("design-skill-corpus", design_scenarios)
+        self.assertEqual(
+            design_scenarios["design-skill-corpus"].scenario_file,
+            "design_skill_corpus_scenario.json",
+        )
+        self.assertEqual(
+            design_scenarios["design-skill-corpus"].executor,
+            "apkernel.design:build_design_skill_corpus_executor",
+        )
 
     def test_self_assessment_report_validates_and_names_next_action(self) -> None:
         spec = importlib.util.spec_from_file_location(
@@ -2137,6 +2151,11 @@ class KernelContractTests(unittest.TestCase):
                 "browser-render-probe",
                 [check["name"] for check in actual["design_prototype_report"]["render_checks"]],
             )
+            self.assertIn("design_skill_corpus", actual)
+            self.assertIn(
+                "examples/design_sources/claude_design_skill_index.json",
+                actual["design_context"]["sources"],
+            )
             for checkpoint_path in checkpoints.values():
                 checkpoint = load_json(Path(checkpoint_path))
                 actor_role = checkpoint["metadata"]["actor_role"]
@@ -2200,6 +2219,256 @@ class KernelContractTests(unittest.TestCase):
         self.schemas.validate("design_brief", report)
         with self.assertRaisesRegex(ContractError, "missing local source"):
             validate_artifact_semantics("design_brief", report)
+
+    def test_design_skill_corpus_fixture_validates(self) -> None:
+        report = load_json(ROOT / "examples" / "design_skill_corpus_fixture.json")
+        self.schemas.validate("design_skill_corpus", report)
+        validate_artifact_semantics("design_skill_corpus", report)
+        self.assertEqual(report["coverage"]["total"], 14)
+        self.assertIn("polish-pass", report["coverage"]["skill_names"])
+        self.assertIn("control plane", report["integration_policy"]["control_plane_boundary"])
+
+    def test_design_skill_corpus_executor_matches_canonical_fixture(self) -> None:
+        manifest = PipelineManifest.load(ROOT / "pipelines" / "design-skill-corpus.json")
+        scenario = load_json(ROOT / "examples" / "design_skill_corpus_scenario.json")
+        expected = load_json(ROOT / "examples" / "design_skill_corpus_fixture.json")
+        reviewer = Reviewer(self.schemas)
+        role_policy = RolePolicy.load(ROOT / "packs" / "design" / "roles.json")
+
+        with tempfile.TemporaryDirectory() as tmp:
+            store = CheckpointStore(Path(tmp), self.schemas, role_policy)
+            engine = RunEngine(store, reviewer)
+            checkpoints = engine.run_with_executor(
+                manifest,
+                scenario["run_id"],
+                build_design_skill_corpus_executor(scenario),
+                scenario=scenario,
+                metadata={"execution_mode": "stage_executor", "domain_pack": "design"},
+            )
+            actual = artifacts_from_checkpoints(tuple(checkpoints.values()))["design_skill_corpus"]
+            self.assertEqual(actual, expected)
+
+    def test_design_skill_corpus_semantics_reject_missing_upstream_skill(self) -> None:
+        report = load_json(ROOT / "examples" / "design_skill_corpus_fixture.json")
+        report = copy.deepcopy(report)
+        report["skills"][0]["name"] = "unknown-skill"
+        self.schemas.validate("design_skill_corpus", report)
+        with self.assertRaisesRegex(ContractError, "missing required skills"):
+            validate_artifact_semantics("design_skill_corpus", report)
+
+    def test_design_skill_corpus_semantics_reject_review_skill_without_quality_gate(self) -> None:
+        report = load_json(ROOT / "examples" / "design_skill_corpus_fixture.json")
+        report = copy.deepcopy(report)
+        for skill in report["skills"]:
+            if skill["name"] == "accessibility-audit":
+                skill["apk_mapping"]["mode"] = "pipeline_stage"
+                break
+        self.schemas.validate("design_skill_corpus", report)
+        with self.assertRaisesRegex(ContractError, "mode must be quality_gate"):
+            validate_artifact_semantics("design_skill_corpus", report)
+
+    def test_design_skill_corpus_semantics_reject_source_path_drift(self) -> None:
+        report = load_json(ROOT / "examples" / "design_skill_corpus_fixture.json")
+        report = copy.deepcopy(report)
+        for skill in report["skills"]:
+            if skill["name"] == "polish-pass":
+                skill["source_path"] = "claude/skills/polish-pass.md"
+                break
+        self.schemas.validate("design_skill_corpus", report)
+        with self.assertRaisesRegex(ContractError, "source_path must be codex/skills/polish-pass.md"):
+            validate_artifact_semantics("design_skill_corpus", report)
+
+    def test_design_skill_corpus_semantics_reject_source_digest_drift(self) -> None:
+        report = load_json(ROOT / "examples" / "design_skill_corpus_fixture.json")
+        report = copy.deepcopy(report)
+        for skill in report["skills"]:
+            if skill["name"] == "make-a-prototype":
+                skill["source_sha256"] = "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+                break
+        self.schemas.validate("design_skill_corpus", report)
+        with self.assertRaisesRegex(ContractError, "source_sha256 must match upstream source_index"):
+            validate_artifact_semantics("design_skill_corpus", report)
+
+    def test_design_skill_corpus_semantics_reject_principle_drift(self) -> None:
+        report = load_json(ROOT / "examples" / "design_skill_corpus_fixture.json")
+        report = copy.deepcopy(report)
+        for skill in report["skills"]:
+            if skill["name"] == "make-a-prototype":
+                skill["principles"] = ["Generate a polished surface without state mapping."]
+                break
+        self.schemas.validate("design_skill_corpus", report)
+        with self.assertRaisesRegex(ContractError, "principles must match APK skill mapping"):
+            validate_artifact_semantics("design_skill_corpus", report)
+
+    def test_design_skill_corpus_semantics_reject_verification_hook_drift(self) -> None:
+        report = load_json(ROOT / "examples" / "design_skill_corpus_fixture.json")
+        report = copy.deepcopy(report)
+        for skill in report["skills"]:
+            if skill["name"] == "interaction-states-pass":
+                skill["verification_hooks"] = ["visual_quality_report.verdict"]
+                break
+        self.schemas.validate("design_skill_corpus", report)
+        with self.assertRaisesRegex(ContractError, "verification_hooks must match APK skill mapping"):
+            validate_artifact_semantics("design_skill_corpus", report)
+
+    def test_design_skill_corpus_semantics_reject_stage_gate_drift(self) -> None:
+        report = load_json(ROOT / "examples" / "design_skill_corpus_fixture.json")
+        report = copy.deepcopy(report)
+        for skill in report["skills"]:
+            if skill["name"] == "make-a-prototype":
+                skill["apk_mapping"]["stage"] = "typo_stage"
+                skill["apk_mapping"]["gates"] = ["nonexistent-gate"]
+                break
+        self.schemas.validate("design_skill_corpus", report)
+        with self.assertRaisesRegex(ContractError, "stage must be prototype_surface"):
+            validate_artifact_semantics("design_skill_corpus", report)
+
+    def test_design_skill_corpus_semantics_reject_live_stage_contract_drift(self) -> None:
+        report = load_json(ROOT / "examples" / "design_skill_corpus_fixture.json")
+        original_load_json = __import__("apkernel.design", fromlist=["load_json"]).load_json
+
+        def drifted_load_json(path: Path) -> dict[str, object]:
+            loaded = original_load_json(path)
+            if str(path).endswith("pipelines/design-review.json"):
+                loaded = copy.deepcopy(loaded)
+                for stage in loaded["stages"]:
+                    if stage["name"] == "prototype_surface":
+                        stage["produces"] = []
+                        break
+            return loaded
+
+        with mock.patch("apkernel.design.load_json", side_effect=drifted_load_json):
+            self.schemas.validate("design_skill_corpus", report)
+            with self.assertRaisesRegex(ContractError, "outside stage 'prototype_surface' inputs/outputs"):
+                validate_artifact_semantics("design_skill_corpus", report)
+
+    def test_design_skill_corpus_executor_rejects_source_ref_mismatch(self) -> None:
+        manifest = PipelineManifest.load(ROOT / "pipelines" / "design-skill-corpus.json")
+        scenario = load_json(ROOT / "examples" / "design_skill_corpus_scenario.json")
+        scenario = copy.deepcopy(scenario)
+        scenario["source_refs"] = scenario["source_refs"][:-1]
+        reviewer = Reviewer(self.schemas)
+        role_policy = RolePolicy.load(ROOT / "packs" / "design" / "roles.json")
+
+        with tempfile.TemporaryDirectory() as tmp:
+            store = CheckpointStore(Path(tmp), self.schemas, role_policy)
+            engine = RunEngine(store, reviewer)
+            with self.assertRaisesRegex(ContractError, "source_refs must match expected upstream source refs"):
+                engine.run_with_executor(
+                    manifest,
+                    scenario["run_id"],
+                    build_design_skill_corpus_executor(scenario),
+                    scenario=scenario,
+                    metadata={"execution_mode": "stage_executor", "domain_pack": "design"},
+                )
+
+    def test_design_skill_corpus_semantics_reject_wrong_existing_source_ref(self) -> None:
+        report = load_json(ROOT / "examples" / "design_skill_corpus_fixture.json")
+        report = copy.deepcopy(report)
+        report["source_refs"][3] = "README.md"
+        self.schemas.validate("design_skill_corpus", report)
+        with self.assertRaisesRegex(ContractError, "source_refs must exactly match expected upstream source refs"):
+            validate_artifact_semantics("design_skill_corpus", report)
+
+    def test_design_skill_corpus_semantics_reject_coordinated_index_digest_drift(self) -> None:
+        report = load_json(ROOT / "examples" / "design_skill_corpus_fixture.json")
+        report = copy.deepcopy(report)
+        drifted_digest = "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+        for skill in report["skills"]:
+            if skill["name"] == "make-a-prototype":
+                skill["source_sha256"] = drifted_digest
+                break
+        original_load_json = __import__("apkernel.design", fromlist=["load_json"]).load_json
+
+        def drifted_load_json(path: Path) -> dict[str, object]:
+            loaded = original_load_json(path)
+            if str(path).endswith("examples/design_sources/claude_design_skill_index.json"):
+                loaded = copy.deepcopy(loaded)
+                for skill in loaded["skills"]:
+                    if skill["name"] == "make-a-prototype":
+                        skill["source_sha256"] = drifted_digest
+                        break
+            return loaded
+
+        with mock.patch("apkernel.design.load_json", side_effect=drifted_load_json):
+            self.schemas.validate("design_skill_corpus", report)
+            with self.assertRaisesRegex(ContractError, "source_sha256 must match upstream source file"):
+                validate_artifact_semantics("design_skill_corpus", report)
+
+    def test_design_skill_corpus_rejects_source_index_variant_drift(self) -> None:
+        manifest = PipelineManifest.load(ROOT / "pipelines" / "design-skill-corpus.json")
+        scenario = load_json(ROOT / "examples" / "design_skill_corpus_scenario.json")
+        reviewer = Reviewer(self.schemas)
+        role_policy = RolePolicy.load(ROOT / "packs" / "design" / "roles.json")
+
+        with tempfile.TemporaryDirectory() as tmp:
+            alt_index = Path(tmp) / "claude_variant_design_skill_index.json"
+            source_index = load_json(ROOT / "examples" / "design_sources" / "claude_design_skill_index.json")
+            source_index["variant"] = "claude"
+            alt_index.write_text(json.dumps(source_index, indent=2, sort_keys=True), encoding="utf-8")
+            scenario = copy.deepcopy(scenario)
+            scenario["source_index"] = str(alt_index)
+            scenario["source_refs"] = [
+                "https://github.com/Trystan-SA/claude-design-system-prompt",
+                f"{scenario.get('source_root', 'examples/design_sources/upstream/claude-design-system-prompt-3c3ddb0')}/LICENSE",
+                str(alt_index),
+                "examples/design_sources/claude_design_system_prompt_summary.md",
+                "examples/design_sources/accessibility_audit_summary.md",
+                "examples/design_sources/ai_slop_check_summary.md",
+                "examples/design_sources/polish_pass_summary.md",
+            ]
+            store = CheckpointStore(Path(tmp) / "checkpoints", self.schemas, role_policy)
+            engine = RunEngine(store, reviewer)
+            with self.assertRaisesRegex(ContractError, "source_index variant mismatch"):
+                engine.run_with_executor(
+                    manifest,
+                    "demo-design-skill-corpus-variant-drift",
+                    build_design_skill_corpus_executor(scenario),
+                    scenario=scenario,
+                    metadata={"execution_mode": "stage_executor", "domain_pack": "design"},
+                )
+
+            report = load_json(ROOT / "examples" / "design_skill_corpus_fixture.json")
+            report = copy.deepcopy(report)
+            report["upstream"]["source_index"] = str(alt_index)
+            report["source_refs"] = scenario["source_refs"]
+            self.schemas.validate("design_skill_corpus", report)
+            with self.assertRaisesRegex(ContractError, "source_index variant must match upstream source_variant"):
+                validate_artifact_semantics("design_skill_corpus", report)
+
+    def test_design_skill_corpus_accepts_equivalent_source_index_ref(self) -> None:
+        manifest = PipelineManifest.load(ROOT / "pipelines" / "design-skill-corpus.json")
+        scenario = load_json(ROOT / "examples" / "design_skill_corpus_scenario.json")
+        reviewer = Reviewer(self.schemas)
+        role_policy = RolePolicy.load(ROOT / "packs" / "design" / "roles.json")
+
+        with tempfile.TemporaryDirectory() as tmp:
+            alt_index = Path(tmp) / "alternate_design_skill_index.json"
+            shutil.copyfile(ROOT / "examples" / "design_sources" / "claude_design_skill_index.json", alt_index)
+            scenario = copy.deepcopy(scenario)
+            scenario["source_index"] = str(alt_index)
+            scenario["source_refs"] = [
+                "https://github.com/Trystan-SA/claude-design-system-prompt",
+                f"{scenario.get('source_root', 'examples/design_sources/upstream/claude-design-system-prompt-3c3ddb0')}/LICENSE",
+                str(alt_index),
+                "examples/design_sources/claude_design_system_prompt_summary.md",
+                "examples/design_sources/accessibility_audit_summary.md",
+                "examples/design_sources/ai_slop_check_summary.md",
+                "examples/design_sources/polish_pass_summary.md",
+            ]
+            store = CheckpointStore(Path(tmp) / "checkpoints", self.schemas, role_policy)
+            engine = RunEngine(store, reviewer)
+            checkpoints = engine.run_with_executor(
+                manifest,
+                "demo-design-skill-corpus-alt-index",
+                build_design_skill_corpus_executor(scenario),
+                scenario=scenario,
+                metadata={"execution_mode": "stage_executor", "domain_pack": "design"},
+            )
+            report = artifacts_from_checkpoints(tuple(checkpoints.values()))["design_skill_corpus"]
+            self.assertEqual(report["upstream"]["source_index"], str(alt_index))
+            self.schemas.validate("design_skill_corpus", report)
+            validate_artifact_semantics("design_skill_corpus", report)
 
     def test_design_semantics_lazy_load_from_public_api(self) -> None:
         code = """

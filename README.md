@@ -208,10 +208,24 @@ so design-specific rules do not live in the kernel core. The prototype stage
 uses a Playwright-backed browser probe instead of treating a readable HTML file
 as render evidence.
 
+The `design-skill-corpus` pipeline records the upstream Codex skill library as
+`design_skill_corpus`: all 14 skills, MIT provenance, a local upstream source
+snapshot, source-file SHA-256 digests recomputed during corpus construction,
+category coverage, APK stage/gate mappings, and a policy that prevents the
+upstream prompt from becoming APK's global operating instruction. Active
+extract/prototype/review skills are mapped to current APK stages and gates;
+wireframe, deck, tweakable-prototype, and variation generation remain explicit
+`future:*` corpus entries until a pipeline executes them. The semantic gate
+cross-checks active mappings against current design pipeline stages, artifact
+schemas, tool input/output contracts, role owners, and handoffs; replay and
+unit tests catch missing skill coverage, wrong-but-existing source refs,
+coordinated index/digest drift, digest drift, and mapping drift before
+design-pack expansions can silently diverge.
+
 The `design-review` pipeline turns that knowledge into structured artifacts:
 
 ```text
-design_brief -> design_context -> design_prototype_report
+design_skill_corpus -> design_brief -> design_context -> design_prototype_report
   -> accessibility_audit -> visual_quality_report -> design_release_report
 ```
 

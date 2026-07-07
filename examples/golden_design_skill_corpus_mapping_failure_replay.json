@@ -1,0 +1,44 @@
+{
+  "name": "design-skill-corpus-mapping-failure-detected",
+  "pipeline": "design-skill-corpus",
+  "tags": [
+    "design",
+    "regression",
+    "negative"
+  ],
+  "expected_result": "fail",
+  "inputs": {
+    "corpus_id": "claude-design-system-prompt-codex-skills"
+  },
+  "mutations": [
+    {
+      "path": "artifacts.design_skill_corpus.skills[4].apk_mapping.stage",
+      "value": "typo_stage"
+    },
+    {
+      "path": "artifacts.design_skill_corpus.skills[4].apk_mapping.gates",
+      "value": [
+        "nonexistent-gate"
+      ]
+    }
+  ],
+  "expected_errors_contain": [
+    "design_skill_corpus.skills missing expected partial item"
+  ],
+  "expected_artifacts": {
+    "design_skill_corpus": {
+      "skills": [
+        {
+          "name": "make-a-prototype",
+          "apk_mapping": {
+            "stage": "prototype_surface",
+            "gates": [
+              "browser-render-probe",
+              "interaction-state-probe"
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

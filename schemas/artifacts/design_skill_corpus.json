@@ -1,0 +1,239 @@
+{
+  "artifact": "design_skill_corpus",
+  "type": "object",
+  "required": [
+    "version",
+    "corpus_id",
+    "upstream",
+    "source_refs",
+    "integration_policy",
+    "skills",
+    "coverage"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "corpus_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "upstream": {
+      "type": "object",
+      "required": [
+        "repo_url",
+        "commit",
+        "license",
+        "source_variant",
+        "source_root",
+        "source_index",
+        "attribution"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "repo_url": {
+          "type": "string",
+          "minLength": 1
+        },
+        "commit": {
+          "type": "string",
+          "minLength": 7
+        },
+        "license": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_variant": {
+          "type": "string",
+          "enum": [
+            "codex",
+            "claude"
+          ]
+        },
+        "source_root": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_index": {
+          "type": "string",
+          "minLength": 1
+        },
+        "attribution": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "source_refs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "integration_policy": {
+      "type": "object",
+      "required": [
+        "control_plane_boundary",
+        "allowed_uses",
+        "disallowed_uses"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "control_plane_boundary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "allowed_uses": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "disallowed_uses": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "skills": {
+      "type": "array",
+      "minItems": 14,
+      "items": {
+        "type": "object",
+          "required": [
+            "name",
+            "category",
+            "source_path",
+            "source_sha256",
+            "apk_mapping",
+            "principles",
+            "verification_hooks"
+          ],
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "production",
+              "system",
+              "review"
+            ]
+          },
+          "source_path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source_sha256": {
+            "type": "string",
+            "minLength": 1
+          },
+          "apk_mapping": {
+            "type": "object",
+            "required": [
+              "mode",
+              "stage",
+              "artifacts",
+              "gates"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "pipeline_stage",
+                  "quality_gate",
+                  "corpus_only"
+                ]
+              },
+              "stage": {
+                "type": "string",
+                "minLength": 1
+              },
+              "artifacts": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "gates": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          },
+          "principles": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "verification_hooks": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "required": [
+        "total",
+        "production",
+        "system",
+        "review",
+        "skill_names"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "total": {
+          "type": "integer",
+          "minimum": 14
+        },
+        "production": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "system": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "review": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "skill_names": {
+          "type": "array",
+          "minItems": 14,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  }
+}

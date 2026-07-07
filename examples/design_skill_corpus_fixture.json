@@ -1,0 +1,404 @@
+{
+  "version": "1.0",
+  "corpus_id": "claude-design-system-prompt-codex-skills",
+  "upstream": {
+    "repo_url": "https://github.com/Trystan-SA/claude-design-system-prompt",
+    "commit": "3c3ddb0",
+    "license": "MIT",
+    "source_variant": "codex",
+    "source_root": "examples/design_sources/upstream/claude-design-system-prompt-3c3ddb0",
+    "source_index": "examples/design_sources/claude_design_skill_index.json",
+    "attribution": "Adapted from Trystan-SA/claude-design-system-prompt (MIT), using APK schemas/checkpoints as the source of truth."
+  },
+  "source_refs": [
+    "https://github.com/Trystan-SA/claude-design-system-prompt",
+    "examples/design_sources/upstream/claude-design-system-prompt-3c3ddb0/LICENSE",
+    "examples/design_sources/claude_design_skill_index.json",
+    "examples/design_sources/claude_design_system_prompt_summary.md",
+    "examples/design_sources/accessibility_audit_summary.md",
+    "examples/design_sources/ai_slop_check_summary.md",
+    "examples/design_sources/polish_pass_summary.md"
+  ],
+  "integration_policy": {
+    "control_plane_boundary": "The upstream prompt library is domain knowledge. APK owns the control plane through manifests, schemas, checkpoints, replay, and verification gates.",
+    "allowed_uses": [
+      "Seed design pack stage skills and review criteria",
+      "Map design skills to APK artifacts and gates",
+      "Preserve upstream provenance for design-quality evidence"
+    ],
+    "disallowed_uses": [
+      "Install the upstream system prompt as APK's global operating instruction",
+      "Treat prompt compliance as release evidence without schema and replay gates",
+      "Let upstream skill wording override APK control-plane contracts"
+    ]
+  },
+  "skills": [
+    {
+      "name": "discovery-questions",
+      "category": "production",
+      "source_path": "codex/skills/discovery-questions.md",
+      "source_sha256": "sha256:c71f33989e8eb013801ac5778b76225baefc9101bf590e80172cf79d05d54ec8",
+      "apk_mapping": {
+        "mode": "pipeline_stage",
+        "stage": "scope_design",
+        "artifacts": [
+          "design_brief"
+        ],
+        "gates": [
+          "source-context-present"
+        ]
+      },
+      "principles": [
+        "Ask only when product, audience, fidelity, or variation scope is unclear",
+        "Read attached design context before asking"
+      ],
+      "verification_hooks": [
+        "design_brief.source_refs",
+        "design_brief.primary_goal"
+      ]
+    },
+    {
+      "name": "frontend-aesthetic-direction",
+      "category": "production",
+      "source_path": "codex/skills/frontend-aesthetic-direction.md",
+      "source_sha256": "sha256:3b7e11b4897279b69e356f125f6c730d86846b01d0d4a4b74e4f2efbc64c0d35",
+      "apk_mapping": {
+        "mode": "pipeline_stage",
+        "stage": "extract_design_context",
+        "artifacts": [
+          "design_context"
+        ],
+        "gates": [
+          "token-traceability"
+        ]
+      },
+      "principles": [
+        "Commit to a concrete visual system when no brand exists",
+        "Declare typography, color, density, components, imagery, and motion"
+      ],
+      "verification_hooks": [
+        "design_context.tokens",
+        "design_context.gaps"
+      ]
+    },
+    {
+      "name": "wireframe",
+      "category": "production",
+      "source_path": "codex/skills/wireframe.md",
+      "source_sha256": "sha256:30319dd592b75f53d9ceb44cf67c234e499d4e363f398af85ffd16b3b72c4e1a",
+      "apk_mapping": {
+        "mode": "corpus_only",
+        "stage": "future_wireframe_exploration",
+        "artifacts": [
+          "design_brief",
+          "design_prototype_report"
+        ],
+        "gates": [
+          "future:decision-capture"
+        ]
+      },
+      "principles": [
+        "Explore structure before polishing surface style",
+        "Annotate decisions and tradeoffs"
+      ],
+      "verification_hooks": [
+        "future:wireframe_options",
+        "future:decision_log"
+      ]
+    },
+    {
+      "name": "make-a-deck",
+      "category": "production",
+      "source_path": "codex/skills/make-a-deck.md",
+      "source_sha256": "sha256:82a1296b8f9694f26c9d98213190cd3faf5070841d928d0309255adc3559e96a",
+      "apk_mapping": {
+        "mode": "corpus_only",
+        "stage": "future_deck_production",
+        "artifacts": [
+          "design_prototype_report",
+          "design_release_report"
+        ],
+        "gates": [
+          "future:render-evidence"
+        ]
+      },
+      "principles": [
+        "Build slide systems with intentional layout and rhythm",
+        "Verify deck rendering before delivery"
+      ],
+      "verification_hooks": [
+        "design_prototype_report.probe",
+        "design_release_report.gates"
+      ]
+    },
+    {
+      "name": "make-a-prototype",
+      "category": "production",
+      "source_path": "codex/skills/make-a-prototype.md",
+      "source_sha256": "sha256:a9edd45428ae73db2b62964db66121a5770dc566507b181970863a66b7d8b6c3",
+      "apk_mapping": {
+        "mode": "pipeline_stage",
+        "stage": "prototype_surface",
+        "artifacts": [
+          "design_prototype_report"
+        ],
+        "gates": [
+          "browser-render-probe",
+          "interaction-state-probe"
+        ]
+      },
+      "principles": [
+        "Map screens and state before coding",
+        "Wire interactions and verify behavior"
+      ],
+      "verification_hooks": [
+        "design_prototype_report.render_checks",
+        "design_prototype_report.states_covered"
+      ]
+    },
+    {
+      "name": "make-tweakable",
+      "category": "production",
+      "source_path": "codex/skills/make-tweakable.md",
+      "source_sha256": "sha256:85a5d0b094783f9dddfbb149ef38f8b45ab0b1955a76baac90947845df6a0315",
+      "apk_mapping": {
+        "mode": "corpus_only",
+        "stage": "future_tweakable_prototype",
+        "artifacts": [
+          "design_prototype_report"
+        ],
+        "gates": [
+          "future:tweak-control-persistence"
+        ]
+      },
+      "principles": [
+        "Expose meaningful design controls without cluttering the artifact",
+        "Persist default values when tweak controls change output"
+      ],
+      "verification_hooks": [
+        "future:tweak_controls",
+        "design_prototype_report.render_checks"
+      ]
+    },
+    {
+      "name": "generate-variations",
+      "category": "production",
+      "source_path": "codex/skills/generate-variations.md",
+      "source_sha256": "sha256:ea768b1905ae1b6eb421e04fb7905384bfdcc32cbabc38ceb4feff986d561b0e",
+      "apk_mapping": {
+        "mode": "corpus_only",
+        "stage": "future_variation_generation",
+        "artifacts": [
+          "design_brief",
+          "design_prototype_report"
+        ],
+        "gates": [
+          "future:variation-axis-capture"
+        ]
+      },
+      "principles": [
+        "Vary design direction substantively, not only cosmetics",
+        "Recommend a direction with rationale"
+      ],
+      "verification_hooks": [
+        "future:variation_axes",
+        "future:recommendation_evidence"
+      ]
+    },
+    {
+      "name": "design-system-extract",
+      "category": "system",
+      "source_path": "codex/skills/design-system-extract.md",
+      "source_sha256": "sha256:06ee22b8e2447c69c76c70beb980b2a2d192921b3e913b49cbc753c631e7ce4b",
+      "apk_mapping": {
+        "mode": "pipeline_stage",
+        "stage": "extract_design_context",
+        "artifacts": [
+          "design_context"
+        ],
+        "gates": [
+          "token-traceability"
+        ]
+      },
+      "principles": [
+        "Extract tokens from sources before inventing styles",
+        "Record gaps instead of silently filling missing design-system data"
+      ],
+      "verification_hooks": [
+        "design_context.sources",
+        "design_context.tokens"
+      ]
+    },
+    {
+      "name": "component-extract",
+      "category": "system",
+      "source_path": "codex/skills/component-extract.md",
+      "source_sha256": "sha256:57484d81130fb21118bc5caad4ed6ac6b5bab35f3c74c2dfd1bec6a0a361d574",
+      "apk_mapping": {
+        "mode": "pipeline_stage",
+        "stage": "extract_design_context",
+        "artifacts": [
+          "design_context"
+        ],
+        "gates": [
+          "component-inventory"
+        ]
+      },
+      "principles": [
+        "Inventory reusable components and interaction patterns",
+        "Identify component gaps before production"
+      ],
+      "verification_hooks": [
+        "design_context.components",
+        "design_context.gaps"
+      ]
+    },
+    {
+      "name": "accessibility-audit",
+      "category": "review",
+      "source_path": "codex/skills/accessibility-audit.md",
+      "source_sha256": "sha256:292d00170d6a2edbc2c8108c095394ab047e57e54094a685e15fa6912fa537cc",
+      "apk_mapping": {
+        "mode": "quality_gate",
+        "stage": "accessibility_audit",
+        "artifacts": [
+          "accessibility_audit"
+        ],
+        "gates": [
+          "accessibility-aa"
+        ]
+      },
+      "principles": [
+        "Review contrast, semantics, keyboard focus, motion, and forms",
+        "Do not pass WCAG blockers"
+      ],
+      "verification_hooks": [
+        "accessibility_audit.checks",
+        "accessibility_audit.blockers"
+      ]
+    },
+    {
+      "name": "ai-slop-check",
+      "category": "review",
+      "source_path": "codex/skills/ai-slop-check.md",
+      "source_sha256": "sha256:7ac98b0f247a5b9821410e5e0687ed3cf71736649b127b31b6d7aadf40c56d44",
+      "apk_mapping": {
+        "mode": "quality_gate",
+        "stage": "visual_quality_gate",
+        "artifacts": [
+          "visual_quality_report"
+        ],
+        "gates": [
+          "visual-quality"
+        ]
+      },
+      "principles": [
+        "Detect generic AI aesthetics such as decorative gradients, filler icons, and unearned cards",
+        "Fix or explicitly mark findings"
+      ],
+      "verification_hooks": [
+        "visual_quality_report.ai_slop_findings",
+        "visual_quality_report.fixes_applied"
+      ]
+    },
+    {
+      "name": "hierarchy-rhythm-review",
+      "category": "review",
+      "source_path": "codex/skills/hierarchy-rhythm-review.md",
+      "source_sha256": "sha256:abff1ef650a84e0465ec8ba35f73e8c5a80b7508428e25f5407812aee16ac9e4",
+      "apk_mapping": {
+        "mode": "quality_gate",
+        "stage": "visual_quality_gate",
+        "artifacts": [
+          "visual_quality_report"
+        ],
+        "gates": [
+          "visual-quality"
+        ]
+      },
+      "principles": [
+        "Review hierarchy signals and spacing rhythm",
+        "Keep density and scale intentional"
+      ],
+      "verification_hooks": [
+        "visual_quality_report.hierarchy_findings",
+        "design_context.tokens.spacing"
+      ]
+    },
+    {
+      "name": "interaction-states-pass",
+      "category": "review",
+      "source_path": "codex/skills/interaction-states-pass.md",
+      "source_sha256": "sha256:80b687d2571f69af0b30cde6b9a3dcad2cffc75b5bb6ebbba168a5e2a8e87170",
+      "apk_mapping": {
+        "mode": "quality_gate",
+        "stage": "visual_quality_gate",
+        "artifacts": [
+          "design_prototype_report",
+          "visual_quality_report"
+        ],
+        "gates": [
+          "interaction-state-probe",
+          "visual-quality"
+        ]
+      },
+      "principles": [
+        "Inventory every interactive element",
+        "Verify default, hover, active, focus-visible, disabled, loading, and feedback states"
+      ],
+      "verification_hooks": [
+        "design_prototype_report.states_covered",
+        "visual_quality_report.interaction_state_findings"
+      ]
+    },
+    {
+      "name": "polish-pass",
+      "category": "review",
+      "source_path": "codex/skills/polish-pass.md",
+      "source_sha256": "sha256:0e3dc866db5ad156e116adc0697f518c0ab5572cc8019e371f8528b05fa20449",
+      "apk_mapping": {
+        "mode": "quality_gate",
+        "stage": "design_release_gate",
+        "artifacts": [
+          "accessibility_audit",
+          "visual_quality_report",
+          "design_release_report"
+        ],
+        "gates": [
+          "accessibility-aa",
+          "visual-quality"
+        ]
+      },
+      "principles": [
+        "Aggregate final design review findings before release",
+        "Release only when blocker and quality findings are closed"
+      ],
+      "verification_hooks": [
+        "design_release_report.gates",
+        "design_release_report.open_decisions"
+      ]
+    }
+  ],
+  "coverage": {
+    "total": 14,
+    "production": 7,
+    "system": 2,
+    "review": 5,
+    "skill_names": [
+      "accessibility-audit",
+      "ai-slop-check",
+      "component-extract",
+      "design-system-extract",
+      "discovery-questions",
+      "frontend-aesthetic-direction",
+      "generate-variations",
+      "hierarchy-rhythm-review",
+      "interaction-states-pass",
+      "make-a-deck",
+      "make-a-prototype",
+      "make-tweakable",
+      "polish-pass",
+      "wireframe"
+    ]
+  }
+}

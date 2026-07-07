@@ -3,6 +3,26 @@
   "handoff_rule": "Design roles may communicate only through canonical design artifacts, checkpoints, review findings, and release-gate evidence.",
   "roles": [
     {
+      "name": "design_skill_curator",
+      "owns_stages": [
+        "catalog_design_skills"
+      ],
+      "allowed_inputs": [
+        "upstream_prompt_library",
+        "local_source_summaries"
+      ],
+      "required_outputs": [
+        "design_skill_corpus"
+      ],
+      "must_not": [
+        "treat the upstream prompt as APK's control plane"
+      ],
+      "review_by": [
+        "design_reviewer"
+      ],
+      "approval_by": []
+    },
+    {
       "name": "design_planner",
       "owns_stages": [
         "scope_design"
@@ -30,6 +50,7 @@
       ],
       "allowed_inputs": [
         "design_brief",
+        "design_skill_corpus",
         "brand_context",
         "repo_context",
         "screenshots"
@@ -148,6 +169,12 @@
       "from": "design_planner",
       "to": "design_system_analyst",
       "artifact": "design_brief",
+      "required_review": "pass"
+    },
+    {
+      "from": "design_skill_curator",
+      "to": "design_system_analyst",
+      "artifact": "design_skill_corpus",
       "required_review": "pass"
     },
     {

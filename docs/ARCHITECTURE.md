@@ -49,7 +49,18 @@ through an optional `semantic_module` entry, so domain-specific policy remains
 owned by the pack rather than hardcoded into the kernel core. The design pack
 then tests a higher-judgment domain: it turns a prompt/skill library into
 inspectable design artifacts, accessibility gates, visual quality gates, and
-release evidence.
+release evidence. The upstream design prompt skill library is first captured as
+`design_skill_corpus`, which preserves all 14 Codex skills, MIT provenance,
+an upstream source snapshot, source-file digests recomputed by the corpus
+builder, category coverage, and APK stage/gate mappings without granting the
+prompt control-plane authority. Current design-review runs write a corpus
+checkpoint before extracting design context, while future-only skills remain
+labeled as future corpus entries rather than release-ready behavior.
+The design semantic gate cross-checks active corpus mappings against live
+manifest stages, artifact schemas, tool contracts, role owners, and handoff
+rules, and verifies source refs plus source-file digests, so a self-consistent
+fixture or local index cannot silently drift away from the pack it claims to
+describe.
 
 ## Why External Tools Are Adapters
 

@@ -1,0 +1,109 @@
+{
+  "name": "design-skill-corpus-source-map",
+  "pipeline": "design-skill-corpus",
+  "tags": [
+    "design",
+    "regression"
+  ],
+  "inputs": {
+    "corpus_id": "claude-design-system-prompt-codex-skills"
+  },
+  "expected_artifacts": {
+    "design_skill_corpus": {
+      "corpus_id": "claude-design-system-prompt-codex-skills",
+      "upstream": {
+        "repo_url": "https://github.com/Trystan-SA/claude-design-system-prompt",
+        "license": "MIT",
+        "source_variant": "codex",
+        "source_index": "examples/design_sources/claude_design_skill_index.json"
+      },
+      "integration_policy": {
+        "control_plane_boundary": "The upstream prompt library is domain knowledge. APK owns the control plane through manifests, schemas, checkpoints, replay, and verification gates."
+      },
+      "skills": [
+        {
+          "name": "design-system-extract",
+          "category": "system",
+          "source_path": "codex/skills/design-system-extract.md",
+          "source_sha256": "sha256:06ee22b8e2447c69c76c70beb980b2a2d192921b3e913b49cbc753c631e7ce4b"
+        },
+        {
+          "name": "make-a-prototype",
+          "category": "production",
+          "source_path": "codex/skills/make-a-prototype.md",
+          "source_sha256": "sha256:a9edd45428ae73db2b62964db66121a5770dc566507b181970863a66b7d8b6c3",
+          "apk_mapping": {
+            "mode": "pipeline_stage",
+            "stage": "prototype_surface",
+            "artifacts": [
+              "design_prototype_report"
+            ],
+            "gates": [
+              "browser-render-probe",
+              "interaction-state-probe"
+            ]
+          },
+          "principles": [
+            "Map screens and state before coding",
+            "Wire interactions and verify behavior"
+          ],
+          "verification_hooks": [
+            "design_prototype_report.render_checks",
+            "design_prototype_report.states_covered"
+          ]
+        },
+        {
+          "name": "accessibility-audit",
+          "category": "review",
+          "source_path": "codex/skills/accessibility-audit.md"
+        },
+        {
+          "name": "ai-slop-check",
+          "category": "review",
+          "source_path": "codex/skills/ai-slop-check.md"
+        },
+        {
+          "name": "polish-pass",
+          "category": "review",
+          "source_path": "codex/skills/polish-pass.md",
+          "source_sha256": "sha256:0e3dc866db5ad156e116adc0697f518c0ab5572cc8019e371f8528b05fa20449",
+          "apk_mapping": {
+            "mode": "quality_gate",
+            "stage": "design_release_gate",
+            "artifacts": [
+              "accessibility_audit",
+              "visual_quality_report",
+              "design_release_report"
+            ],
+            "gates": [
+              "accessibility-aa",
+              "visual-quality"
+            ]
+          }
+        }
+      ],
+      "coverage": {
+        "total": 14,
+        "production": 7,
+        "system": 2,
+        "review": 5,
+        "skill_names": [
+          "accessibility-audit",
+          "ai-slop-check",
+          "component-extract",
+          "design-system-extract",
+          "discovery-questions",
+          "frontend-aesthetic-direction",
+          "generate-variations",
+          "hierarchy-rhythm-review",
+          "interaction-states-pass",
+          "make-a-deck",
+          "make-a-prototype",
+          "make-tweakable",
+          "polish-pass",
+          "wireframe"
+        ]
+      }
+    }
+  }
+}

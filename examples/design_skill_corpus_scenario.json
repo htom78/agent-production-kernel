@@ -1,0 +1,14 @@
+{
+  "run_id": "demo-design-skill-corpus",
+  "pipeline": "design-skill-corpus",
+  "artifact_file": "design_skill_corpus_fixture.json",
+  "source_refs": [
+    "https://github.com/Trystan-SA/claude-design-system-prompt",
+    "examples/design_sources/upstream/claude-design-system-prompt-3c3ddb0/LICENSE",
+    "examples/design_sources/claude_design_skill_index.json",
+    "examples/design_sources/claude_design_system_prompt_summary.md",
+    "examples/design_sources/accessibility_audit_summary.md",
+    "examples/design_sources/ai_slop_check_summary.md",
+    "examples/design_sources/polish_pass_summary.md"
+  ]
+}

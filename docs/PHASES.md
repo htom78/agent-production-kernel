@@ -68,16 +68,21 @@ same manifest, role, checkpoint, and replay mechanisms.
 
 Delivered:
 
+- `pipelines/design-skill-corpus.json`
 - `pipelines/design-review.json`
 - `packs/design/roles.json`
 - `packs/design/tool_registry.json`
 - `packs/design/*.md`
+- `schemas/artifacts/design_skill_corpus.json`
 - `schemas/artifacts/design_brief.json`
 - `schemas/artifacts/design_context.json`
 - `schemas/artifacts/design_prototype_report.json`
 - `schemas/artifacts/accessibility_audit.json`
 - `schemas/artifacts/visual_quality_report.json`
 - `schemas/artifacts/design_release_report.json`
+- `examples/design_skill_corpus_fixture.json`
+- `examples/golden_design_skill_corpus_replay.json`
+- `examples/golden_design_skill_corpus_failure_replay.json`
 - `examples/design_review_scenario.json`
 - `examples/golden_design_review_replay.json`
 - `examples/golden_design_review_failure_replay.json`
@@ -88,6 +93,16 @@ as its global operating instruction; it converts the useful ideas into schemas,
 checkpoints, replay fixtures, pack-registered semantic gates, local source
 summaries, and a file-bound prototype fixture with a Playwright-backed browser
 render probe.
+The design skill corpus now records all 14 upstream Codex skills as structured
+coverage from a local upstream source snapshot with recomputed source-file
+digests. Active extract/prototype/review skills are bound to current stages,
+artifact schemas, and design gates; wireframe, variation, deck, and
+tweakable-prototype remain explicitly marked future-only until APK adds
+executable pipelines for them.
+Mapping and provenance drift are covered by semantic tests and replay fixtures,
+including missing skill coverage, wrong-but-existing source refs, coordinated
+index/digest drift, source digest drift, stage/gate drift, and live stage
+contract drift.
 
 ## Phase 3: External Harness/Loop Adapter Layer
 

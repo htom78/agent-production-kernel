@@ -1,6 +1,17 @@
 {
   "tools": [
     {
+      "name": "design_skill_catalog_reader",
+      "capability": "design_skill_corpus",
+      "provider": "local",
+      "runtime": "LOCAL",
+      "dependencies": [],
+      "input_artifacts": [],
+      "output_artifacts": [
+        "design_skill_corpus"
+      ]
+    },
+    {
       "name": "design_context_reader",
       "capability": "design_context",
       "provider": "local",
@@ -20,7 +31,8 @@
         "cmd:rg"
       ],
       "input_artifacts": [
-        "design_brief"
+        "design_brief",
+        "design_skill_corpus"
       ],
       "output_artifacts": [
         "design_context"
@@ -33,7 +45,8 @@
       "runtime": "LOCAL",
       "dependencies": [],
       "input_artifacts": [
-        "design_brief"
+        "design_brief",
+        "design_skill_corpus"
       ],
       "output_artifacts": [
         "design_context"

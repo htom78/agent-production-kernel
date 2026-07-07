@@ -12,7 +12,7 @@
   },
   "mutations": [
     {
-      "path": "artifacts.design_brief.source_refs[1]",
+      "path": "artifacts.design_brief.source_refs[3]",
       "value": "examples/design_sources/missing.md"
     }
   ],

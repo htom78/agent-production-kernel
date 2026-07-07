@@ -1,0 +1,39 @@
+{
+  "name": "design-skill-corpus-semantics-failure-detected",
+  "pipeline": "design-skill-corpus",
+  "tags": [
+    "design",
+    "regression",
+    "negative"
+  ],
+  "expected_result": "fail",
+  "inputs": {
+    "corpus_id": "claude-design-system-prompt-codex-skills"
+  },
+  "mutations": [
+    {
+      "path": "artifacts.design_skill_corpus.skills[4].principles[0]",
+      "value": "Generate a polished surface without state mapping."
+    }
+  ],
+  "expected_errors_contain": [
+    "design_skill_corpus.skills missing expected partial item"
+  ],
+  "expected_artifacts": {
+    "design_skill_corpus": {
+      "skills": [
+        {
+          "name": "make-a-prototype",
+          "principles": [
+            "Map screens and state before coding",
+            "Wire interactions and verify behavior"
+          ],
+          "verification_hooks": [
+            "design_prototype_report.render_checks",
+            "design_prototype_report.states_covered"
+          ]
+        }
+      ]
+    }
+  }
+}

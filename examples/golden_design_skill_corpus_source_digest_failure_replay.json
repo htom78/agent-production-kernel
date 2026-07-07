@@ -1,0 +1,32 @@
+{
+  "name": "design-skill-corpus-source-digest-failure-detected",
+  "pipeline": "design-skill-corpus",
+  "tags": [
+    "design",
+    "regression",
+    "negative"
+  ],
+  "expected_result": "fail",
+  "inputs": {
+    "corpus_id": "claude-design-system-prompt-codex-skills"
+  },
+  "mutations": [
+    {
+      "path": "artifacts.design_skill_corpus.skills[4].source_sha256",
+      "value": "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  ],
+  "expected_errors_contain": [
+    "design_skill_corpus.skills missing expected partial item"
+  ],
+  "expected_artifacts": {
+    "design_skill_corpus": {
+      "skills": [
+        {
+          "name": "make-a-prototype",
+          "source_sha256": "sha256:a9edd45428ae73db2b62964db66121a5770dc566507b181970863a66b7d8b6c3"
+        }
+      ]
+    }
+  }
+}

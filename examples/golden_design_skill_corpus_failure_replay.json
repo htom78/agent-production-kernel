@@ -1,0 +1,31 @@
+{
+  "name": "design-skill-corpus-missing-skill-failure-detected",
+  "pipeline": "design-skill-corpus",
+  "tags": [
+    "design",
+    "regression",
+    "negative"
+  ],
+  "expected_result": "fail",
+  "inputs": {
+    "corpus_id": "claude-design-system-prompt-codex-skills"
+  },
+  "mutations": [
+    {
+      "path": "artifacts.design_skill_corpus.coverage.skill_names[12]",
+      "value": "missing-polish-pass"
+    }
+  ],
+  "expected_errors_contain": [
+    "design_skill_corpus.coverage.skill_names missing expected item"
+  ],
+  "expected_artifacts": {
+    "design_skill_corpus": {
+      "coverage": {
+        "skill_names": [
+          "polish-pass"
+        ]
+      }
+    }
+  }
+}

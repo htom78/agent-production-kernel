@@ -102,6 +102,7 @@
       "tool_registry_file": "packs/design/tool_registry.json",
       "semantic_module": "apkernel.design",
       "pipelines": [
+        "design-skill-corpus",
         "design-review"
       ],
       "scenarios": [
@@ -109,6 +110,11 @@
           "pipeline": "design-review",
           "scenario_file": "design_review_scenario.json",
           "executor": "apkernel.design:build_demo_design_review_executor"
+        },
+        {
+          "pipeline": "design-skill-corpus",
+          "scenario_file": "design_skill_corpus_scenario.json",
+          "executor": "apkernel.design:build_design_skill_corpus_executor"
         }
       ],
       "static_replays": []

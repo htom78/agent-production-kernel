@@ -1,0 +1,26 @@
+{
+  "name": "design-skill-corpus",
+  "version": "1.0",
+  "category": "design_production",
+  "description": "Static source-map pipeline for turning the upstream design prompt skill library into an APK-owned corpus artifact.",
+  "stages": [
+    {
+      "name": "catalog_design_skills",
+      "skill": "packs/design/design-skill-corpus-curator",
+      "produces": [
+        "design_skill_corpus"
+      ],
+      "tools_available": [
+        "design_skill_catalog_reader"
+      ],
+      "review_focus": [
+        "Every upstream Codex skill is represented exactly once",
+        "The prompt library remains domain knowledge rather than the APK control plane"
+      ],
+      "success_criteria": [
+        "requires:skills",
+        "requires:upstream"
+      ]
+    }
+  ]
+}

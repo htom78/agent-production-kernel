@@ -5,6 +5,24 @@
   "description": "Design quality pipeline that turns a design prompt library into structured brief, context, prototype evidence, accessibility, visual quality, and release gates.",
   "stages": [
     {
+      "name": "catalog_design_skills",
+      "skill": "packs/design/design-skill-corpus-curator",
+      "produces": [
+        "design_skill_corpus"
+      ],
+      "tools_available": [
+        "design_skill_catalog_reader"
+      ],
+      "review_focus": [
+        "Every upstream Codex skill is represented exactly once",
+        "The design review run consumes the corpus as source-map context, not as a global prompt"
+      ],
+      "success_criteria": [
+        "requires:skills",
+        "requires:upstream"
+      ]
+    },
+    {
       "name": "scope_design",
       "skill": "packs/design/design-brief-director",
       "produces": [
@@ -26,7 +44,8 @@
       "name": "extract_design_context",
       "skill": "packs/design/design-system-extractor",
       "required_artifacts_in": [
-        "design_brief"
+        "design_brief",
+        "design_skill_corpus"
       ],
       "produces": [
         "design_context"

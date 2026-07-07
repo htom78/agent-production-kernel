@@ -33,9 +33,10 @@ ALLOWED_SELF_ASSESS_BATTLE_ACTIONS = {
     "run-independent-agent-battle",
     "address-independent-agent-battle-findings",
 }
-ALLOWED_BATTLE_REPORT_ACTIONS = {
+ALLOWED_BATTLE_REPORT_READINESS_ACTIONS = {
     "Run and preserve an independent multi-agent battle report for APK.",
     "Address the current independent Agent Battle hold findings.",
+    "Maintain the verified corpus and rerun gates before release.",
 }
 ROLE_CONTEXT_REFS = {
     "architect": ["apkernel/core.py", "pipelines", "packs/registry.json"],
@@ -236,7 +237,7 @@ def _battle_report_pre_battle_readiness_errors(battle: dict[str, Any]) -> list[s
     if not isinstance(next_actions, list):
         return ["battle_report next_actions must be an array"]
     unexpected_actions = [
-        action for action in next_actions if action not in ALLOWED_BATTLE_REPORT_ACTIONS
+        action for action in next_actions if action not in ALLOWED_BATTLE_REPORT_READINESS_ACTIONS
     ]
     if unexpected_actions:
         errors.append(f"battle_report has unresolved non-battle next_actions {unexpected_actions}")

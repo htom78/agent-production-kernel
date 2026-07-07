@@ -44,6 +44,7 @@ ALLOWED_SELF_ASSESS_BATTLE_ACTIONS = {
 ALLOWED_BATTLE_REPORT_ACTIONS = {
     "Run and preserve an independent multi-agent battle report for APK.",
     "Address the current independent Agent Battle hold findings.",
+    "Maintain the verified corpus and rerun gates before release.",
 }
 ArtifactSemanticValidator = Callable[[dict[str, Any]], list[str]]
 _DOMAIN_ARTIFACT_SEMANTIC_VALIDATORS: dict[str, ArtifactSemanticValidator] = {}

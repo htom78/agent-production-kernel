@@ -1148,7 +1148,7 @@ class KernelContractTests(unittest.TestCase):
             with self.assertRaisesRegex(ContractError, "contract_integrity"):
                 validate_artifact_semantics("agent_battle_harness_report", tampered)
 
-    def test_agent_battle_harness_rejects_maintenance_next_action_as_prebattle_ready(self) -> None:
+    def test_agent_battle_harness_allows_maintenance_next_action_as_prebattle_ready(self) -> None:
         spec = importlib.util.spec_from_file_location(
             "agent_battle_harness_maintenance_next_action", ROOT / "scripts" / "agent_battle_harness.py"
         )
@@ -1204,9 +1204,32 @@ class KernelContractTests(unittest.TestCase):
             )
             self.schemas.validate("agent_battle_harness_report", report)
             validate_artifact_semantics("agent_battle_harness_report", report)
-            self.assertEqual(report["outcome"]["verdict"], "hold")
+            self.assertEqual(report["outcome"]["verdict"], "advance")
+            readiness_audit = [
+                item for item in report["judge_audit"]
+                if item["check"] == "input reports meet advance readiness gate"
+            ]
+            self.assertEqual(readiness_audit[0]["status"], "pass")
 
-            tampered = copy.deepcopy(report)
+            battle["next_actions"] = ["Skip release discipline and advance anyway."]
+            battle_report_path.write_text(json.dumps(battle, indent=2), encoding="utf-8")
+            blocked_report = module.build_agent_battle_harness_report(
+                self_report,
+                battle,
+                run_id,
+                input_reports={
+                    "self_assessment_report": str(self_report_path),
+                    "self_assessment_run_id": self_report["run_id"],
+                    "battle_report": str(battle_report_path),
+                    "battle_report_run_id": battle["run_id"],
+                },
+                judge_reports=judge_reports,
+            )
+            self.schemas.validate("agent_battle_harness_report", blocked_report)
+            validate_artifact_semantics("agent_battle_harness_report", blocked_report)
+            self.assertEqual(blocked_report["outcome"]["verdict"], "hold")
+
+            tampered = copy.deepcopy(blocked_report)
             tampered["outcome"]["verdict"] = "advance"
             self.schemas.validate("agent_battle_harness_report", tampered)
             with self.assertRaisesRegex(ContractError, "non-battle next_actions"):

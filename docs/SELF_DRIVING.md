@@ -141,6 +141,9 @@ generated after those inputs, binds `self_assessment_run_id` and
 non-evaluation self-assessment dimensions meet the pre-battle readiness gate,
 confirms the bound reports have no unresolved non-battle next action, and is
 newer than the current source, schema, test, and documentation evidence. The
+`battle_report` release-discipline action to maintain the verified corpus and
+rerun gates is allowed as a pre-battle input when those gates have been rerun;
+unknown next actions still block advance.
 bound self/battle reports also carry an `evidence_fingerprint`, and
 self-assessment rejects an older harness when a newer unresolved battle-cycle
 report exists for that same fingerprint. The

@@ -151,8 +151,9 @@ run ID, carry advancing verdicts and scores at or above the minimum, contain
 exactly one report for each required role, and use distinct
 `codex-subagent://` sources. The harness also records each judge report's
 `source_artifact` and `source_artifact_sha256`; semantic validation requires
-that file to be readable, hash-matched, and payload-matched to the judge entry,
-so an opaque source label alone cannot advance the battle. Self-assessment only accepts independent battle
+that file to be readable, hash-matched, valid as `agent_judge_report`, and
+payload-matched to the judge entry, so an opaque source label alone cannot
+advance the battle. Self-assessment only accepts independent battle
 evidence that references real input reports, binds the recorded
 `self_assessment_run_id` and `battle_report_run_id` to those files' actual
 `run_id` values, confirms all non-evaluation self-assessment dimensions meet

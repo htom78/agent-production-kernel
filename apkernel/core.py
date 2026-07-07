@@ -842,6 +842,7 @@ def _agent_battle_harness_report_errors(report: dict[str, Any]) -> list[str]:
 def _agent_battle_judge_source_artifact_errors(judges: list[Any]) -> list[str]:
     errors: list[str] = []
     root = Path(__file__).resolve().parent.parent
+    schemas = SchemaRegistry(root / "schemas" / "artifacts").load()
     for judge in judges:
         if not isinstance(judge, dict) or judge.get("source") != "external_agent_report":
             continue
@@ -882,6 +883,14 @@ def _agent_battle_judge_source_artifact_errors(judges: list[Any]) -> list[str]:
         except (UnicodeDecodeError, json.JSONDecodeError):
             errors.append(
                 f"agent_battle_harness_report.judges.{role} source_artifact must be readable JSON"
+            )
+            continue
+        try:
+            schemas.validate("agent_judge_report", source_report)
+            validate_artifact_semantics("agent_judge_report", source_report)
+        except ContractError as exc:
+            errors.append(
+                f"agent_battle_harness_report.judges.{role} source_artifact must validate as agent_judge_report: {exc}"
             )
             continue
         expected = {

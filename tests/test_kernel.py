@@ -1170,6 +1170,34 @@ class KernelContractTests(unittest.TestCase):
             self.assertTrue(report["protocol"]["independent_contexts"])
             self.assertEqual(report["outcome"]["verdict"], "advance")
 
+            forged_source_report = copy.deepcopy(report)
+            forged_judge = forged_source_report["judges"][0]
+            forged_veto = forged_judge["veto_vote"]
+            forged_source = {
+                "run_id": forged_judge["input_run_id"],
+                "role": forged_judge["role"],
+                "score": forged_judge["score"],
+                "verdict": forged_judge["verdict"],
+                "stance": forged_judge["stance"],
+                "findings": forged_judge["findings"],
+                "context_refs": forged_judge["context_refs"],
+                "source_report": forged_judge["source_report"],
+                "veto_active": forged_veto["active"],
+                "veto_reason": forged_veto["reason"],
+            }
+            forged_source_path = Path(tmp) / "forged-non-schema-source.json"
+            forged_source_path.write_text(
+                json.dumps(forged_source, indent=2, sort_keys=True),
+                encoding="utf-8",
+            )
+            forged_judge["source_artifact"] = str(forged_source_path)
+            forged_judge["source_artifact_sha256"] = (
+                "sha256:" + hashlib.sha256(forged_source_path.read_bytes()).hexdigest()
+            )
+            self.schemas.validate("agent_battle_harness_report", forged_source_report)
+            with self.assertRaisesRegex(ContractError, "agent_judge_report"):
+                validate_artifact_semantics("agent_battle_harness_report", forged_source_report)
+
             stale = copy.deepcopy(report)
             stale["input_reports"]["self_assessment_run_id"] = "stale-self-run"
             self.schemas.validate("agent_battle_harness_report", stale)

@@ -173,7 +173,8 @@ pipeline manifest + artifact schemas + checkpoints + decision log + verifier
   critic veto, cross-examination, and judge-audit checks. Derived local reports
   cannot advance; only explicit `agent_judge_report` inputs from distinct
   `codex-subagent://` sources can claim independent contexts, and those sources
-  must be backed by readable judge-report files with matching sha256 digests.
+  must be backed by readable judge-report files with matching sha256 digests
+  that independently validate as `agent_judge_report`.
   The harness now requires exactly one report per required role with an
   advancing verdict and minimum score. Self-assessment also rejects independent battle evidence
   when its recorded input run IDs do not match the actual self-assessment and

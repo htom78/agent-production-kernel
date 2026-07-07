@@ -148,7 +148,8 @@ at or above the protocol minimum, and `source_report` values must be distinct
 `codex-subagent://` references. The `codex-subagent://` identifier is not
 sufficient by itself: each final judge entry must also bind to a readable
 `source_artifact` file and `source_artifact_sha256`, and that source artifact
-must match the judge payload folded into the harness.
+must itself validate as `agent_judge_report` before matching the judge payload
+folded into the harness.
 
 Self-assessment treats independent battle evidence as current only when the
 harness report references real self-assessment and battle-report files, was

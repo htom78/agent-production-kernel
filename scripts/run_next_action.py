@@ -145,11 +145,7 @@ def _select_action(actions: list[Any]) -> dict[str, Any]:
 
 
 def _is_empty_action(action: dict[str, Any]) -> bool:
-    return (
-        action.get("id") == "none"
-        and action.get("target_files") == []
-        and action.get("verification_commands") == []
-    )
+    return action == EMPTY_ACTION
 
 
 def _boundary_for(action: dict[str, Any]) -> tuple[str | None, list[str]]:

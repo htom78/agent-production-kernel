@@ -430,6 +430,15 @@ class KernelContractTests(unittest.TestCase):
         with self.assertRaisesRegex(ContractError, "empty selected_action.target_files"):
             validate_artifact_semantics("autonomy_run_report", report)
 
+    def test_autonomy_run_report_semantics_reject_no_action_with_noncanonical_label(self) -> None:
+        fixture = copy.deepcopy(load_json(ROOT / "examples" / "autonomy_no_action_replay_fixture.json"))
+        report = fixture["autonomy_run_report"]
+        report["selected_action"]["title"] = "Quietly skip work"
+        report["selected_action"]["priority"] = "P1"
+        self.schemas.validate("autonomy_run_report", report)
+        with self.assertRaisesRegex(ContractError, "selected_action.title"):
+            validate_artifact_semantics("autonomy_run_report", report)
+
     def test_all_pipeline_outputs_have_schemas(self) -> None:
         for path in sorted((ROOT / "pipelines").glob("*.json")):
             manifest = PipelineManifest.load(path)
@@ -521,7 +530,12 @@ class KernelContractTests(unittest.TestCase):
             module.CommandRun("python3 scripts/replay_regressions.py", "pass", 0, "ok", ""),
             module.CommandRun("python3 -m compileall apkernel scripts tests", "pass", 0, "ok", ""),
         ]
-        report = module.build_report(runs, "unit-stale-corpus-pricing")
+        with mock.patch.object(
+            module,
+            "_real_repo_corpus_freshness",
+            return_value={"external_execution": False, "stale_live_artifact_count": 6},
+        ):
+            report = module.build_report(runs, "unit-stale-corpus-pricing")
         evidence = next(item for item in report["dimensions"] if item["name"] == "evidence_trust")
         self.assertEqual(evidence["score"], 96)
         self.assertIn("stale", evidence["rationale"])
@@ -3163,6 +3177,22 @@ raise SystemExit(3)
             "verification_commands": ["python3 scripts/verify.py"],
         }
         report = module.build_autonomy_report(action, "unit-autonomy-bad-none")
+        self.assertEqual(report["decision"], "blocked")
+        self.assertIn("invalid_no_action_payload", report["boundaries"])
+
+    def test_autonomy_runner_blocks_no_action_with_unexpected_key(self) -> None:
+        spec = importlib.util.spec_from_file_location(
+            "run_next_action", ROOT / "scripts" / "run_next_action.py"
+        )
+        self.assertIsNotNone(spec)
+        self.assertIsNotNone(spec.loader)
+        module = importlib.util.module_from_spec(spec)
+        sys.modules["run_next_action"] = module
+        spec.loader.exec_module(module)
+
+        action = dict(module.EMPTY_ACTION)
+        action["unexpected"] = "payload"
+        report = module.build_autonomy_report(action, "unit-autonomy-extra-none")
         self.assertEqual(report["decision"], "blocked")
         self.assertIn("invalid_no_action_payload", report["boundaries"])
 

@@ -217,7 +217,7 @@ external repository, credentials, network cost, destructive operations, unknown
 handlers, or a user choice.
 When self-assessment returns no next action, the runner records
 `decision=no_action` with `selected_action.id=none`, no commands, no boundaries,
-empty `target_files`, empty `verification_commands`, and a completed
-`kernel-autonomy` checkpoint. Replay includes both the happy path and a negative
-mutation so the system cannot silently relabel a real action payload as a
-no-op.
+the canonical `No next action` / `P2` label, empty `target_files`, empty
+`verification_commands`, and a completed `kernel-autonomy` checkpoint. Replay
+includes both the happy path and a negative mutation so the system cannot
+silently relabel a real action payload as a no-op.

@@ -137,9 +137,10 @@ executed allowlisted commands, safety boundaries, and stop reason. The runner
 can advance low-risk local verification work, but external and destructive
 boundaries become blocked checkpoints.
 If there is no next action, the runner writes `decision=no_action` with no
-commands, boundaries, target files, or verification commands and checkpoints
-the state as completed, so a quiet system still has explicit replayable
-evidence for why it stopped.
+commands, boundaries, target files, or verification commands; it also preserves
+the canonical `No next action` / `P2` label and checkpoints the state as
+completed, so a quiet system still has explicit replayable evidence for why it
+stopped.
 
 The battle layer is a validation layer for the kernel, not an execution
 platform. `battle_report` preserves the multi-judge score, dissent, and

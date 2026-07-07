@@ -599,6 +599,12 @@ def _autonomy_run_report_errors(report: dict[str, Any]) -> list[str]:
         action_id = selected_action.get("id") if isinstance(selected_action, dict) else None
         if action_id != "none":
             errors.append("autonomy_run_report.decision no_action requires selected_action.id 'none'")
+        title = selected_action.get("title") if isinstance(selected_action, dict) else None
+        if title != "No next action":
+            errors.append("autonomy_run_report.decision no_action requires selected_action.title 'No next action'")
+        priority = selected_action.get("priority") if isinstance(selected_action, dict) else None
+        if priority != "P2":
+            errors.append("autonomy_run_report.decision no_action requires selected_action.priority 'P2'")
         target_files = selected_action.get("target_files") if isinstance(selected_action, dict) else None
         if target_files:
             errors.append("autonomy_run_report.decision no_action requires empty selected_action.target_files")

@@ -104,6 +104,11 @@ Replay scenarios now check artifact fields, checkpoint metadata/review fields,
 and negative mutation cases. Battle reports preserve architect, test engineer,
 code reviewer, and critic disagreement as a schema-validated artifact rather
 than leaving it only in chat history.
+Blocking work appears in `battle_report.next_actions`; ongoing release hygiene
+such as maintaining the verified corpus and rerunning gates appears in
+`battle_report.release_disciplines`, so a clean system does not keep creating
+the same self-driving action. Agent Battle readiness checks that field and
+carries it into the harness outcome.
 
 `scripts/agent_battle_harness.py` adds the Agent Battle validation layer for
 the kernel. It records per-judge context hashes, evidence source labels,

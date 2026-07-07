@@ -112,6 +112,14 @@ The human remains the board. The kernel becomes the operating system.
 `scripts/battle_report.py` is the score and disagreement report. It should
 remain simple and readable.
 
+In `battle_report`, `next_actions` are blocking work items that should be
+executed by the self-driving loop. Non-blocking release hygiene lives in
+`release_disciplines`; keeping the verified corpus current and rerunning gates
+before a release is always required, but it should not create an infinite
+next-action loop once the gates already pass. Agent Battle readiness checks the
+bound `battle_report.release_disciplines`, and harness outcomes carry those
+disciplines forward for audit.
+
 `scripts/agent_battle_harness.py` is the Agent Battle validation artifact for
 this project. It generates `agent_battle_harness_report`, which records:
 

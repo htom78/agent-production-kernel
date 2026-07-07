@@ -11,6 +11,7 @@ import importlib.util
 import json
 import os
 from pathlib import Path
+from unittest import mock
 
 from apkernel import CheckpointStore, ContractError, PipelineManifest, ReplayHarness, Reviewer, RolePolicy, RunEngine, SchemaRegistry, ToolRegistry, artifacts_from_checkpoints, build_real_repo_corpus_report, load_domain_packs, load_json, validate_artifact_semantics
 from apkernel.software import (
@@ -480,7 +481,8 @@ class KernelContractTests(unittest.TestCase):
                     {
                         "run_id": independent["input_reports"]["battle_report_run_id"],
                         "verdict": "hold",
-                        "next_actions": ["Run and preserve an independent multi-agent battle report for APK."]
+                        "next_actions": ["Run and preserve an independent multi-agent battle report for APK."],
+                        "release_disciplines": ["Maintain the verified corpus and rerun gates before release."]
                     }
                 ),
                 encoding="utf-8",
@@ -820,22 +822,77 @@ class KernelContractTests(unittest.TestCase):
         battle_report = battle_module.build_battle_report(self_report, "unit-battle")
         self.schemas.validate("battle_report", battle_report)
         self.assertIn(
-            battle_report["next_actions"][0],
-            {
-                "Run and preserve an independent multi-agent battle report for APK.",
-                "Address the current independent Agent Battle hold findings.",
-                "Maintain the verified corpus and rerun gates before release.",
-            },
+            "Maintain the verified corpus and rerun gates before release.",
+            battle_report["release_disciplines"],
         )
-        if battle_report["next_actions"][0] == "Maintain the verified corpus and rerun gates before release.":
-            self.assertIn(battle_report["verdict"], {"advance", "hold"})
-        else:
+        if battle_report["next_actions"]:
+            self.assertIn(
+                battle_report["next_actions"][0],
+                {
+                    "Run and preserve an independent multi-agent battle report for APK.",
+                    "Address the current independent Agent Battle hold findings.",
+                    "Add branch-level replay for awaiting_human, failed, and blocked states.",
+                    "Run one real bug-fix scenario through the kernel and preserve the artifacts.",
+                    "Add one non-software domain pack to prove pack generality.",
+                    "Add schema-valid semantic false-green tests.",
+                    "Add a bounded safe-action runner for self-assessed next_actions.",
+                    "Expand to five non-author real repository bug scenarios after human approval.",
+                },
+            )
             self.assertEqual(battle_report["verdict"], "hold")
         self.assertEqual(
             {judge["role"] for judge in battle_report["judges"]},
             {"architect", "test_engineer", "code_reviewer", "critic"},
         )
         self.assertTrue(battle_report["dissent"])
+
+    def test_battle_report_uses_release_disciplines_for_non_blocking_maintenance(self) -> None:
+        battle_spec = importlib.util.spec_from_file_location(
+            "battle_report_release_disciplines", ROOT / "scripts" / "battle_report.py"
+        )
+        self.assertIsNotNone(battle_spec)
+        self.assertIsNotNone(battle_spec.loader)
+        battle_module = importlib.util.module_from_spec(battle_spec)
+        sys.modules["battle_report_release_disciplines"] = battle_module
+        battle_spec.loader.exec_module(battle_module)
+
+        self_report = {
+            "run_id": "unit-release-disciplines",
+            "evidence_fingerprint": "sha256:unit-release-disciplines",
+            "dimensions": [
+                {"name": "contract_integrity", "score": 96},
+                {"name": "execution_reality", "score": 95},
+                {"name": "evidence_trust", "score": 96},
+                {"name": "replay_strength", "score": 96},
+                {"name": "multi_agent_readiness", "score": 96},
+                {"name": "autonomy_loop", "score": 96},
+                {"name": "evaluation_independence", "score": 96},
+            ],
+        }
+        with (
+            mock.patch.object(battle_module.self_assess, "_has_real_bug_run_evidence", return_value=True),
+            mock.patch.object(battle_module.self_assess, "_has_branch_level_replay", return_value=True),
+            mock.patch.object(battle_module.self_assess, "_has_bounded_autonomy_runner", return_value=True),
+            mock.patch.object(battle_module.self_assess, "_real_repo_corpus_count", return_value=5),
+            mock.patch.object(
+                battle_module.self_assess,
+                "_real_repo_corpus_stats",
+                return_value={"failure_family_count": 6},
+            ),
+            mock.patch.object(battle_module.self_assess, "_has_second_domain_pack", return_value=True),
+            mock.patch.object(battle_module.self_assess, "_has_semantic_fake_green_tests", return_value=True),
+            mock.patch.object(battle_module.self_assess, "_has_independent_agent_battle_evidence", return_value=True),
+            mock.patch.object(battle_module.self_assess, "_has_current_independent_agent_battle_attempt", return_value=True),
+        ):
+            battle_report = battle_module.build_battle_report(self_report, "unit-release-disciplines")
+
+        self.schemas.validate("battle_report", battle_report)
+        self.assertEqual(battle_report["verdict"], "advance")
+        self.assertEqual(battle_report["next_actions"], [])
+        self.assertEqual(
+            battle_report["release_disciplines"],
+            ["Maintain the verified corpus and rerun gates before release."],
+        )
 
     def test_agent_battle_harness_fixture_validates_protocol(self) -> None:
         fixture = load_json(ROOT / "examples" / "agent_battle_harness_report_fixture.json")
@@ -1148,7 +1205,7 @@ class KernelContractTests(unittest.TestCase):
             with self.assertRaisesRegex(ContractError, "contract_integrity"):
                 validate_artifact_semantics("agent_battle_harness_report", tampered)
 
-    def test_agent_battle_harness_allows_maintenance_next_action_as_prebattle_ready(self) -> None:
+    def test_agent_battle_harness_allows_empty_next_actions_with_release_disciplines(self) -> None:
         spec = importlib.util.spec_from_file_location(
             "agent_battle_harness_maintenance_next_action", ROOT / "scripts" / "agent_battle_harness.py"
         )
@@ -1168,7 +1225,8 @@ class KernelContractTests(unittest.TestCase):
         self_report = module.self_assess.build_report(runs, run_id)
         battle = module.battle_report.build_battle_report(self_report, run_id)
         self.mark_reports_ready_for_agent_battle(self_report, battle)
-        battle["next_actions"] = ["Maintain the verified corpus and rerun gates before release."]
+        battle["next_actions"] = []
+        battle["release_disciplines"] = ["Maintain the verified corpus and rerun gates before release."]
         judge_reports = [
             {
                 "version": "1.0",

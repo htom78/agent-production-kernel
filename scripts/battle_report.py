@@ -19,6 +19,9 @@ from apkernel import SchemaRegistry
 import self_assess
 
 
+RELEASE_DISCIPLINES = ["Maintain the verified corpus and rerun gates before release."]
+
+
 def _dimension_score(self_report: dict[str, Any], name: str) -> float:
     for dimension in self_report["dimensions"]:
         if dimension["name"] == name:
@@ -66,7 +69,7 @@ def build_battle_report(self_report: dict[str, Any], run_id: str) -> dict[str, A
     has_git_metadata = _has_git_metadata()
     critic_stance = "The system has a public real-repo proof corpus; the remaining risk is freshness and release discipline."
     critic_concerns = ["Demo executors are deterministic and do not yet call external tools or models."]
-    critic_actions = ["Maintain the verified corpus and rerun gates before release."]
+    critic_actions = list(RELEASE_DISCIPLINES)
     if not independent_battle and independent_battle_attempt:
         critic_stance = "The system has current independent Agent Battle evidence, but that battle held or vetoed advance."
         critic_concerns = ["The latest independent Agent Battle found findings that must be repaired before readiness can advance."]
@@ -173,8 +176,6 @@ def build_battle_report(self_report: dict[str, Any], run_id: str) -> dict[str, A
             next_actions.append("Add a bounded safe-action runner for self-assessed next_actions.")
         elif not corpus_target_met:
             next_actions.append("Expand to five non-author real repository bug scenarios after human approval.")
-        else:
-            next_actions.append("Maintain the verified corpus and rerun gates before release.")
 
     return {
         "version": "1.0",
@@ -190,6 +191,7 @@ def build_battle_report(self_report: dict[str, Any], run_id: str) -> dict[str, A
         ],
         "dissent": dissent,
         "next_actions": next_actions,
+        "release_disciplines": list(RELEASE_DISCIPLINES),
     }
 
 
@@ -213,7 +215,8 @@ def main() -> int:
         "status": "pass" if report["verdict"] == "advance" else report["verdict"],
         "report": str(report_path.relative_to(ROOT)),
         "overall_score": report["overall_score"],
-        "next_action": report["next_actions"][0],
+        "next_action": report["next_actions"][0] if report["next_actions"] else "none",
+        "release_disciplines": report["release_disciplines"],
     }
     print(json.dumps(summary, indent=2, sort_keys=True))
     return 0 if report["verdict"] == "advance" else 1

@@ -38,6 +38,7 @@ ALLOWED_BATTLE_REPORT_READINESS_ACTIONS = {
     "Address the current independent Agent Battle hold findings.",
     "Maintain the verified corpus and rerun gates before release.",
 }
+REQUIRED_RELEASE_DISCIPLINE = "Maintain the verified corpus and rerun gates before release."
 ROLE_CONTEXT_REFS = {
     "architect": ["apkernel/core.py", "pipelines", "packs/registry.json"],
     "test_engineer": ["scripts/verify.py", "scripts/replay_regressions.py", "tests/test_kernel.py"],
@@ -241,6 +242,12 @@ def _battle_report_pre_battle_readiness_errors(battle: dict[str, Any]) -> list[s
     ]
     if unexpected_actions:
         errors.append(f"battle_report has unresolved non-battle next_actions {unexpected_actions}")
+    release_disciplines = battle.get("release_disciplines", [])
+    if (
+        not isinstance(release_disciplines, list)
+        or REQUIRED_RELEASE_DISCIPLINE not in release_disciplines
+    ):
+        errors.append("battle_report must record release_disciplines for verified-corpus maintenance")
     return errors
 
 
@@ -372,6 +379,7 @@ def build_agent_battle_harness_report(
                 "agent_battle_harness_report.input_reports.self_assessment_report.dimensions",
                 "agent_battle_harness_report.input_reports.self_assessment_report.next_actions",
                 "agent_battle_harness_report.input_reports.battle_report.next_actions",
+                "agent_battle_harness_report.input_reports.battle_report.release_disciplines",
             ],
         },
         {
@@ -452,6 +460,7 @@ def build_agent_battle_harness_report(
             "verdict": verdict,
             "score": score,
             "accepted_actions": list(battle.get("next_actions", [])),
+            "release_disciplines": list(battle.get("release_disciplines", [])),
         },
     }
 

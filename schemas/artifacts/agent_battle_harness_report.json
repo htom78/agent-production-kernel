@@ -166,6 +166,10 @@
         "accepted_actions": {
           "type": "array",
           "items": {"type": "string", "minLength": 1}
+        },
+        "release_disciplines": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1}
         }
       }
     }

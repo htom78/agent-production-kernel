@@ -964,6 +964,15 @@ def _battle_report_pre_battle_readiness_errors(report: dict[str, Any]) -> list[s
             "agent_battle_harness_report.input_reports.battle_report "
             f"has unresolved non-battle next_actions {unexpected_actions}"
         )
+    release_disciplines = report.get("release_disciplines", [])
+    if (
+        not isinstance(release_disciplines, list)
+        or "Maintain the verified corpus and rerun gates before release." not in release_disciplines
+    ):
+        errors.append(
+            "agent_battle_harness_report.input_reports.battle_report "
+            "must record release_disciplines for verified-corpus maintenance"
+        )
     return errors
 
 

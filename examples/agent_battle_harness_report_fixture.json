@@ -97,6 +97,8 @@
       ],
       "source": "derived_battle_report",
       "source_report": "generated:battle_report.judges.architect",
+      "source_artifact": "generated:battle_report.judges.architect",
+      "source_artifact_sha256": "sha256:9e39247dc48c203c61305bec400d0168e57a9fe262cf026c76f02783092fc9a9",
       "findings": [
         "Autonomy is still proposal-driven rather than fully executing queued work.",
         "Add an explicit approval/runtime boundary for high-risk operations."
@@ -121,6 +123,8 @@
       ],
       "source": "derived_battle_report",
       "source_report": "generated:battle_report.judges.test_engineer",
+      "source_artifact": "generated:battle_report.judges.test_engineer",
+      "source_artifact_sha256": "sha256:72d0d4d83cd0395d88b0b8c2c2b7bf61acca17cab6b6bf4901753fde3559a527",
       "findings": [
         "Golden coverage is still scenario-level and does not yet measure broad branch coverage.",
         "Add branch-level replay cases for awaiting_human, failed, and blocked statuses."
@@ -145,6 +149,8 @@
       ],
       "source": "derived_battle_report",
       "source_report": "generated:battle_report.judges.code_reviewer",
+      "source_artifact": "generated:battle_report.judges.code_reviewer",
+      "source_artifact_sha256": "sha256:a0641473a870605907de7b2cf90e2277452b919ceea88db1460d3138473ea67d",
       "findings": [
         "There is no git metadata in this checkout, so diff hygiene cannot be verified locally.",
         "Run the same gates inside a real repository checkout before release."
@@ -169,6 +175,8 @@
       ],
       "source": "derived_battle_report",
       "source_report": "generated:battle_report.judges.critic",
+      "source_artifact": "generated:battle_report.judges.critic",
+      "source_artifact_sha256": "sha256:16d05704fffd6fdae8b5c3842193b386595f20e8104dc30d28812f46b34adebd",
       "findings": [
         "Demo executors are deterministic and do not yet call external tools or models.",
         "Maintain the verified corpus and rerun gates before release."

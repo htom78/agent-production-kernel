@@ -1,0 +1,18 @@
+{
+  "context_refs": [
+    "docs/SELF_DRIVING.md",
+    "scripts/self_assess.py"
+  ],
+  "findings": [
+    "A hold is the correct result until self_assess and battle_report are bound to ready files."
+  ],
+  "role": "critic",
+  "run_id": "agent-battle-input-readiness-fixture",
+  "score": 96,
+  "source_report": "codex-subagent://fixture-input-readiness-critic",
+  "stance": "High judge scores alone are not enough evidence to promote APK.",
+  "verdict": "advance",
+  "version": "1.0",
+  "veto_active": false,
+  "veto_reason": "No veto."
+}

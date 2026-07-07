@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import datetime as dt
+import hashlib
 import shutil
 import subprocess
 import sys
@@ -87,6 +88,49 @@ class KernelContractTests(unittest.TestCase):
         for judge in battle_report.get("judges", []):  # type: ignore[union-attr]
             if isinstance(judge, dict):
                 judge["score"] = max(float(judge.get("score", 0)), 95)
+
+    def write_agent_judge_report_files(
+        self,
+        directory: Path,
+        judge_reports: list[dict[str, object]],
+    ) -> list[Path]:
+        paths: list[Path] = []
+        for index, judge_report in enumerate(judge_reports):
+            path = directory / f"{index}-{judge_report['role']}.json"
+            path.write_text(json.dumps(judge_report, indent=2, sort_keys=True), encoding="utf-8")
+            paths.append(path)
+        return paths
+
+    def bind_harness_judge_source_artifacts(
+        self,
+        directory: Path,
+        harness_report: dict[str, object],
+    ) -> None:
+        judges = harness_report.get("judges", [])
+        self.assertIsInstance(judges, list)
+        for index, judge in enumerate(judges):
+            self.assertIsInstance(judge, dict)
+            veto_vote = judge.get("veto_vote", {})
+            self.assertIsInstance(veto_vote, dict)
+            source_report = {
+                "version": "1.0",
+                "run_id": judge["input_run_id"],
+                "role": judge["role"],
+                "score": judge["score"],
+                "verdict": judge["verdict"],
+                "stance": judge["stance"],
+                "findings": judge["findings"],
+                "context_refs": judge["context_refs"],
+                "source_report": judge["source_report"],
+                "veto_active": veto_vote["active"],
+                "veto_reason": veto_vote["reason"],
+            }
+            path = directory / f"{index}-{judge['role']}.json"
+            path.write_text(json.dumps(source_report, indent=2, sort_keys=True), encoding="utf-8")
+            judge["source_artifact"] = str(path)
+            judge["source_artifact_sha256"] = (
+                "sha256:" + hashlib.sha256(path.read_bytes()).hexdigest()
+            )
 
     def test_schema_rejects_missing_required_field(self) -> None:
         with self.assertRaises(ContractError):
@@ -454,11 +498,12 @@ class KernelContractTests(unittest.TestCase):
             judge["input_run_id"] = independent["run_id"]
             judge["verdict"] = "advance"
         self.schemas.validate("agent_battle_harness_report", independent)
-        with self.assertRaisesRegex(ContractError, "real file"):
+        with self.assertRaisesRegex(ContractError, "source_artifact"):
             validate_artifact_semantics("agent_battle_harness_report", independent)
         self.assertFalse(module._is_independent_agent_battle_report(independent))
 
         with tempfile.TemporaryDirectory() as tmp:
+            self.bind_harness_judge_source_artifacts(Path(tmp), independent)
             self_report_path = Path(tmp) / "self_assessment_report.json"
             battle_report_path = Path(tmp) / "battle_report.json"
             self_report_path.write_text(
@@ -550,6 +595,7 @@ class KernelContractTests(unittest.TestCase):
                 "battle_report": str(battle_report_path),
                 "battle_report_run_id": battle_report["run_id"],
             }
+            self.bind_harness_judge_source_artifacts(Path(tmp), independent)
             harness_report_path.write_text(json.dumps(independent, indent=2), encoding="utf-8")
             fresh_mtime = harness_report_path.stat().st_mtime
             os.utime(self_report_path, (fresh_mtime, fresh_mtime))
@@ -615,6 +661,7 @@ class KernelContractTests(unittest.TestCase):
             hold["critic_veto"]["reason"] = "Hold for test."
             hold["judges"][0]["verdict"] = "hold"
             hold["judges"][0]["score"] = 92
+            self.bind_harness_judge_source_artifacts(Path(tmp), hold)
             self.schemas.validate("agent_battle_harness_report", hold)
             validate_artifact_semantics("agent_battle_harness_report", hold)
             self.assertTrue(
@@ -770,6 +817,7 @@ class KernelContractTests(unittest.TestCase):
                 "battle_report": str(battle_report_path),
                 "battle_report_run_id": battle_report["run_id"],
             }
+            self.bind_harness_judge_source_artifacts(Path(tmp), independent)
             harness_report_path.write_text(json.dumps(independent, indent=2), encoding="utf-8")
             fresh_mtime = harness_report_path.stat().st_mtime
             os.utime(self_report_path, (fresh_mtime, fresh_mtime))
@@ -1086,6 +1134,23 @@ class KernelContractTests(unittest.TestCase):
             battle_report_path = Path(tmp) / "battle_report.json"
             self_report_path.write_text(json.dumps(self_report, indent=2), encoding="utf-8")
             battle_report_path.write_text(json.dumps(battle, indent=2), encoding="utf-8")
+            unbound_report = module.build_agent_battle_harness_report(
+                self_report,
+                battle,
+                "unit-agent-battle-external",
+                input_reports={
+                    "self_assessment_report": str(self_report_path),
+                    "self_assessment_run_id": self_report["run_id"],
+                    "battle_report": str(battle_report_path),
+                    "battle_report_run_id": battle["run_id"],
+                },
+                judge_reports=judge_reports,
+            )
+            self.schemas.validate("agent_battle_harness_report", unbound_report)
+            with self.assertRaisesRegex(ContractError, "source_artifact"):
+                validate_artifact_semantics("agent_battle_harness_report", unbound_report)
+
+            judge_paths = self.write_agent_judge_report_files(Path(tmp), judge_reports)
             report = module.build_agent_battle_harness_report(
                 self_report,
                 battle,
@@ -1097,6 +1162,7 @@ class KernelContractTests(unittest.TestCase):
                     "battle_report_run_id": battle["run_id"],
                 },
                 judge_reports=judge_reports,
+                judge_report_paths=judge_paths,
             )
             self.schemas.validate("agent_battle_harness_report", report)
             validate_artifact_semantics("agent_battle_harness_report", report)
@@ -1126,6 +1192,7 @@ class KernelContractTests(unittest.TestCase):
                         "battle_report_run_id": battle["run_id"],
                     },
                     judge_reports=judge_reports,
+                    judge_report_paths=judge_paths,
                 )
                 original_cwd = Path.cwd()
                 try:
@@ -1198,6 +1265,7 @@ class KernelContractTests(unittest.TestCase):
             battle_report_path = Path(tmp) / "battle_report.json"
             self_report_path.write_text(json.dumps(self_report, indent=2), encoding="utf-8")
             battle_report_path.write_text(json.dumps(battle, indent=2), encoding="utf-8")
+            judge_paths = self.write_agent_judge_report_files(Path(tmp), judge_reports)
             report = module.build_agent_battle_harness_report(
                 self_report,
                 battle,
@@ -1209,6 +1277,7 @@ class KernelContractTests(unittest.TestCase):
                     "battle_report_run_id": battle["run_id"],
                 },
                 judge_reports=judge_reports,
+                judge_report_paths=judge_paths,
             )
             self.assertLess(self_report["overall_score"], 95)
             self.schemas.validate("agent_battle_harness_report", report)
@@ -1264,6 +1333,7 @@ class KernelContractTests(unittest.TestCase):
             battle_report_path = Path(tmp) / "battle_report.json"
             self_report_path.write_text(json.dumps(self_report, indent=2), encoding="utf-8")
             battle_report_path.write_text(json.dumps(battle, indent=2), encoding="utf-8")
+            judge_paths = self.write_agent_judge_report_files(Path(tmp), judge_reports)
             report = module.build_agent_battle_harness_report(
                 self_report,
                 battle,
@@ -1275,6 +1345,7 @@ class KernelContractTests(unittest.TestCase):
                     "battle_report_run_id": battle["run_id"],
                 },
                 judge_reports=judge_reports,
+                judge_report_paths=judge_paths,
             )
             self.schemas.validate("agent_battle_harness_report", report)
             validate_artifact_semantics("agent_battle_harness_report", report)
@@ -1334,6 +1405,7 @@ class KernelContractTests(unittest.TestCase):
             battle_report_path = Path(tmp) / "battle_report.json"
             self_report_path.write_text(json.dumps(self_report, indent=2), encoding="utf-8")
             battle_report_path.write_text(json.dumps(battle, indent=2), encoding="utf-8")
+            judge_paths = self.write_agent_judge_report_files(Path(tmp), judge_reports)
             report = module.build_agent_battle_harness_report(
                 self_report,
                 battle,
@@ -1345,6 +1417,7 @@ class KernelContractTests(unittest.TestCase):
                     "battle_report_run_id": battle["run_id"],
                 },
                 judge_reports=judge_reports,
+                judge_report_paths=judge_paths,
             )
             self.schemas.validate("agent_battle_harness_report", report)
             validate_artifact_semantics("agent_battle_harness_report", report)
@@ -1368,6 +1441,7 @@ class KernelContractTests(unittest.TestCase):
                     "battle_report_run_id": battle["run_id"],
                 },
                 judge_reports=judge_reports,
+                judge_report_paths=judge_paths,
             )
             self.schemas.validate("agent_battle_harness_report", blocked_report)
             validate_artifact_semantics("agent_battle_harness_report", blocked_report)
@@ -1447,15 +1521,18 @@ class KernelContractTests(unittest.TestCase):
                 "veto_reason": "No veto.",
             }
         )
-        report = module.build_agent_battle_harness_report(
-            self_report,
-            battle,
-            run_id,
-            judge_reports=judge_reports,
-        )
-        self.schemas.validate("agent_battle_harness_report", report)
-        with self.assertRaisesRegex(ContractError, "duplicate roles"):
-            validate_artifact_semantics("agent_battle_harness_report", report)
+        with tempfile.TemporaryDirectory() as tmp:
+            judge_paths = self.write_agent_judge_report_files(Path(tmp), judge_reports)
+            report = module.build_agent_battle_harness_report(
+                self_report,
+                battle,
+                run_id,
+                judge_reports=judge_reports,
+                judge_report_paths=judge_paths,
+            )
+            self.schemas.validate("agent_battle_harness_report", report)
+            with self.assertRaisesRegex(ContractError, "duplicate roles"):
+                validate_artifact_semantics("agent_battle_harness_report", report)
 
     def test_agent_battle_harness_rejects_external_judge_run_id_mismatch(self) -> None:
         spec = importlib.util.spec_from_file_location(
@@ -1491,15 +1568,18 @@ class KernelContractTests(unittest.TestCase):
             }
             for role in module.REQUIRED_JUDGES
         ]
-        report = module.build_agent_battle_harness_report(
-            self_report,
-            battle,
-            "unit-agent-battle-mismatch",
-            judge_reports=judge_reports,
-        )
-        self.schemas.validate("agent_battle_harness_report", report)
-        with self.assertRaisesRegex(ContractError, "input_run_id"):
-            validate_artifact_semantics("agent_battle_harness_report", report)
+        with tempfile.TemporaryDirectory() as tmp:
+            judge_paths = self.write_agent_judge_report_files(Path(tmp), judge_reports)
+            report = module.build_agent_battle_harness_report(
+                self_report,
+                battle,
+                "unit-agent-battle-mismatch",
+                judge_reports=judge_reports,
+                judge_report_paths=judge_paths,
+            )
+            self.schemas.validate("agent_battle_harness_report", report)
+            with self.assertRaisesRegex(ContractError, "input_run_id"):
+                validate_artifact_semantics("agent_battle_harness_report", report)
 
     def test_agent_battle_harness_preserves_external_judge_hold_verdict(self) -> None:
         spec = importlib.util.spec_from_file_location(
@@ -1535,23 +1615,26 @@ class KernelContractTests(unittest.TestCase):
             }
             for role in module.REQUIRED_JUDGES
         ]
-        report = module.build_agent_battle_harness_report(
-            self_report,
-            battle,
-            "unit-agent-battle-hold",
-            judge_reports=judge_reports,
-        )
-        self.schemas.validate("agent_battle_harness_report", report)
-        validate_artifact_semantics("agent_battle_harness_report", report)
-        self.assertEqual(report["outcome"]["verdict"], "hold")
-        self.assertIn(
-            "fail",
-            [
-                item["status"]
-                for item in report["judge_audit"]
-                if item["check"] == "external judge verdicts allow advance"
-            ],
-        )
+        with tempfile.TemporaryDirectory() as tmp:
+            judge_paths = self.write_agent_judge_report_files(Path(tmp), judge_reports)
+            report = module.build_agent_battle_harness_report(
+                self_report,
+                battle,
+                "unit-agent-battle-hold",
+                judge_reports=judge_reports,
+                judge_report_paths=judge_paths,
+            )
+            self.schemas.validate("agent_battle_harness_report", report)
+            validate_artifact_semantics("agent_battle_harness_report", report)
+            self.assertEqual(report["outcome"]["verdict"], "hold")
+            self.assertIn(
+                "fail",
+                [
+                    item["status"]
+                    for item in report["judge_audit"]
+                    if item["check"] == "external judge verdicts allow advance"
+                ],
+            )
 
     def test_agent_battle_harness_script_accepts_external_output_dir(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

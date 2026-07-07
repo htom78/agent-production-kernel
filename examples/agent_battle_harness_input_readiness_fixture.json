@@ -125,6 +125,8 @@
       "score": 96,
       "source": "external_agent_report",
       "source_report": "codex-subagent://fixture-input-readiness-architect",
+      "source_artifact": "examples/agent_judge_reports/input_readiness/architect.json",
+      "source_artifact_sha256": "sha256:96d33759de6991888e289ab9d63b5a757d40a977f25fa1892577062eed00d2e6",
       "stance": "Architecture cannot advance without ready source reports.",
       "verdict": "advance",
       "veto_vote": {
@@ -147,6 +149,8 @@
       "score": 96,
       "source": "external_agent_report",
       "source_report": "codex-subagent://fixture-input-readiness-test-engineer",
+      "source_artifact": "examples/agent_judge_reports/input_readiness/test_engineer.json",
+      "source_artifact_sha256": "sha256:8e59499b760f608f64dd07a1302a2e6b15a90c7dc7e648c3090953e94901716a",
       "stance": "The readiness gate must be observable in replay.",
       "verdict": "advance",
       "veto_vote": {
@@ -169,6 +173,8 @@
       "score": 96,
       "source": "external_agent_report",
       "source_report": "codex-subagent://fixture-input-readiness-code-reviewer",
+      "source_artifact": "examples/agent_judge_reports/input_readiness/code_reviewer.json",
+      "source_artifact_sha256": "sha256:90d8f71914390eadc9a15dc930c0bb992cb673341c475c046f695f41dd8df222",
       "stance": "The artifact contract now distinguishes judge confidence from source readiness.",
       "verdict": "advance",
       "veto_vote": {
@@ -191,6 +197,8 @@
       "score": 96,
       "source": "external_agent_report",
       "source_report": "codex-subagent://fixture-input-readiness-critic",
+      "source_artifact": "examples/agent_judge_reports/input_readiness/critic.json",
+      "source_artifact_sha256": "sha256:1d1360b8edbc9908e93f333c50e871a3338663f8acd8bc97bac34f82010c3984",
       "stance": "High judge scores alone are not enough evidence to promote APK.",
       "verdict": "advance",
       "veto_vote": {

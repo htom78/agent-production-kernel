@@ -52,6 +52,26 @@ def _hash(payload: dict[str, Any]) -> str:
     return "sha256:" + hashlib.sha256(encoded.encode("utf-8")).hexdigest()
 
 
+def _file_sha256(path: Path) -> str:
+    return "sha256:" + hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _path_ref(path: Path) -> str:
+    resolved = path.resolve()
+    try:
+        return str(resolved.relative_to(ROOT))
+    except ValueError:
+        return str(resolved)
+
+
+def _judge_source_binding(path: Path) -> dict[str, str]:
+    source_path = path if path.is_absolute() else Path.cwd() / path
+    return {
+        "source_artifact": _path_ref(source_path),
+        "source_artifact_sha256": _file_sha256(source_path),
+    }
+
+
 def _dimension_score(self_report: dict[str, Any], name: str) -> float:
     for dimension in self_report.get("dimensions", []):
         if dimension.get("name") == name:
@@ -90,6 +110,8 @@ def _judge(
         "context_refs": context_refs,
         "source": "derived_battle_report",
         "source_report": f"generated:battle_report.judges.{role}",
+        "source_artifact": f"generated:battle_report.judges.{role}",
+        "source_artifact_sha256": _hash(context_payload),
         "peer_scores_visible": False,
         "score": score,
         "verdict": raw_judge.get("verdict", "advance" if score >= 95 else "hold"),
@@ -102,7 +124,12 @@ def _judge(
     }
 
 
-def _external_judge(raw_judge: dict[str, Any]) -> dict[str, Any]:
+def _external_judge(
+    raw_judge: dict[str, Any],
+    *,
+    source_artifact: str | None = None,
+    source_artifact_sha256: str | None = None,
+) -> dict[str, Any]:
     role = str(raw_judge["role"])
     findings = raw_judge.get("findings", [])
     if not isinstance(findings, list) or not findings:
@@ -111,6 +138,12 @@ def _external_judge(raw_judge: dict[str, Any]) -> dict[str, Any]:
     if not isinstance(context_refs, list) or not context_refs:
         context_refs = ROLE_CONTEXT_REFS.get(role, ["external-agent-report"])
     source_report = str(raw_judge.get("source_report", f"external:{role}"))
+    source_artifact = source_artifact or str(
+        raw_judge.get("source_artifact", f"generated:agent_judge_report.{role}")
+    )
+    source_artifact_sha256 = source_artifact_sha256 or str(
+        raw_judge.get("source_artifact_sha256", _hash(raw_judge))
+    )
     veto_active = bool(raw_judge.get("veto_active", False))
     veto_reason = str(raw_judge.get("veto_reason", "No veto: external judge did not raise a veto."))
     return {
@@ -122,6 +155,8 @@ def _external_judge(raw_judge: dict[str, Any]) -> dict[str, Any]:
                 "run_id": raw_judge.get("run_id", ""),
                 "verdict": raw_judge.get("verdict", ""),
                 "source_report": source_report,
+                "source_artifact": source_artifact,
+                "source_artifact_sha256": source_artifact_sha256,
                 "context_refs": context_refs,
                 "findings": findings,
             }
@@ -129,6 +164,8 @@ def _external_judge(raw_judge: dict[str, Any]) -> dict[str, Any]:
         "context_refs": [str(item) for item in context_refs],
         "source": "external_agent_report",
         "source_report": source_report,
+        "source_artifact": source_artifact,
+        "source_artifact_sha256": source_artifact_sha256,
         "peer_scores_visible": False,
         "score": float(raw_judge["score"]),
         "verdict": str(raw_judge.get("verdict", "hold")),
@@ -251,6 +288,36 @@ def _battle_report_pre_battle_readiness_errors(battle: dict[str, Any]) -> list[s
     return errors
 
 
+def _judge_source_binding_errors(judges: list[dict[str, Any]]) -> list[str]:
+    errors: list[str] = []
+    for judge in judges:
+        if judge.get("source") != "external_agent_report":
+            continue
+        role = str(judge.get("role", "<unknown>"))
+        source_artifact = judge.get("source_artifact")
+        expected_sha = judge.get("source_artifact_sha256")
+        if not isinstance(source_artifact, str) or not source_artifact:
+            errors.append(f"{role} judge source_artifact is missing")
+            continue
+        if source_artifact.startswith("generated:"):
+            errors.append(f"{role} judge source_artifact is generated, not file-backed")
+            continue
+        if not isinstance(expected_sha, str) or not expected_sha.startswith("sha256:"):
+            errors.append(f"{role} judge source_artifact_sha256 is missing")
+            continue
+        path = Path(source_artifact)
+        if not path.is_absolute():
+            path = ROOT / path
+        try:
+            actual_sha = _file_sha256(path)
+        except OSError:
+            errors.append(f"{role} judge source_artifact is not readable")
+            continue
+        if actual_sha != expected_sha:
+            errors.append(f"{role} judge source_artifact_sha256 does not match file content")
+    return errors
+
+
 def _active_veto_reason(self_report: dict[str, Any], battle: dict[str, Any]) -> str:
     corpus = self_assess._real_repo_corpus_stats()
     if float(self_report.get("overall_score", 0)) < 95:
@@ -273,6 +340,7 @@ def build_agent_battle_harness_report(
     *,
     input_reports: dict[str, str] | None = None,
     judge_reports: list[dict[str, Any]] | None = None,
+    judge_report_paths: list[Path] | None = None,
 ) -> dict[str, Any]:
     input_report_refs = dict(
         input_reports
@@ -286,7 +354,16 @@ def build_agent_battle_harness_report(
     if judge_reports:
         veto_reason = ""
         veto_active = False
-        judges = [_external_judge(raw_judge) for raw_judge in judge_reports]
+        source_bindings = [
+            _judge_source_binding(path)
+            for path in (judge_report_paths or [])
+        ]
+        while len(source_bindings) < len(judge_reports):
+            source_bindings.append({})
+        judges = [
+            _external_judge(raw_judge, **source_bindings[index])
+            for index, raw_judge in enumerate(judge_reports)
+        ]
         evidence_mode = "independent_agent_reports"
         independent_contexts = True
     else:
@@ -335,6 +412,11 @@ def build_agent_battle_harness_report(
     ]
     duplicate_sources = sorted(
         {source for source in source_reports if source_reports.count(source) > 1}
+    )
+    source_binding_errors = (
+        _judge_source_binding_errors(judges)
+        if evidence_mode == "independent_agent_reports"
+        else []
     )
     input_binding_errors = (
         _input_report_binding_errors(input_report_refs)
@@ -401,6 +483,14 @@ def build_agent_battle_harness_report(
             "check": "external judge sources are unique",
             "status": "pass" if not duplicate_sources else "fail",
             "evidence_refs": ["agent_battle_harness_report.judges.source_report"],
+        },
+        {
+            "check": "external judge reports are file-backed and hashed",
+            "status": "pass" if not source_binding_errors else "fail",
+            "evidence_refs": [
+                "agent_battle_harness_report.judges.source_artifact",
+                "agent_battle_harness_report.judges.source_artifact_sha256",
+            ],
         },
         {
             "check": "blind review hides peer scores",
@@ -527,6 +617,7 @@ def main() -> int:
         run_id,
         input_reports=input_reports,
         judge_reports=judge_reports,
+        judge_report_paths=args.judge_report,
     )
     schemas.validate("agent_battle_harness_report", report)
     validate_artifact_semantics("agent_battle_harness_report", report)

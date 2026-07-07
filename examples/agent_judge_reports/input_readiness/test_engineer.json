@@ -1,0 +1,18 @@
+{
+  "context_refs": [
+    "tests/test_kernel.py",
+    "scripts/replay_regressions.py"
+  ],
+  "findings": [
+    "The false-green path is captured as a replayable hold fixture."
+  ],
+  "role": "test_engineer",
+  "run_id": "agent-battle-input-readiness-fixture",
+  "score": 96,
+  "source_report": "codex-subagent://fixture-input-readiness-test-engineer",
+  "stance": "The readiness gate must be observable in replay.",
+  "verdict": "advance",
+  "version": "1.0",
+  "veto_active": false,
+  "veto_reason": "No veto."
+}

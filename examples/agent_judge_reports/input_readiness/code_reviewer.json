@@ -1,0 +1,18 @@
+{
+  "context_refs": [
+    "schemas/artifacts/agent_battle_harness_report.json",
+    "examples/golden_*.json"
+  ],
+  "findings": [
+    "Advance is blocked by failed input binding and readiness audit checks."
+  ],
+  "role": "code_reviewer",
+  "run_id": "agent-battle-input-readiness-fixture",
+  "score": 96,
+  "source_report": "codex-subagent://fixture-input-readiness-code-reviewer",
+  "stance": "The artifact contract now distinguishes judge confidence from source readiness.",
+  "verdict": "advance",
+  "version": "1.0",
+  "veto_active": false,
+  "veto_reason": "No veto."
+}

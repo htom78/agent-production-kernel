@@ -172,9 +172,10 @@ pipeline manifest + artifact schemas + checkpoints + decision log + verifier
   Battle to the kernel: evidence-mode labeling, blind-review enforcement,
   critic veto, cross-examination, and judge-audit checks. Derived local reports
   cannot advance; only explicit `agent_judge_report` inputs from distinct
-  `codex-subagent://` sources can claim independent contexts, and the harness
-  now requires exactly one report per required role with an advancing verdict
-  and minimum score. Self-assessment also rejects independent battle evidence
+  `codex-subagent://` sources can claim independent contexts, and those sources
+  must be backed by readable judge-report files with matching sha256 digests.
+  The harness now requires exactly one report per required role with an
+  advancing verdict and minimum score. Self-assessment also rejects independent battle evidence
   when its recorded input run IDs do not match the actual self-assessment and
   battle-report files, or when it is older than the current source evidence.
   The harness audit and semantic validator also block `advance` when those

@@ -145,7 +145,10 @@ External judge inputs use the `agent_judge_report` schema before they are folded
 into the final harness report. Independent mode must contain exactly one report
 for each required judge, every judge must carry an advancing verdict and a score
 at or above the protocol minimum, and `source_report` values must be distinct
-`codex-subagent://` references.
+`codex-subagent://` references. The `codex-subagent://` identifier is not
+sufficient by itself: each final judge entry must also bind to a readable
+`source_artifact` file and `source_artifact_sha256`, and that source artifact
+must match the judge payload folded into the harness.
 
 Self-assessment treats independent battle evidence as current only when the
 harness report references real self-assessment and battle-report files, was

@@ -1,0 +1,18 @@
+{
+  "context_refs": [
+    "apkernel/core.py",
+    "scripts/agent_battle_harness.py"
+  ],
+  "findings": [
+    "External score is high, but input report readiness is not file-backed."
+  ],
+  "role": "architect",
+  "run_id": "agent-battle-input-readiness-fixture",
+  "score": 96,
+  "source_report": "codex-subagent://fixture-input-readiness-architect",
+  "stance": "Architecture cannot advance without ready source reports.",
+  "verdict": "advance",
+  "version": "1.0",
+  "veto_active": false,
+  "veto_reason": "No veto."
+}

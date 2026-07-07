@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import dataclasses
 import datetime as dt
+import hashlib
 import inspect
 import importlib
 import json
@@ -812,6 +813,7 @@ def _agent_battle_harness_report_errors(report: dict[str, Any]) -> list[str]:
             errors.append("agent_battle_harness_report.judges.source_report must reference codex-subagent sources")
         if len(set(source_reports)) != len(source_reports):
             errors.append("agent_battle_harness_report.judges.source_report values must be unique")
+        errors.extend(_agent_battle_judge_source_artifact_errors(judges))
     if protocol.get("blind_review") is True:
         for index, judge in enumerate(judges):
             if isinstance(judge, dict) and judge.get("peer_scores_visible") is not False:
@@ -834,6 +836,76 @@ def _agent_battle_harness_report_errors(report: dict[str, Any]) -> list[str]:
         failed_audits = [item for item in audit if isinstance(item, dict) and item.get("status") == "fail"]
         if failed_audits and isinstance(outcome, dict) and outcome.get("verdict") == "advance":
             errors.append("agent_battle_harness_report.outcome.verdict cannot advance with failed judge_audit checks")
+    return errors
+
+
+def _agent_battle_judge_source_artifact_errors(judges: list[Any]) -> list[str]:
+    errors: list[str] = []
+    root = Path(__file__).resolve().parent.parent
+    for judge in judges:
+        if not isinstance(judge, dict) or judge.get("source") != "external_agent_report":
+            continue
+        role = str(judge.get("role", "<unknown>"))
+        source_artifact = judge.get("source_artifact")
+        expected_sha = judge.get("source_artifact_sha256")
+        if not isinstance(source_artifact, str) or not source_artifact:
+            errors.append(f"agent_battle_harness_report.judges.{role} source_artifact must be recorded")
+            continue
+        if source_artifact.startswith("generated:"):
+            errors.append(
+                f"agent_battle_harness_report.judges.{role} source_artifact must be file-backed"
+            )
+            continue
+        if not isinstance(expected_sha, str) or not expected_sha.startswith("sha256:"):
+            errors.append(
+                f"agent_battle_harness_report.judges.{role} source_artifact_sha256 must be recorded"
+            )
+            continue
+        path = Path(source_artifact)
+        if not path.is_absolute():
+            path = root / path
+        try:
+            raw_bytes = path.read_bytes()
+        except OSError:
+            errors.append(
+                f"agent_battle_harness_report.judges.{role} source_artifact is not readable"
+            )
+            continue
+        actual_sha = "sha256:" + hashlib.sha256(raw_bytes).hexdigest()
+        if actual_sha != expected_sha:
+            errors.append(
+                f"agent_battle_harness_report.judges.{role} source_artifact_sha256 does not match file content"
+            )
+            continue
+        try:
+            source_report = json.loads(raw_bytes.decode("utf-8"))
+        except (UnicodeDecodeError, json.JSONDecodeError):
+            errors.append(
+                f"agent_battle_harness_report.judges.{role} source_artifact must be readable JSON"
+            )
+            continue
+        expected = {
+            "run_id": judge.get("input_run_id"),
+            "role": judge.get("role"),
+            "score": judge.get("score"),
+            "verdict": judge.get("verdict"),
+            "stance": judge.get("stance"),
+            "findings": judge.get("findings"),
+            "context_refs": judge.get("context_refs"),
+            "source_report": judge.get("source_report"),
+            "veto_active": judge.get("veto_vote", {}).get("active")
+            if isinstance(judge.get("veto_vote"), dict)
+            else None,
+            "veto_reason": judge.get("veto_vote", {}).get("reason")
+            if isinstance(judge.get("veto_vote"), dict)
+            else None,
+        }
+        for key, expected_value in expected.items():
+            if source_report.get(key) != expected_value:
+                errors.append(
+                    f"agent_battle_harness_report.judges.{role} source_artifact does not match {key}"
+                )
+                break
     return errors
 
 

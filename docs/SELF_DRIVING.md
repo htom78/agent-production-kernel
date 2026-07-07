@@ -23,6 +23,11 @@ python3 scripts/self_assess.py
 python3 scripts/battle_report.py
 ```
 
+These entrypoints may be launched close together by an operator, but the gate
+commands inside `self_assess` are serialized with `.apk/evaluation.lock`.
+`battle_report` calls the same command runner, so both reports should observe a
+single stable gate sequence instead of racing over replay or runtime evidence.
+
 Then it should take the highest-priority actionable `next_actions[]` item unless
 a newer human instruction overrides it. The self-assessment report is written
 under:
@@ -118,7 +123,7 @@ executed by the self-driving loop. Non-blocking release hygiene lives in
 before a release is always required, but it should not create an infinite
 next-action loop once the gates already pass. Agent Battle readiness checks the
 bound `battle_report.release_disciplines`, and harness outcomes carry those
-disciplines forward for audit.
+disciplines forward as a required audit field.
 
 `scripts/agent_battle_harness.py` is the Agent Battle validation artifact for
 this project. It generates `agent_battle_harness_report`, which records:
@@ -162,7 +167,10 @@ dimension to be advanced before the battle can run. A valid old battle artifact
 is useful history, but it cannot silently promote the current run.
 Independent hold or veto reports remain valid evidence and should be preserved;
 they move the next action from rerunning battle to addressing the recorded
-findings. Only an advancing independent report can fully satisfy
+findings. A newer `address-independent-agent-battle-findings` self-assessment is
+therefore treated as the result of the current hold battle, not as a fresh
+unrun battle cycle that invalidates the hold attempt. Only an advancing
+independent report can fully satisfy
 `evaluation_independence`.
 APK remains the production-control kernel, not the battle platform.
 

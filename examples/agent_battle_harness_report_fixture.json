@@ -188,6 +188,9 @@
     "accepted_actions": [
       "Maintain the verified corpus and rerun gates before release."
     ],
+    "release_disciplines": [
+      "Maintain the verified corpus and rerun gates before release."
+    ],
     "score": 96.6,
     "verdict": "hold"
   },

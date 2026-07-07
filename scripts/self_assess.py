@@ -9,6 +9,7 @@ schema-validated report, and names the next concrete actions.
 from __future__ import annotations
 
 import argparse
+import contextlib
 import dataclasses
 import datetime as dt
 import hashlib
@@ -17,6 +18,11 @@ import subprocess
 import sys
 from pathlib import Path
 from typing import Any
+
+try:
+    import fcntl
+except ImportError:  # pragma: no cover - fcntl is not available on Windows.
+    fcntl = None
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
@@ -31,6 +37,7 @@ COMMANDS = (
     ("python3 scripts/replay_regressions.py", [sys.executable, "scripts/replay_regressions.py"]),
     ("python3 -m compileall apkernel scripts tests", [sys.executable, "-m", "compileall", "apkernel", "scripts", "tests"]),
 )
+EVALUATION_LOCK_PATH = ROOT / ".apk" / "evaluation.lock"
 
 EVIDENCE_FRESHNESS_ROOTS = (
     "apkernel",
@@ -94,26 +101,40 @@ def _commit_sha() -> str:
     return result.stdout.strip() or "workspace-uncommitted"
 
 
+@contextlib.contextmanager
+def _evaluation_lock():
+    EVALUATION_LOCK_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with EVALUATION_LOCK_PATH.open("a+", encoding="utf-8") as lock_file:
+        if fcntl is not None:
+            fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX)
+        try:
+            yield
+        finally:
+            if fcntl is not None:
+                fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
+
+
 def _run_commands() -> list[CommandRun]:
-    runs: list[CommandRun] = []
-    for display, argv in COMMANDS:
-        result = subprocess.run(
-            argv,
-            cwd=ROOT,
-            text=True,
-            capture_output=True,
-            check=False,
-        )
-        runs.append(
-            CommandRun(
-                command=display,
-                status="pass" if result.returncode == 0 else "fail",
-                exit_code=result.returncode,
-                stdout=result.stdout,
-                stderr=result.stderr,
+    with _evaluation_lock():
+        runs: list[CommandRun] = []
+        for display, argv in COMMANDS:
+            result = subprocess.run(
+                argv,
+                cwd=ROOT,
+                text=True,
+                capture_output=True,
+                check=False,
             )
-        )
-    return runs
+            runs.append(
+                CommandRun(
+                    command=display,
+                    status="pass" if result.returncode == 0 else "fail",
+                    exit_code=result.returncode,
+                    stdout=result.stdout,
+                    stderr=result.stderr,
+                )
+            )
+        return runs
 
 
 def _command_evidence(runs: list[CommandRun]) -> list[dict[str, Any]]:
@@ -403,12 +424,14 @@ def _is_current_independent_agent_battle_report(
         "self_assessment_report",
         input_paths[0],
         self_report,
+        require_advance=require_advance,
     ):
         return False
     if _has_newer_open_battle_cycle_report(
         "battle_report",
         input_paths[1],
         battle_report,
+        require_advance=require_advance,
     ):
         return False
     freshness_mtime = (
@@ -431,6 +454,8 @@ def _has_newer_open_battle_cycle_report(
     report_name: str,
     bound_path: Path,
     bound_report: dict[str, Any],
+    *,
+    require_advance: bool,
 ) -> bool:
     fingerprint = bound_report.get("evidence_fingerprint")
     if not isinstance(fingerprint, str) or not fingerprint:
@@ -461,16 +486,29 @@ def _has_newer_open_battle_cycle_report(
         if candidate.get("evidence_fingerprint") != fingerprint:
             continue
         if report_name == "self_assessment_report":
-            if _self_report_has_open_battle_cycle(candidate):
+            if _self_report_has_open_battle_cycle(candidate, require_advance=require_advance):
                 return True
-        elif _battle_report_has_open_battle_cycle(candidate):
+        elif _battle_report_has_open_battle_cycle(candidate, require_advance=require_advance):
             return True
     return False
 
 
-def _self_report_has_open_battle_cycle(report: dict[str, Any]) -> bool:
+def _self_report_has_open_battle_cycle(
+    report: dict[str, Any],
+    *,
+    require_advance: bool,
+) -> bool:
     next_actions = report.get("next_actions", [])
     if isinstance(next_actions, list):
+        action_ids = [
+            action.get("id")
+            for action in next_actions
+            if isinstance(action, dict)
+        ]
+        if "run-independent-agent-battle" in action_ids:
+            return True
+        if "address-independent-agent-battle-findings" in action_ids:
+            return require_advance
         for action in next_actions:
             if isinstance(action, dict) and action.get("id") in ALLOWED_SELF_ASSESS_BATTLE_ACTIONS:
                 return True
@@ -479,10 +517,19 @@ def _self_report_has_open_battle_cycle(report: dict[str, Any]) -> bool:
     )
 
 
-def _battle_report_has_open_battle_cycle(report: dict[str, Any]) -> bool:
+def _battle_report_has_open_battle_cycle(
+    report: dict[str, Any],
+    *,
+    require_advance: bool,
+) -> bool:
     next_actions = report.get("next_actions", [])
-    if isinstance(next_actions, list) and any(action in ALLOWED_BATTLE_REPORT_ACTIONS for action in next_actions):
-        return True
+    if isinstance(next_actions, list):
+        if "Run and preserve an independent multi-agent battle report for APK." in next_actions:
+            return True
+        if "Address the current independent Agent Battle hold findings." in next_actions:
+            return require_advance
+        if any(action in ALLOWED_BATTLE_REPORT_ACTIONS for action in next_actions):
+            return True
     return report.get("verdict") != "advance"
 
 

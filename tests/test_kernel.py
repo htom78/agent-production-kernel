@@ -10,6 +10,8 @@ import copy
 import importlib.util
 import json
 import os
+import threading
+import time
 from pathlib import Path
 from unittest import mock
 
@@ -630,6 +632,40 @@ class KernelContractTests(unittest.TestCase):
                     current_evidence_mtime=fresh_mtime,
                 )
             )
+            with tempfile.TemporaryDirectory(prefix="unit-address-finding-self-", dir=self_reports_root) as newer_self_tmp:
+                newer_self = copy.deepcopy(self_report)
+                newer_self["run_id"] = "unit-fresh-self-newer-address-findings"
+                newer_self["next_actions"] = [
+                    {
+                        "id": "address-independent-agent-battle-findings",
+                        "title": "Address the current independent Agent Battle hold findings",
+                        "priority": "P0",
+                        "rationale": "The independent battle already ran and held; repair its findings.",
+                        "target_files": ["scripts/agent_battle_harness.py"],
+                        "verification_commands": ["python3 scripts/agent_battle_harness.py"],
+                    }
+                ]
+                for dimension in newer_self["dimensions"]:
+                    if dimension["name"] == "evaluation_independence":
+                        dimension["score"] = 72
+                newer_self_path = Path(newer_self_tmp) / "self_assessment_report.json"
+                newer_self_path.write_text(json.dumps(newer_self, indent=2), encoding="utf-8")
+                os.utime(newer_self_path, (fresh_mtime + 30, fresh_mtime + 30))
+                self.assertTrue(
+                    module._is_current_independent_agent_battle_report(
+                        hold,
+                        harness_report_path,
+                        current_evidence_mtime=fresh_mtime,
+                        require_advance=False,
+                    )
+                )
+                self.assertFalse(
+                    module._is_current_independent_agent_battle_report(
+                        independent,
+                        harness_report_path,
+                        current_evidence_mtime=fresh_mtime,
+                    )
+                )
             independent["input_reports"]["self_assessment_run_id"] = "stale-self-run"
             self.assertFalse(
                 module._is_current_independent_agent_battle_report(
@@ -894,6 +930,45 @@ class KernelContractTests(unittest.TestCase):
             ["Maintain the verified corpus and rerun gates before release."],
         )
 
+    def test_self_assess_evaluation_lock_serializes_gate_runs(self) -> None:
+        spec = importlib.util.spec_from_file_location(
+            "self_assess_lock", ROOT / "scripts" / "self_assess.py"
+        )
+        self.assertIsNotNone(spec)
+        self.assertIsNotNone(spec.loader)
+        module = importlib.util.module_from_spec(spec)
+        sys.modules["self_assess_lock"] = module
+        spec.loader.exec_module(module)
+
+        if module.fcntl is None:
+            self.skipTest("fcntl is not available on this platform")
+
+        order: list[str] = []
+        first_entered = threading.Event()
+        with tempfile.TemporaryDirectory() as tmp:
+            module.EVALUATION_LOCK_PATH = Path(tmp) / "evaluation.lock"
+
+            def first() -> None:
+                with module._evaluation_lock():
+                    order.append("first-enter")
+                    first_entered.set()
+                    time.sleep(0.1)
+                    order.append("first-exit")
+
+            def second() -> None:
+                first_entered.wait(timeout=1)
+                with module._evaluation_lock():
+                    order.append("second-enter")
+
+            first_thread = threading.Thread(target=first)
+            second_thread = threading.Thread(target=second)
+            first_thread.start()
+            second_thread.start()
+            first_thread.join(timeout=1)
+            second_thread.join(timeout=1)
+
+        self.assertEqual(order, ["first-enter", "first-exit", "second-enter"])
+
     def test_agent_battle_harness_fixture_validates_protocol(self) -> None:
         fixture = load_json(ROOT / "examples" / "agent_battle_harness_report_fixture.json")
         self.schemas.validate("agent_battle_harness_report", fixture)
@@ -904,6 +979,17 @@ class KernelContractTests(unittest.TestCase):
         self.assertTrue(fixture["protocol"]["blind_review"])
         self.assertFalse(fixture["critic_veto"]["active"])
         self.assertEqual(fixture["outcome"]["verdict"], "hold")
+        self.assertEqual(
+            fixture["outcome"]["release_disciplines"],
+            ["Maintain the verified corpus and rerun gates before release."],
+        )
+
+    def test_agent_battle_harness_semantics_require_release_disciplines(self) -> None:
+        fixture = copy.deepcopy(load_json(ROOT / "examples" / "agent_battle_harness_report_fixture.json"))
+        fixture["outcome"]["release_disciplines"] = ["Rerun some gates eventually."]
+        self.schemas.validate("agent_battle_harness_report", fixture)
+        with self.assertRaisesRegex(ContractError, "release_disciplines"):
+            validate_artifact_semantics("agent_battle_harness_report", fixture)
 
     def test_agent_battle_harness_semantics_reject_peer_score_leak(self) -> None:
         fixture = copy.deepcopy(load_json(ROOT / "examples" / "agent_battle_harness_report_fixture.json"))

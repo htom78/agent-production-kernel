@@ -46,6 +46,7 @@ ALLOWED_BATTLE_REPORT_ACTIONS = {
     "Address the current independent Agent Battle hold findings.",
     "Maintain the verified corpus and rerun gates before release.",
 }
+REQUIRED_RELEASE_DISCIPLINE = "Maintain the verified corpus and rerun gates before release."
 ArtifactSemanticValidator = Callable[[dict[str, Any]], list[str]]
 _DOMAIN_ARTIFACT_SEMANTIC_VALIDATORS: dict[str, ArtifactSemanticValidator] = {}
 _DOMAIN_ARTIFACT_SEMANTIC_VALIDATOR_SOURCES: dict[str, str] = {}
@@ -737,6 +738,15 @@ def _agent_battle_harness_report_errors(report: dict[str, Any]) -> list[str]:
         errors.append("agent_battle_harness_report.protocol.independent_contexts must be true for independent_agent_reports")
     if evidence_mode == "independent_agent_reports" and isinstance(outcome, dict) and outcome.get("verdict") == "advance":
         errors.extend(_agent_battle_input_report_readiness_errors(report))
+    if isinstance(outcome, dict):
+        release_disciplines = outcome.get("release_disciplines")
+        if (
+            not isinstance(release_disciplines, list)
+            or REQUIRED_RELEASE_DISCIPLINE not in release_disciplines
+        ):
+            errors.append(
+                "agent_battle_harness_report.outcome.release_disciplines must record verified-corpus maintenance"
+            )
     judge_role_list = [judge.get("role") for judge in judges if isinstance(judge, dict)]
     judge_roles = set(judge_role_list)
     required_roles = set(protocol.get("required_judges", []))
@@ -967,7 +977,7 @@ def _battle_report_pre_battle_readiness_errors(report: dict[str, Any]) -> list[s
     release_disciplines = report.get("release_disciplines", [])
     if (
         not isinstance(release_disciplines, list)
-        or "Maintain the verified corpus and rerun gates before release." not in release_disciplines
+        or REQUIRED_RELEASE_DISCIPLINE not in release_disciplines
     ):
         errors.append(
             "agent_battle_harness_report.input_reports.battle_report "

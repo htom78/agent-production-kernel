@@ -203,6 +203,9 @@
     "accepted_actions": [
       "Bind ready self_assessment and battle_report inputs before advance."
     ],
+    "release_disciplines": [
+      "Maintain the verified corpus and rerun gates before release."
+    ],
     "score": 96,
     "verdict": "hold"
   },

@@ -146,8 +146,8 @@ allowlisted local verification commands. Unknown handlers, external repos,
 credentials, network-cost boundaries, destructive operations, and user-choice
 boundaries stop as `blocked` checkpoints in the `kernel-autonomy` pipeline.
 When self-assessment has no remaining next action, the runner records an
-explicit `no_action` autonomy report and a completed checkpoint instead of
-leaving the stop state implicit.
+explicit `no_action` autonomy report with an empty action payload and a
+completed checkpoint instead of leaving the stop state implicit.
 
 Scores are intentionally calibrated as readiness signals, not completion
 claims. The self-assessor now caps confidence until pack-general execution,

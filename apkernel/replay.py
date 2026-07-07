@@ -169,6 +169,10 @@ def _find_missing(expected: Any, actual: Any, *, path: str) -> list[str]:
     if isinstance(expected, list):
         if not isinstance(actual, list):
             return [f"{path} expected array"]
+        if not expected:
+            if actual:
+                return [f"{path} expected empty array, got {actual!r}"]
+            return []
         errors = []
         for expected_item in expected:
             if isinstance(expected_item, dict):

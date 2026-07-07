@@ -8,16 +8,18 @@
   },
   "mutations": [
     {
-      "path": "artifacts.autonomy_run_report.selected_action.id",
-      "value": "verify-current-state"
+      "path": "artifacts.autonomy_run_report.selected_action.target_files",
+      "value": ["scripts/verify.py"]
     }
   ],
-  "expected_errors_contain": ["autonomy_run_report.selected_action.id"],
+  "expected_errors_contain": ["autonomy_run_report.selected_action.target_files"],
   "expected_artifacts": {
     "autonomy_run_report": {
       "decision": "no_action",
       "selected_action": {
-        "id": "none"
+        "id": "none",
+        "target_files": [],
+        "verification_commands": []
       }
     }
   },

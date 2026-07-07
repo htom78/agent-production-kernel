@@ -9,7 +9,9 @@
     "autonomy_run_report": {
       "decision": "no_action",
       "selected_action": {
-        "id": "none"
+        "id": "none",
+        "target_files": [],
+        "verification_commands": []
       },
       "boundaries": [],
       "commands": []

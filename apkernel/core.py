@@ -599,6 +599,12 @@ def _autonomy_run_report_errors(report: dict[str, Any]) -> list[str]:
         action_id = selected_action.get("id") if isinstance(selected_action, dict) else None
         if action_id != "none":
             errors.append("autonomy_run_report.decision no_action requires selected_action.id 'none'")
+        target_files = selected_action.get("target_files") if isinstance(selected_action, dict) else None
+        if target_files:
+            errors.append("autonomy_run_report.decision no_action requires empty selected_action.target_files")
+        verification_commands = selected_action.get("verification_commands") if isinstance(selected_action, dict) else None
+        if verification_commands:
+            errors.append("autonomy_run_report.decision no_action requires empty selected_action.verification_commands")
     return errors
 
 

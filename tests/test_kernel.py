@@ -393,12 +393,41 @@ class KernelContractTests(unittest.TestCase):
         with self.assertRaisesRegex(ContractError, "no_action must not record boundaries"):
             validate_artifact_semantics("autonomy_run_report", report)
 
+    def test_autonomy_run_report_semantics_reject_no_action_with_commands(self) -> None:
+        fixture = copy.deepcopy(load_json(ROOT / "examples" / "autonomy_no_action_replay_fixture.json"))
+        report = fixture["autonomy_run_report"]
+        report["commands"] = [
+            {
+                "artifact_refs": ["autonomy_run_report"],
+                "command": "python3 scripts/verify.py",
+                "commit_sha": "unit-test",
+                "exit_code": 0,
+                "status": "pass",
+                "stderr_digest": "sha256:empty",
+                "stdout_digest": "sha256:empty",
+                "timestamp": "2026-07-07T00:00:00+00:00",
+                "tool_version": "python test",
+            }
+        ]
+        self.schemas.validate("autonomy_run_report", report)
+        with self.assertRaisesRegex(ContractError, "no_action must not execute commands"):
+            validate_artifact_semantics("autonomy_run_report", report)
+
     def test_autonomy_run_report_semantics_reject_no_action_for_real_action(self) -> None:
         fixture = copy.deepcopy(load_json(ROOT / "examples" / "autonomy_no_action_replay_fixture.json"))
         report = fixture["autonomy_run_report"]
         report["selected_action"]["id"] = "verify-current-state"
         self.schemas.validate("autonomy_run_report", report)
         with self.assertRaisesRegex(ContractError, "no_action requires selected_action.id"):
+            validate_artifact_semantics("autonomy_run_report", report)
+
+    def test_autonomy_run_report_semantics_reject_no_action_with_action_payload(self) -> None:
+        fixture = copy.deepcopy(load_json(ROOT / "examples" / "autonomy_no_action_replay_fixture.json"))
+        report = fixture["autonomy_run_report"]
+        report["selected_action"]["target_files"] = ["scripts/verify.py"]
+        report["selected_action"]["verification_commands"] = ["python3 scripts/verify.py"]
+        self.schemas.validate("autonomy_run_report", report)
+        with self.assertRaisesRegex(ContractError, "empty selected_action.target_files"):
             validate_artifact_semantics("autonomy_run_report", report)
 
     def test_all_pipeline_outputs_have_schemas(self) -> None:
@@ -3090,6 +3119,52 @@ raise SystemExit(3)
             checkpoint = load_json(checkpoint_path)
             self.assertEqual(checkpoint["status"], "completed")
             self.assertEqual(checkpoint["artifacts"]["autonomy_run_report"]["decision"], "no_action")
+
+    def test_autonomy_runner_records_no_action_from_empty_self_assessment(self) -> None:
+        spec = importlib.util.spec_from_file_location(
+            "run_next_action", ROOT / "scripts" / "run_next_action.py"
+        )
+        self.assertIsNotNone(spec)
+        self.assertIsNotNone(spec.loader)
+        module = importlib.util.module_from_spec(spec)
+        sys.modules["run_next_action"] = module
+        spec.loader.exec_module(module)
+
+        with (
+            mock.patch.object(module.self_assess, "_run_commands", return_value=[]),
+            mock.patch.object(module.self_assess, "build_report", return_value={"next_actions": []}),
+            tempfile.TemporaryDirectory() as tmp,
+        ):
+            summary = module.run_next_action(
+                action_file=None,
+                run_id="unit-autonomy-none-from-self-assess",
+                output_root=Path(tmp),
+            )
+            self.assertEqual(summary["status"], "no_action")
+            checkpoint = load_json(Path(summary["checkpoint"]))
+            self.assertEqual(checkpoint["status"], "completed")
+            self.assertEqual(checkpoint["artifacts"]["autonomy_run_report"]["selected_action"]["id"], "none")
+
+    def test_autonomy_runner_blocks_no_action_with_payload(self) -> None:
+        spec = importlib.util.spec_from_file_location(
+            "run_next_action", ROOT / "scripts" / "run_next_action.py"
+        )
+        self.assertIsNotNone(spec)
+        self.assertIsNotNone(spec.loader)
+        module = importlib.util.module_from_spec(spec)
+        sys.modules["run_next_action"] = module
+        spec.loader.exec_module(module)
+
+        action = {
+            "id": "none",
+            "title": "No next action",
+            "priority": "P2",
+            "target_files": ["scripts/verify.py"],
+            "verification_commands": ["python3 scripts/verify.py"],
+        }
+        report = module.build_autonomy_report(action, "unit-autonomy-bad-none")
+        self.assertEqual(report["decision"], "blocked")
+        self.assertIn("invalid_no_action_payload", report["boundaries"])
 
     def test_autonomy_runner_rejects_malformed_action_file(self) -> None:
         spec = importlib.util.spec_from_file_location(

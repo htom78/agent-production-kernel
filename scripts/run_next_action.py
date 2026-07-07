@@ -144,10 +144,23 @@ def _select_action(actions: list[Any]) -> dict[str, Any]:
     return boundary_candidate or dict(EMPTY_ACTION)
 
 
+def _is_empty_action(action: dict[str, Any]) -> bool:
+    return (
+        action.get("id") == "none"
+        and action.get("target_files") == []
+        and action.get("verification_commands") == []
+    )
+
+
 def _boundary_for(action: dict[str, Any]) -> tuple[str | None, list[str]]:
     action_id = str(action.get("id", ""))
     if action_id == "none":
-        return None, []
+        if _is_empty_action(action):
+            return None, []
+        return (
+            "no-action sentinel must not include target_files or verification_commands",
+            ["invalid_no_action_payload"],
+        )
     if action_id in BOUNDARY_ACTIONS:
         return BOUNDARY_ACTIONS[action_id]
     target_text = " ".join(str(item) for item in action.get("target_files", []))
@@ -177,7 +190,7 @@ def _run_allowed_commands(action: dict[str, Any]) -> list[dict[str, Any]]:
 def build_autonomy_report(action: dict[str, Any], run_id: str) -> dict[str, Any]:
     reason, boundaries = _boundary_for(action)
     commands: list[dict[str, Any]] = []
-    if action.get("id") == "none":
+    if action.get("id") == "none" and reason is None:
         decision = "no_action"
         reason = "self_assess returned no next action"
     elif reason is not None:

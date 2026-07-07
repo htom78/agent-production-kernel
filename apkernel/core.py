@@ -576,6 +576,8 @@ def _autonomy_run_report_errors(report: dict[str, Any]) -> list[str]:
     errors: list[str] = []
     decision = report.get("decision")
     commands = report.get("commands", [])
+    boundaries = report.get("boundaries", [])
+    selected_action = report.get("selected_action", {})
     if not isinstance(commands, list):
         return ["autonomy_run_report.commands must be an array"]
     for index, command in enumerate(commands):
@@ -589,6 +591,14 @@ def _autonomy_run_report_errors(report: dict[str, Any]) -> list[str]:
         errors.append("autonomy_run_report.decision blocked must not execute commands")
     if decision == "blocked" and not report.get("boundaries"):
         errors.append("autonomy_run_report.decision blocked requires boundaries")
+    if decision == "no_action":
+        if commands:
+            errors.append("autonomy_run_report.decision no_action must not execute commands")
+        if boundaries:
+            errors.append("autonomy_run_report.decision no_action must not record boundaries")
+        action_id = selected_action.get("id") if isinstance(selected_action, dict) else None
+        if action_id != "none":
+            errors.append("autonomy_run_report.decision no_action requires selected_action.id 'none'")
     return errors
 
 

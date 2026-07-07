@@ -1,0 +1,55 @@
+{
+  "autonomy_run_report": {
+    "boundaries": [],
+    "commands": [],
+    "decision": "no_action",
+    "run_id": "autonomy-no-action-fixture",
+    "selected_action": {
+      "id": "none",
+      "priority": "P2",
+      "target_files": [],
+      "title": "No next action",
+      "verification_commands": []
+    },
+    "stop_reason": "self_assess returned no next action",
+    "version": "1.0"
+  },
+  "checkpoints": {
+    "select_next_action": {
+      "artifacts": {
+        "autonomy_run_report": {
+          "boundaries": [],
+          "commands": [],
+          "decision": "no_action",
+          "run_id": "autonomy-no-action-fixture",
+          "selected_action": {
+            "id": "none",
+            "priority": "P2",
+            "target_files": [],
+            "title": "No next action",
+            "verification_commands": []
+          },
+          "stop_reason": "self_assess returned no next action",
+          "version": "1.0"
+        }
+      },
+      "metadata": {
+        "actor_role": "autonomy_runner",
+        "execution_mode": "bounded_runner"
+      },
+      "pipeline": "kernel-autonomy",
+      "pipeline_version": "1.0",
+      "review": {
+        "decision": "pass",
+        "findings": [],
+        "stage": "select_next_action"
+      },
+      "run_id": "autonomy-no-action-fixture",
+      "stage": "select_next_action",
+      "status": "completed",
+      "timestamp": "2026-07-07T00:00:00+00:00",
+      "version": "1.0"
+    }
+  },
+  "version": "1.0"
+}

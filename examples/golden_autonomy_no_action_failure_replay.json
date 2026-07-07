@@ -1,0 +1,29 @@
+{
+  "name": "autonomy-no-action-failure-detected",
+  "pipeline": "kernel-autonomy-no-action",
+  "tags": ["autonomy", "regression", "negative", "no-action"],
+  "expected_result": "fail",
+  "inputs": {
+    "run_id": "autonomy-no-action-fixture"
+  },
+  "mutations": [
+    {
+      "path": "artifacts.autonomy_run_report.selected_action.id",
+      "value": "verify-current-state"
+    }
+  ],
+  "expected_errors_contain": ["autonomy_run_report.selected_action.id"],
+  "expected_artifacts": {
+    "autonomy_run_report": {
+      "decision": "no_action",
+      "selected_action": {
+        "id": "none"
+      }
+    }
+  },
+  "expected_checkpoints": {
+    "select_next_action": {
+      "status": "completed"
+    }
+  }
+}

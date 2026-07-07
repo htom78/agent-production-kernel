@@ -1,0 +1,27 @@
+{
+  "name": "autonomy-runner-records-no-action",
+  "pipeline": "kernel-autonomy-no-action",
+  "tags": ["autonomy", "regression", "no-action"],
+  "inputs": {
+    "run_id": "autonomy-no-action-fixture"
+  },
+  "expected_artifacts": {
+    "autonomy_run_report": {
+      "decision": "no_action",
+      "selected_action": {
+        "id": "none"
+      },
+      "boundaries": [],
+      "commands": []
+    }
+  },
+  "expected_checkpoints": {
+    "select_next_action": {
+      "status": "completed",
+      "metadata": {
+        "actor_role": "autonomy_runner",
+        "execution_mode": "bounded_runner"
+      }
+    }
+  }
+}

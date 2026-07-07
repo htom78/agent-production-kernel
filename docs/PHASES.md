@@ -16,7 +16,8 @@ Delivered:
   pipeline.
 - `pipelines/kernel-autonomy.json` and `scripts/run_next_action.py` add a
   bounded self-driving runner that checkpoints safe execution or blocked
-  boundaries.
+  boundaries. The no-action terminal state is also represented as a completed
+  autonomy checkpoint rather than an implicit absence of work.
 - `packs/registry.json` makes domain packs discoverable instead of hardcoding
   software scenarios in verification scripts.
 
@@ -153,7 +154,8 @@ pipeline manifest + artifact schemas + checkpoints + decision log + verifier
   pipelines.
 - `real_repo_bug_run`, `checkpoint_branch_replay`, and `autonomy_run_report`
   fixtures cover a public bug proof, non-completed checkpoint branches, and
-  bounded self-driving decisions.
+  bounded self-driving decisions, including both blocked external boundaries
+  and an explicit no-action stop state.
 - Semantic false-green tests reject schema-valid but inconsistent artifacts,
   including real-repo commit mismatches and checkpoint state mismatches.
 - `real_repo_corpus_report` records external proof against the target of five

@@ -146,6 +146,8 @@ def _select_action(actions: list[Any]) -> dict[str, Any]:
 
 def _boundary_for(action: dict[str, Any]) -> tuple[str | None, list[str]]:
     action_id = str(action.get("id", ""))
+    if action_id == "none":
+        return None, []
     if action_id in BOUNDARY_ACTIONS:
         return BOUNDARY_ACTIONS[action_id]
     target_text = " ".join(str(item) for item in action.get("target_files", []))

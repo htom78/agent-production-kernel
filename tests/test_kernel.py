@@ -368,12 +368,37 @@ class KernelContractTests(unittest.TestCase):
         self.assertEqual(report["decision"], "blocked")
         self.assertIn("external_repo", report["boundaries"])
 
+    def test_autonomy_no_action_fixture_validates(self) -> None:
+        fixture = load_json(ROOT / "examples" / "autonomy_no_action_replay_fixture.json")
+        report = fixture["autonomy_run_report"]
+        self.schemas.validate("autonomy_run_report", report)
+        validate_artifact_semantics("autonomy_run_report", report)
+        self.assertEqual(report["decision"], "no_action")
+        self.assertEqual(report["selected_action"]["id"], "none")
+        self.assertEqual(fixture["checkpoints"]["select_next_action"]["status"], "completed")
+
     def test_autonomy_run_report_semantics_reject_false_executed_without_commands(self) -> None:
         fixture = copy.deepcopy(load_json(ROOT / "examples" / "autonomy_run_replay_fixture.json"))
         report = fixture["autonomy_run_report"]
         report["decision"] = "executed"
         self.schemas.validate("autonomy_run_report", report)
         with self.assertRaisesRegex(ContractError, "executed requires passing commands"):
+            validate_artifact_semantics("autonomy_run_report", report)
+
+    def test_autonomy_run_report_semantics_reject_no_action_with_boundary(self) -> None:
+        fixture = copy.deepcopy(load_json(ROOT / "examples" / "autonomy_no_action_replay_fixture.json"))
+        report = fixture["autonomy_run_report"]
+        report["boundaries"] = ["unknown_action_handler"]
+        self.schemas.validate("autonomy_run_report", report)
+        with self.assertRaisesRegex(ContractError, "no_action must not record boundaries"):
+            validate_artifact_semantics("autonomy_run_report", report)
+
+    def test_autonomy_run_report_semantics_reject_no_action_for_real_action(self) -> None:
+        fixture = copy.deepcopy(load_json(ROOT / "examples" / "autonomy_no_action_replay_fixture.json"))
+        report = fixture["autonomy_run_report"]
+        report["selected_action"]["id"] = "verify-current-state"
+        self.schemas.validate("autonomy_run_report", report)
+        with self.assertRaisesRegex(ContractError, "no_action requires selected_action.id"):
             validate_artifact_semantics("autonomy_run_report", report)
 
     def test_all_pipeline_outputs_have_schemas(self) -> None:
@@ -3048,6 +3073,24 @@ raise SystemExit(3)
         self.assertEqual(report["decision"], "blocked")
         self.assertIn("external_repo", report["boundaries"])
 
+    def test_autonomy_runner_records_no_action_checkpoint(self) -> None:
+        spec = importlib.util.spec_from_file_location(
+            "run_next_action", ROOT / "scripts" / "run_next_action.py"
+        )
+        self.assertIsNotNone(spec)
+        self.assertIsNotNone(spec.loader)
+        module = importlib.util.module_from_spec(spec)
+        sys.modules["run_next_action"] = module
+        spec.loader.exec_module(module)
+
+        report = module.build_autonomy_report(dict(module.EMPTY_ACTION), "unit-autonomy-none")
+        self.assertEqual(report["decision"], "no_action")
+        with tempfile.TemporaryDirectory() as tmp:
+            checkpoint_path = module.write_autonomy_checkpoint(report, Path(tmp))
+            checkpoint = load_json(checkpoint_path)
+            self.assertEqual(checkpoint["status"], "completed")
+            self.assertEqual(checkpoint["artifacts"]["autonomy_run_report"]["decision"], "no_action")
+
     def test_autonomy_runner_rejects_malformed_action_file(self) -> None:
         spec = importlib.util.spec_from_file_location(
             "run_next_action", ROOT / "scripts" / "run_next_action.py"
@@ -3415,6 +3458,19 @@ raise SystemExit(3)
             if item.name == "autonomy-boundary-failure-detected"
         )
         fixture = load_json(ROOT / "examples" / "autonomy_run_replay_fixture.json")
+        actual = {"autonomy_run_report": fixture["autonomy_run_report"]}
+        result = replay.evaluate(scenario, actual, fixture["checkpoints"])
+        self.assertTrue(result.passed)
+        self.assertTrue(result.errors)
+
+    def test_autonomy_no_action_replay_detects_action_mutation(self) -> None:
+        replay = ReplayHarness(ROOT / "examples")
+        scenario = next(
+            item
+            for item in replay.load_scenarios("autonomy")
+            if item.name == "autonomy-no-action-failure-detected"
+        )
+        fixture = load_json(ROOT / "examples" / "autonomy_no_action_replay_fixture.json")
         actual = {"autonomy_run_report": fixture["autonomy_run_report"]}
         result = replay.evaluate(scenario, actual, fixture["checkpoints"])
         self.assertTrue(result.passed)

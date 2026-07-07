@@ -72,6 +72,13 @@
           "artifact": "autonomy_run_report",
           "artifact_field": "autonomy_run_report",
           "checkpoints_field": "checkpoints"
+        },
+        {
+          "pipeline": "kernel-autonomy-no-action",
+          "fixture_file": "autonomy_no_action_replay_fixture.json",
+          "artifact": "autonomy_run_report",
+          "artifact_field": "autonomy_run_report",
+          "checkpoints_field": "checkpoints"
         }
       ]
     },

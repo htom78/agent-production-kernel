@@ -215,3 +215,8 @@ python3 -m compileall apkernel scripts tests
 It must stop with `decision=blocked` when the selected action involves a real
 external repository, credentials, network cost, destructive operations, unknown
 handlers, or a user choice.
+When self-assessment returns no next action, the runner records
+`decision=no_action` with `selected_action.id=none`, no commands, no boundaries,
+and a completed `kernel-autonomy` checkpoint. Replay includes both the happy
+path and a negative mutation so the system cannot silently relabel a real action
+as a no-op.

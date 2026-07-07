@@ -1,0 +1,28 @@
+{
+  "name": "agent-battle-harness-source-artifact-failure-detected",
+  "pipeline": "agent-battle-harness-input-readiness",
+  "tags": ["battle-harness", "regression", "negative"],
+  "expected_result": "fail",
+  "inputs": {
+    "run_id": "agent-battle-input-readiness-fixture"
+  },
+  "mutations": [
+    {
+      "path": "artifacts.agent_battle_harness_report.judges[0].source_artifact",
+      "value": "generated:forged-judge-report"
+    }
+  ],
+  "expected_errors_contain": ["agent_battle_harness_report.judges missing expected partial item"],
+  "expected_artifacts": {
+    "agent_battle_harness_report": {
+      "judges": [
+        {
+          "role": "architect",
+          "source": "external_agent_report",
+          "source_artifact": "examples/agent_judge_reports/input_readiness/architect.json",
+          "source_artifact_sha256": "sha256:96d33759de6991888e289ab9d63b5a757d40a977f25fa1892577062eed00d2e6"
+        }
+      ]
+    }
+  }
+}

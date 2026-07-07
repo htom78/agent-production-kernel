@@ -180,5 +180,5 @@ pipeline manifest + artifact schemas + checkpoints + decision log + verifier
   when its recorded input run IDs do not match the actual self-assessment and
   battle-report files, or when it is older than the current source evidence.
   The harness audit and semantic validator also block `advance` when those
-  bindings are not file-backed. Negative replay mutates blind-review state to
-  prove the harness catches protocol drift.
+  bindings are not file-backed. Negative replay mutates both blind-review state
+  and source-artifact bindings to prove the harness catches protocol drift.
